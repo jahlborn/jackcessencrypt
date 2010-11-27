@@ -50,38 +50,26 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
   private static final int TRAILING_PWD_LEN = 20;
 
 
-  private final byte[] _pwdDigest;
-  private final byte[] _baseSalt;
+  private final byte[] _encodingKey;
 
   MSISAMCryptCodecHandler(String password, Charset charset, ByteBuffer buffer) 
     throws IOException
   {
     super();
 
-    byte[] encrypted4BytesCheck = new byte[4];
     byte[] salt = new byte[8];
-      
-    int cryptCheckOffset = ByteUtil.getUnsignedByte(buffer, SALT_OFFSET);
-    buffer.position(CRYPT_CHECK_START + cryptCheckOffset);
-    buffer.get(encrypted4BytesCheck);
-
     buffer.position(SALT_OFFSET);
     buffer.get(salt);
 
-    _pwdDigest = createPasswordDigest(buffer, password, charset);
+    // create decryption key parts
+    byte[] pwdDigest = createPasswordDigest(buffer, password, charset);
+    byte[] baseSalt = Arrays.copyOf(salt, SALT_LENGTH);
+    
+    // check password hash using decryption of a known sequence
+    verifyPassword(buffer, concat(pwdDigest, salt), baseSalt);
 
-    _baseSalt = Arrays.copyOf(salt, SALT_LENGTH);
-
-    RC4Engine rc4e = new RC4Engine();
-    rc4e.init(false, new KeyParameter(concat(_pwdDigest, salt)));
-
-    byte[] decrypted4BytesCheck = new byte[4];
-    rc4e.processBytes(encrypted4BytesCheck, 0,
-                      encrypted4BytesCheck.length, decrypted4BytesCheck, 0);
-
-    if (!Arrays.equals(decrypted4BytesCheck, _baseSalt)) {
-      throw new IllegalStateException("Incorrect password provided");
-    }
+    // create final key
+    _encodingKey = concat(pwdDigest, baseSalt);
   }
 
   public static CodecHandler create(String password, PageChannel channel, 
@@ -110,11 +98,25 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
       return;
     }
 
-    byte[] salt = applyPageNumber(_baseSalt, pageNumber);
-
-    byte[] key = concat(_pwdDigest, salt);
-    
+    byte[] key = applyPageNumber(_encodingKey, PASSWORD_DIGEST_LENGTH,
+                                 pageNumber);
     decodePage(buffer, new KeyParameter(key));
+  }
+
+  private void verifyPassword(ByteBuffer buffer, byte[] testEncodingKey,
+                              byte[] testBytes)
+  {
+    RC4Engine engine = getEngine();
+    engine.init(false, new KeyParameter(testEncodingKey));
+
+    byte[] encrypted4BytesCheck = getPasswordTestBytes(buffer);
+    byte[] decrypted4BytesCheck = new byte[4];
+    engine.processBytes(encrypted4BytesCheck, 0,
+                        encrypted4BytesCheck.length, decrypted4BytesCheck, 0);
+
+    if (!Arrays.equals(decrypted4BytesCheck, testBytes)) {
+      throw new IllegalStateException("Incorrect password provided");
+    }
   }
 
   private static byte[] createPasswordDigest(
@@ -195,6 +197,17 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     }
 
     return encodingKey;
+  }
+
+  private static byte[] getPasswordTestBytes(ByteBuffer buffer)
+  {
+    byte[] encrypted4BytesCheck = new byte[4];
+      
+    int cryptCheckOffset = ByteUtil.getUnsignedByte(buffer, SALT_OFFSET);
+    buffer.position(CRYPT_CHECK_START + cryptCheckOffset);
+    buffer.get(encrypted4BytesCheck);
+
+    return encrypted4BytesCheck;
   }
 
   private static byte[] concat(byte[] b1, byte[] b2) {

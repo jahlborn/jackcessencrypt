@@ -37,10 +37,9 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   private RC4Engine _engine;
 
   protected BaseCryptCodecHandler() {
-    _engine = new RC4Engine();
   }
 
-  private RC4Engine getEngine()
+  protected final RC4Engine getEngine()
   {
     if(_engine == null) {
       _engine = new RC4Engine();
@@ -57,6 +56,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    */
   protected void decodePage(ByteBuffer buffer, KeyParameter params) {
     RC4Engine engine = getEngine();
+
     engine.init(false, params);
 
     byte[] array = buffer.array();
@@ -81,16 +81,18 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   }
 
   /**
-   * Returns a copy of the given key withthe bytes of the given pageNumber
-   * applied using XOR.
+   * Returns a copy of the given key with the bytes of the given pageNumber
+   * applied at the given offset using XOR.
    */
-  protected static byte[] applyPageNumber(byte[] key, int pageNumber)
+  protected static byte[] applyPageNumber(byte[] key, int offset, 
+                                          int pageNumber)
   {
-    byte[] tmp = new byte[key.length];
-    ByteBuffer.wrap(tmp).order(PageChannel.DEFAULT_BYTE_ORDER) 
-      .putInt(pageNumber);
+    byte[] tmp = ByteUtil.copyOf(key, key.length);
+    ByteBuffer bb = ByteBuffer.wrap(tmp).order(PageChannel.DEFAULT_BYTE_ORDER);
+    bb.position(offset);
+    bb.putInt(pageNumber);
 
-    for(int i = 0; i < 4; ++i) {
+    for(int i = offset; i < (offset + 4); ++i) {
       tmp[i] ^= key[i];
     }
 

@@ -66,7 +66,7 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
       return;
     }
 
-    byte[] key = applyPageNumber(_encodingKey, pageNumber);
+    byte[] key = applyPageNumber(_encodingKey, 0, pageNumber);
     decodePage(buffer, new KeyParameter(key));
   }
 
