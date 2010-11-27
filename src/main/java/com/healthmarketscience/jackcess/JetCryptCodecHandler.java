@@ -24,17 +24,18 @@ import java.nio.ByteBuffer;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
+ * CodecHandler for Jet databases.
  *
  * @author Vladimir Berezniker
  */
 public class JetCryptCodecHandler extends BaseCryptCodecHandler 
 {
-  private final static int ENCODING_KEY_LENGTH = 0x4;
+  final static int ENCODING_KEY_LENGTH = 0x4;
 
   private final byte[] _encodingKey;
 
-  private JetCryptCodecHandler(byte[] encodingKey, PageChannel channel) {
-    super(channel);
+  JetCryptCodecHandler(byte[] encodingKey) {
+    super();
     _encodingKey = encodingKey;
   }
 
@@ -56,17 +57,21 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     }
 
     return (clearData ? DefaultCodecProvider.DUMMY_HANDLER :
-            new JetCryptCodecHandler(encodingKey, channel));
+            new JetCryptCodecHandler(encodingKey));
   }
 
   public void decodePage(ByteBuffer buffer, int pageNumber) {
-    if(pageNumber == 0) {
+    if((pageNumber == 0) || (pageNumber > getMaxEncodedPage())) {
+      // not encoded
       return;
     }
 
-    byte[] key = ByteUtil.copyOf(_encodingKey, _encodingKey.length);
-    applyPageNumber(key, pageNumber);
+    byte[] key = applyPageNumber(_encodingKey, pageNumber);
     decodePage(buffer, new KeyParameter(key));
   }
 
+  protected int getMaxEncodedPage()
+  {
+    return Integer.MAX_VALUE;
+  }
 }

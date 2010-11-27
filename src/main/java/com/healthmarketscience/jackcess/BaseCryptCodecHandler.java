@@ -28,24 +28,39 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 
 /**
+ * Base CodecHandler support for RC4 encryption based CodecHandlers.
  *
  * @author Vladimir Berezniker
  */
 public abstract class BaseCryptCodecHandler implements CodecHandler
 {
-  private final ByteBuffer _pageNumberBuf;
-  private final RC4Engine _engine;
+  private RC4Engine _engine;
 
-  protected BaseCryptCodecHandler(PageChannel channel) {
-    _pageNumberBuf = channel.createBuffer(4);
+  protected BaseCryptCodecHandler() {
     _engine = new RC4Engine();
   }
 
-  protected void decodePage(ByteBuffer buffer, KeyParameter params) {
-      _engine.init(false, params);
+  private RC4Engine getEngine()
+  {
+    if(_engine == null) {
+      _engine = new RC4Engine();
+    }
+    return _engine;
+  }
 
-      byte[] array = buffer.array();
-      _engine.processBytes(array, 0, array.length, array, 0);
+  /**
+   * Decodes the page in the given buffer (in place) using RC4 decryption with
+   * the given params.
+   *
+   * @param buffer encoded page buffer
+   * @param params RC4 decryption parameters
+   */
+  protected void decodePage(ByteBuffer buffer, KeyParameter params) {
+    RC4Engine engine = getEngine();
+    engine.init(false, params);
+
+    byte[] array = buffer.array();
+    engine.processBytes(array, 0, array.length, array, 0);
   }
 
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
@@ -54,6 +69,9 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
         "Encryption is currently not supported");
   }
 
+  /**
+   * Reads and returns the header page (page 0) from the given pageChannel.
+   */
   protected static ByteBuffer readHeaderPage(PageChannel pageChannel)
     throws IOException
   {
@@ -62,13 +80,21 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     return buffer;
   }
 
-  protected void applyPageNumber(byte[] key, int pageNumber)
+  /**
+   * Returns a copy of the given key withthe bytes of the given pageNumber
+   * applied using XOR.
+   */
+  protected static byte[] applyPageNumber(byte[] key, int pageNumber)
   {
-    _pageNumberBuf.clear();
-    _pageNumberBuf.putInt(pageNumber);
+    byte[] tmp = new byte[key.length];
+    ByteBuffer.wrap(tmp).order(PageChannel.DEFAULT_BYTE_ORDER) 
+      .putInt(pageNumber);
 
     for(int i = 0; i < 4; ++i) {
-      key[i] ^= _pageNumberBuf.get(i);
+      tmp[i] ^= key[i];
     }
+
+    return tmp;
   }
+
 }

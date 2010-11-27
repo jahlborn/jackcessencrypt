@@ -31,40 +31,33 @@ import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
+ * CodecHandler for MSISAM databases.
  *
  * @author Vladimir Berezniker
  */
 public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
 {
-  private final static int SALT_OFFSET = 0x72;
-  private final static int CRYPT_CHECK_START = 0x2e9;
-  private final static int ENCRYPTION_FLAGS_OFFSET = 0x298;
-  private final static int SALT_LENGTH = 0x4;
-  private final static int PASSWORD_LENGTH = 0x28;
-  private final static int USE_SHA1 = 0x20;
-  private final static int PASSWORD_DIGEST_LENGTH = 0x10;
-  private final static int MSISAM_MAX_ENCRYPTED_PAGE = 0xE;
+  private static final int SALT_OFFSET = 0x72;
+  private static final int CRYPT_CHECK_START = 0x2e9;
+  private static final int ENCRYPTION_FLAGS_OFFSET = 0x298;
+  private static final int SALT_LENGTH = 0x4;
+  private static final int PASSWORD_LENGTH = 0x28;
+  private static final int USE_SHA1 = 0x20;
+  private static final int PASSWORD_DIGEST_LENGTH = 0x10;
+  private static final int MSISAM_MAX_ENCRYPTED_PAGE = 0xE;
+   // Modern encryption using hashing
+  private static final int NEW_ENCRYPTION = 0x6;
+  private static final int TRAILING_PWD_LEN = 20;
+
 
   private final byte[] _pwdDigest;
   private final byte[] _baseSalt;
 
-  private final byte[] _salt1;
-  private final byte[] _salt2;
-
-  public MSISAMCryptCodecHandler(String password, PageChannel channel, 
-                                 Charset charset) 
+  MSISAMCryptCodecHandler(String password, Charset charset, ByteBuffer buffer) 
     throws IOException
   {
-    super(channel);
-    ByteBuffer buffer = readHeaderPage(channel);
+    super();
 
-//     // FIXME temp hack
-//     byte[] header = new byte[0x98];
-//     buffer.position(0);
-//     buffer.get(header);
-
-//     System.out.println("FOO db header: \n" + ByteUtil.toHexString(header));
-    
     byte[] encrypted4BytesCheck = new byte[4];
     byte[] salt = new byte[8];
       
@@ -82,28 +75,33 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     RC4Engine rc4e = new RC4Engine();
     rc4e.init(false, new KeyParameter(concat(_pwdDigest, salt)));
 
-//     System.out.println("FOO encrypted bytes " + ByteUtil.toHexString(encrypted4BytesCheck));
-    
     byte[] decrypted4BytesCheck = new byte[4];
     rc4e.processBytes(encrypted4BytesCheck, 0,
                       encrypted4BytesCheck.length, decrypted4BytesCheck, 0);
 
     if (!Arrays.equals(decrypted4BytesCheck, _baseSalt)) {
-      throw new IllegalStateException(
-          String.format(
-              "Decrypted bytes are %s but they should have been %s",
-              ByteUtil.toHexString(decrypted4BytesCheck),
-              ByteUtil.toHexString(_baseSalt)));
+      throw new IllegalStateException("Incorrect password provided");
     }
-//     System.out.println("FOO password passed");
+  }
 
-    _salt1 = new byte[4];
-    _salt2 = new byte[4];
+  public static CodecHandler create(String password, PageChannel channel, 
+                                    Charset charset)
+    throws IOException
+  {
+    ByteBuffer buffer = readHeaderPage(channel);
 
-    buffer.position(SALT_OFFSET);
-    buffer.get(_salt1);
-    buffer.get(_salt2);
+    if ((buffer.get(ENCRYPTION_FLAGS_OFFSET) & NEW_ENCRYPTION) != 0) {
+      return new MSISAMCryptCodecHandler(password, charset, buffer);
+    }
 
+    // old MSISAM dbs use jet-style encryption w/ a different key
+    return new JetCryptCodecHandler(
+        getOldDecryptionKey(buffer, channel.getFormat())) {
+        @Override
+        protected int getMaxEncodedPage() {
+          return MSISAM_MAX_ENCRYPTED_PAGE;
+        }
+      };
   }
 
   public void decodePage(ByteBuffer buffer, int pageNumber) {
@@ -112,8 +110,7 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
       return;
     }
 
-    byte[] salt = ByteUtil.copyOf(_baseSalt, _baseSalt.length);
-    applyPageNumber(salt, pageNumber);
+    byte[] salt = applyPageNumber(_baseSalt, pageNumber);
 
     byte[] key = concat(_pwdDigest, salt);
     
@@ -123,13 +120,9 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
   private static byte[] createPasswordDigest(
       ByteBuffer buffer, String password, Charset charset)
   {
-      Digest digest;
-//       System.out.println("FOO encrypt flags " + buffer.get(ENCRYPTION_FLAGS_OFFSET));
-      if ((buffer.get(ENCRYPTION_FLAGS_OFFSET) & USE_SHA1) != 0) {
-        digest = new SHA1Digest();
-      } else {
-        digest = new MD5Digest();
-      }
+      Digest digest =
+        (((buffer.get(ENCRYPTION_FLAGS_OFFSET) & USE_SHA1) != 0) ?
+         new SHA1Digest() : new MD5Digest());
 
       byte[] passwordBytes = new byte[PASSWORD_LENGTH];
 
@@ -151,9 +144,57 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
         digestBytes = ByteUtil.copyOf(digestBytes, PASSWORD_DIGEST_LENGTH);
       }
 
-//       System.out.println("FOO pwdDigest " + ByteUtil.toHexString(digestBytes));
-
       return digestBytes;
+  }
+
+  private static byte[] getOldDecryptionKey(
+      ByteBuffer buffer, JetFormat format)
+  {
+    byte[] encodingKey = new byte[JetCryptCodecHandler.ENCODING_KEY_LENGTH];
+
+    buffer.position(SALT_OFFSET);
+    buffer.get(encodingKey);
+
+
+    // Hash the salt. Step 1.
+    {
+      final byte[] fullHashData = new byte[format.SIZE_PASSWORD*2];
+      buffer.position(format.OFFSET_PASSWORD);
+      buffer.get(fullHashData);
+
+      // apply additional mask to header data
+      byte[] pwdMask = Database.getPasswordMask(buffer, format);
+      if(pwdMask != null) {
+
+        for(int i = 0; i < format.SIZE_PASSWORD; ++i) {
+          fullHashData[i] ^= pwdMask[i % pwdMask.length];
+        }
+        int trailingOffset = fullHashData.length - TRAILING_PWD_LEN;
+        for(int i = 0; i < TRAILING_PWD_LEN; ++i) {
+          fullHashData[trailingOffset + i] ^= pwdMask[i % pwdMask.length];
+        }
+      }
+
+				
+      final byte[] hashData = new byte[format.SIZE_PASSWORD];
+				
+      for(int pos = 0; pos < format.SIZE_PASSWORD; pos++)
+      {
+        hashData[pos] = fullHashData[pos*2];
+      }
+				
+      hashSalt(encodingKey, hashData);
+    }
+
+    // Hash the salt. Step 2
+    {
+      byte[] jetHeader = new byte[JetFormat.LENGTH_ENGINE_NAME];
+      buffer.position(JetFormat.OFFSET_ENGINE_NAME);
+      buffer.get(jetHeader);
+      hashSalt(encodingKey, jetHeader);
+    }
+
+    return encodingKey;
   }
 
   private static byte[] concat(byte[] b1, byte[] b2) {
@@ -162,5 +203,24 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     System.arraycopy(b2, 0, out, b1.length, b2.length);
     return out;
   }
+
+  private static void hashSalt(byte[] salt, byte[] hashData)
+  {
+    ByteBuffer bb = ByteBuffer.wrap(salt)
+      .order(PageChannel.DEFAULT_BYTE_ORDER); 
+
+    int hash = bb.getInt();
+
+    for(int pos = 0; pos < hashData.length; pos++)
+    {
+      int tmp = hashData[pos] & 0xFF;
+      tmp <<= pos % 0x18;
+      hash ^= tmp;
+    }
+
+    bb.rewind();
+    bb.putInt(hash);
+  }
+	
 
 }

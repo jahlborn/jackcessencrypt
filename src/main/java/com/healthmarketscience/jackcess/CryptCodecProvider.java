@@ -62,7 +62,7 @@ public class CryptCodecProvider implements CodecProvider
       return JetCryptCodecHandler.create(channel);
 
     case MSISAM:
-      return new MSISAMCryptCodecHandler(getPassword(), channel, charset);
+      return MSISAMCryptCodecHandler.create(getPassword(), channel, charset);
 
     default:
       throw new RuntimeException("Unknown codec type " + format.CODEC_TYPE);

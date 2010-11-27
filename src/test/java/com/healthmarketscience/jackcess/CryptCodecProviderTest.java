@@ -41,6 +41,8 @@ public class CryptCodecProviderTest
 
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 
+    dumpDatabase(db);
+
     db.close();
   }
 
