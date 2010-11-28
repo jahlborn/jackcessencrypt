@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import java.util.LinkedHashMap;
 
 import static org.junit.Assert.*;
 
@@ -22,7 +23,7 @@ import static org.junit.Assert.*;
 public class CryptCodecProviderTest 
 {
 
-  @Test
+//   @Test
   public void testMSISAM() throws Exception
   {
     {
@@ -46,18 +47,55 @@ public class CryptCodecProviderTest
     db.close();
   }
 
-//   @Test
+  @Test
   public void testJet() throws Exception
   {
-    File f = new File("/data2/jackcess_test/dbenc.mdb");
-    Database db = Database.open(f, true, true, null, null, 
+    try {
+      Database.open(new File("src/test/data/db-enc.mdb"));
+      fail("UnsupportedOperationException should have been thrown");
+    } catch(UnsupportedOperationException e) {
+      // success
+    }
+
+
+    Database db = Database.open(new File("src/test/data/db-enc.mdb"),
+                                true, true, null, null, 
                                 new CryptCodecProvider());
 
     assertEquals(Database.FileFormat.V2000, db.getFileFormat());
 
-    dumpDatabase(db);
+    doCheckJetDb(db);
 
     db.close();
+
+    db = Database.open(new File("src/test/data/db97-enc.mdb"),
+                       true, true, null, null, 
+                       new CryptCodecProvider());
+
+    assertEquals(Database.FileFormat.V1997, db.getFileFormat());
+
+    doCheckJetDb(db);
+
+    db.close();    
+  }
+
+  private void doCheckJetDb(Database db) throws Exception
+  {
+    Table t = db.getTable("Table1");
+
+    Map<String, Object> expectedRow = new LinkedHashMap<String, Object>();
+    expectedRow.put("ID", 1);
+    expectedRow.put("col1", "hello");
+    expectedRow.put("col2", 0);
+
+    assertEquals(expectedRow, t.getNextRow());
+
+    expectedRow = new LinkedHashMap<String, Object>();
+    expectedRow.put("ID", 2);
+    expectedRow.put("col1", "world");
+    expectedRow.put("col2", 42);
+
+    assertEquals(expectedRow, t.getNextRow());
   }
 
   private static void dumpDbHeader(Database db) throws Exception
