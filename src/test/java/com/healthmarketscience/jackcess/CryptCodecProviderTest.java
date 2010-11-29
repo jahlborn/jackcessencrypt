@@ -1,17 +1,34 @@
-// Copyright (c) 2010 Boomi, Inc.
+/*
+Copyright (c) 2010 James Ahlborn
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
+USA
+*/
 
 package com.healthmarketscience.jackcess;
 
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
-import java.util.LinkedHashMap;
 
 import static org.junit.Assert.*;
 
@@ -23,35 +40,63 @@ import static org.junit.Assert.*;
 public class CryptCodecProviderTest 
 {
 
-//   @Test
+  @Test
   public void testMSISAM() throws Exception
   {
-    {
-      File f = new File("/data2/jackcess_test/db2.mdb");
-      Database db = Database.open(f, true);
-      System.out.println("FOO " + f);
-      dumpDbHeader(db);
-      db.close();
+    try {
+      Database.open(new File("src/test/data/money2001.mny"), true);
+      fail("UnsupportedOperationException should have been thrown");
+    } catch(UnsupportedOperationException e) {
+      // success
     }
 
-    File f = new File("/data2/jackcess_test/blankwithpass.mny");
-//     File f = new File("/data2/jackcess_test/blank.mny");
-//     File f = new File("/data2/jackcess_test/Test-nopwd.mny");
-    Database db = Database.open(f, true, true, null, null, 
-                                new CryptCodecProvider("Test12345"));
+    Database db = Database.open(new File("src/test/data/money2001.mny"),
+                                true, true, null, null, 
+                                new CryptCodecProvider());
 
-    assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
-
-    dumpDatabase(db);
+    doCheckMSISAM2001Db(db);
 
     db.close();
+
+    db = Database.open(new File("src/test/data/money2001-pwd.mny"),
+                       true, true, null, null, 
+                       new CryptCodecProvider());
+
+    doCheckMSISAM2001Db(db);
+
+    db.close();
+
+    db = Database.open(new File("src/test/data/money2008.mny"),
+                       true, true, null, null, 
+                       new CryptCodecProvider());
+
+    doCheckMSISAM2008Db(db);
+
+    db.close();
+
+    try {
+      Database.open(new File("src/test/data/money2008-pwd.mny"),
+                    true, true, null, null, 
+                    new CryptCodecProvider());
+      fail("IllegalStateException should have been thrown");
+    } catch(IllegalStateException e) {
+      // success
+    }
+
+    db = Database.open(new File("src/test/data/money2008-pwd.mny"),
+                       true, true, null, null, 
+                       new CryptCodecProvider("Test12345"));
+
+    doCheckMSISAM2008Db(db);
+
+    db.close();    
   }
 
   @Test
   public void testJet() throws Exception
   {
     try {
-      Database.open(new File("src/test/data/db-enc.mdb"));
+      Database.open(new File("src/test/data/db-enc.mdb"), true);
       fail("UnsupportedOperationException should have been thrown");
     } catch(UnsupportedOperationException e) {
       // success
@@ -83,75 +128,84 @@ public class CryptCodecProviderTest
   {
     Table t = db.getTable("Table1");
 
-    Map<String, Object> expectedRow = new LinkedHashMap<String, Object>();
-    expectedRow.put("ID", 1);
-    expectedRow.put("col1", "hello");
-    expectedRow.put("col2", 0);
-
-    assertEquals(expectedRow, t.getNextRow());
-
-    expectedRow = new LinkedHashMap<String, Object>();
-    expectedRow.put("ID", 2);
-    expectedRow.put("col1", "world");
-    expectedRow.put("col2", 42);
-
-    assertEquals(expectedRow, t.getNextRow());
-  }
-
-  private static void dumpDbHeader(Database db) throws Exception
-  {
-    PageChannel channel = db.getPageChannel();
-
-    ByteBuffer buffer = channel.createPageBuffer();
-    channel.readPage(buffer, 0);
-
-    byte[] header = new byte[0x98];
-    buffer.position(0);
-    buffer.get(header);
-
-    System.out.println("FOO db header: \n" + ByteUtil.toHexString(header));
-  }
-
-  static void dumpDatabase(Database mdb) throws Exception {
-    dumpDatabase(mdb, new PrintWriter(System.out, true));
-  }
-
-  static void dumpTable(Table table) throws Exception {
-    dumpTable(table, new PrintWriter(System.out, true));
-  }
-
-  static void dumpDatabase(Database mdb, PrintWriter writer) throws Exception {
-    writer.println("DATABASE:");
-    for(Table table : mdb) {
-      dumpTable(table, writer);
-    }
-  }
-
-  static void dumpTable(Table table, PrintWriter writer) throws Exception {
-    // make sure all indexes are read
-    for(Index index : table.getIndexes()) {
-      index.initialize();
-    }
+    List<Map<String, Object>> expectedRows = 
+      DatabaseTest.createExpectedTable(
+          DatabaseTest.createExpectedRow(
+              "ID", 1,
+              "col1", "hello",
+              "col2", 0),
+          DatabaseTest.createExpectedRow(
+              "ID", 2,
+              "col1", "world",
+              "col2", 42));
     
-    writer.println("TABLE: " + table.getName());
-    List<String> colNames = new ArrayList<String>();
-    for(Column col : table.getColumns()) {
-      colNames.add(col.getName());
-    }
-    writer.println("COLUMNS: " + colNames);
-    for(Map<String, Object> row : Cursor.createCursor(table)) {
+    DatabaseTest.assertTable(expectedRows, t);
+  }
 
-      // make byte[] printable
-      for(Map.Entry<String, Object> entry : row.entrySet()) {
-        Object v = entry.getValue();
-        if(v instanceof byte[]) {
-          byte[] bv = (byte[])v;
-          entry.setValue(ByteUtil.toHexString(ByteBuffer.wrap(bv), bv.length));
-        }
-      }
-      
-      writer.println(row);
-    }
+  private void doCheckMSISAM2001Db(Database db) throws Exception
+  {
+    assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
+
+    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "FI", "Goal Custom Pool", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "VIEW", "Worksheet Custom Pool", "XACCT", "XMAPACCT", "XMAPSAT", "XPAY"), 
+                 new ArrayList<String>(db.getTableNames()));
+
+    Table t = db.getTable("CRNC");
+
+    Set<String> cols = new HashSet<String>(
+        Arrays.asList("hcrnc", "szName", "lcid", "szIsoCode", "szSymbol"));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 1, "szName", "Argentinean peso", 
+                     "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
+                 t.getNextRow(cols));
+                 
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 2, "szName", "Australian dollar", 
+                     "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
+                 t.getNextRow(cols));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 3, "szName", "Austrian schilling", 
+                     "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
+                 t.getNextRow(cols));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
+                     "szIsoCode", "BEF", "szSymbol", "/BECUS"),
+                 t.getNextRow(cols));
+  }
+
+  private void doCheckMSISAM2008Db(Database db) throws Exception
+  {
+    assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
+
+    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "BILL", "BILL_FLD", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "Feature Expiration Custom Pool", "FI", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PM_RPT", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PREF", "PREF_LIST", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SCHE_TASK", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "Tax Scenario Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "UI_VIEW", "UIE", "UNOTE", "VIEW", "Worksheet Custom Pool", "X_FMLA", "X_ITM", "X_META_REF", "X_PARM", "XACCT", "XBAG", "XMAPACCT", "XMAPSAT", "XMAPSEC", "XPAY", "XSYNCCHUNK"), 
+                 new ArrayList<String>(db.getTableNames()));
+
+    Table t = db.getTable("CRNC");
+
+    Set<String> cols = new HashSet<String>(
+        Arrays.asList("hcrnc", "szName", "lcid", "szIsoCode", "szSymbol"));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 1, "szName", "Argentine peso", 
+                     "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
+                 t.getNextRow(cols));
+                 
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 2, "szName", "Australian dollar", 
+                     "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
+                 t.getNextRow(cols));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 3, "szName", "Austrian schilling", 
+                     "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
+                 t.getNextRow(cols));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
+                     "szIsoCode", "BEF", "szSymbol", "/BEFUS"),
+                 t.getNextRow(cols));
   }
 
 }
