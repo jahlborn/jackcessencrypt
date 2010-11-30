@@ -6,7 +6,7 @@
     <title>Java Library for MS Access Encryption (Jackcess extension)</title>
   </properties>
   <body>
-    <section name="JackcessEncrypt">
+    <section name="Jackcess Encrypt">
       <p>
         Jackcess Encrypt is an extension library for the <a href="http://jackcess.sourceforge.net/">Jackcess</a> project
         which implements support for some forms of Microsoft Access and
