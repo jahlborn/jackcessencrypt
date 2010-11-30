@@ -9,7 +9,7 @@
   <artifactId>jackcess-encrypt</artifactId>
   <name>Jackcess Encrypt</name>
   <description>An add-on to the Jackcess library for handling encryption in MS Access files.</description>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <url>http://jackcessencrypt.sf.net</url>
   <inceptionYear>2010</inceptionYear>
   <developers>
@@ -26,10 +26,10 @@
     <url>https://sourceforge.net/tracker/?group_id=356653&amp;atid=1489281</url>
   </issueManagement>
   <scm>
-    <connection>scm:svn:http://jackcessencrypt.svn.sourceforge.net/svnroot/jackcessencrypt/tags/jackcess-encrypt-1.0.0</connection>
+    <connection>scm:svn:http://jackcessencrypt.svn.sourceforge.net/svnroot/jackcessencrypt/trunk/</connection>
     <!-- read/write svn connection -->
-    <developerConnection>scm:svn:https://jackcessencrypt.svn.sourceforge.net/svnroot/jackcessencrypt/tags/jackcess-encrypt-1.0.0</developerConnection>
-    <url>http://jackcessencrypt.svn.sourceforge.net/viewvc/jackcessencrypt/tags/jackcess-encrypt-1.0.0</url>
+    <developerConnection>scm:svn:https://jackcessencrypt.svn.sourceforge.net/svnroot/jackcessencrypt/trunk/</developerConnection>
+    <url>http://jackcessencrypt.svn.sourceforge.net/viewvc/jackcessencrypt/trunk/</url>
   </scm>
   <build>
     <defaultGoal>install</defaultGoal>
