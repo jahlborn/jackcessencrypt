@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<document>
+  <properties>
+    <author email="jahlborn@users.sf.net">James Ahlborn</author>
+    <title>Java Library for MS Access Encryption (Jackcess extension)</title>
+  </properties>
+  <body>
+    <section name="JackcessEncrypt">
+      <p>
+        Jackcess Encrypt is an extension library for the <a href="http://jackcess.sourceforge.net/">Jackcess</a> project
+        which implements support for some forms of Microsoft Access and
+        Microsoft Money encryption.  Jackcess Encrypt is licensed under the
+
+        <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser General Public License</a>.
+      </p>
+      <p>
+        This project is separate from the main Jackcess project for two main
+        reasons:
+        <ul>
+          <li>The encryption support requires an additional library (<a href="http://www.bouncycastle.org/java.html">Bouncy Castle</a>).
+              Making this support separate from the main Jackcess library
+              allows users to avoid including unnecessary libraries.</li>
+          <li>Sourceforge has <a href="https://sourceforge.net/apps/trac/sourceforge/wiki/Project%20control#ExportControl">restrictions</a>
+              on the distribution of software which use encryption.  Keeping
+              this support in a separate project allows the main Jackcess
+              library to be distributed more freely.</li>
+        </ul>
+      </p>
+    </section>
+    <section name="Sample code">
+      This project's encryption support can be utilized by providing a
+      CryptCodecProvider when opening an Access Database.
+      <ul>
+        <li>Open a Database with normal Jet file encoding:
+          <source>Database db = Database.open(myDbFile, true, true, null, null, new CryptCodecProvider());</source>
+        </li>
+        <li>Open a Database with an encoding which requires a password to
+            decode:
+            <source>Database db = Database.open(myDbFile, true, true, null, null, new CryptCodecProvider("MyDbPassword"));</source>
+        </li>
+      </ul>
+    </section>
+  </body>
+
+</document>
