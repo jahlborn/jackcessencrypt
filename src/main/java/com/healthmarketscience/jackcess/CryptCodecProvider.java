@@ -23,12 +23,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
+ * Implementation of CodecProvider with support for some forms of Microsoft
+ * Access and Microsoft Money file encryption.
  *
  * @author Vladimir Berezniker
  */
 public class CryptCodecProvider implements CodecProvider
 {
-
   private String _password;
 
   public CryptCodecProvider() {
