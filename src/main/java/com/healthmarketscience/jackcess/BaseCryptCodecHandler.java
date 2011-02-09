@@ -70,6 +70,22 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   }
 
   /**
+   * Encodes the page in the given buffer (in place) using RC4 decryption with
+   * the given params.
+   *
+   * @param buffer decoded page buffer
+   * @param params RC4 encryption parameters
+   */
+  protected void encodePage(ByteBuffer buffer, KeyParameter params) {
+    RC4Engine engine = getEngine();
+
+    engine.init(true, params);
+
+    byte[] array = buffer.array();
+    engine.processBytes(array, 0, array.length, array, 0);
+  }
+
+  /**
    * Reads and returns the header page (page 0) from the given pageChannel.
    */
   protected static ByteBuffer readHeaderPage(PageChannel pageChannel)
