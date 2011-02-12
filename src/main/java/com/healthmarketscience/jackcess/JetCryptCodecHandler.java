@@ -34,8 +34,8 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
 
   private final byte[] _encodingKey;
 
-  JetCryptCodecHandler(byte[] encodingKey) {
-    super();
+  JetCryptCodecHandler(PageChannel channel, byte[] encodingKey) {
+    super(channel);
     _encodingKey = encodingKey;
   }
 
@@ -57,11 +57,11 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     }
 
     return (clearData ? DefaultCodecProvider.DUMMY_HANDLER :
-            new JetCryptCodecHandler(encodingKey));
+            new JetCryptCodecHandler(channel, encodingKey));
   }
 
   public void decodePage(ByteBuffer buffer, int pageNumber) {
-    if((pageNumber == 0) || (pageNumber > getMaxEncodedPage())) {
+    if(!isEncryptedPage(pageNumber)) {
       // not encoded
       return;
     }
@@ -70,8 +70,23 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     decodePage(buffer, new KeyParameter(key));
   }
 
+  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber) {
+    if(!isEncryptedPage(pageNumber)) {
+      // not encoded
+      return buffer;
+    }
+
+    byte[] key = applyPageNumber(_encodingKey, 0, pageNumber);
+    return encodePage(buffer, new KeyParameter(key));
+  }
+
   protected int getMaxEncodedPage()
   {
     return Integer.MAX_VALUE;
   }
+
+  private boolean isEncryptedPage(int pageNumber) {
+    return ((pageNumber > 0) && (pageNumber <= getMaxEncodedPage()));
+  }
+
 }

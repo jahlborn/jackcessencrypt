@@ -52,10 +52,10 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
 
   private final byte[] _encodingKey;
 
-  MSISAMCryptCodecHandler(String password, Charset charset, ByteBuffer buffer) 
+  MSISAMCryptCodecHandler(PageChannel channel, String password, Charset charset, ByteBuffer buffer) 
     throws IOException
   {
-    super();
+    super(channel);
 
     byte[] salt = new byte[8];
     buffer.position(SALT_OFFSET);
@@ -79,11 +79,11 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     ByteBuffer buffer = readHeaderPage(channel);
 
     if ((buffer.get(ENCRYPTION_FLAGS_OFFSET) & NEW_ENCRYPTION) != 0) {
-      return new MSISAMCryptCodecHandler(password, charset, buffer);
+      return new MSISAMCryptCodecHandler(channel, password, charset, buffer);
     }
 
     // old MSISAM dbs use jet-style encryption w/ a different key
-    return new JetCryptCodecHandler(
+    return new JetCryptCodecHandler(channel,
         getOldDecryptionKey(buffer, channel.getFormat())) {
         @Override
         protected int getMaxEncodedPage() {
@@ -93,7 +93,7 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
   }
 
   public void decodePage(ByteBuffer buffer, int pageNumber) {
-    if((pageNumber == 0) || (pageNumber > MSISAM_MAX_ENCRYPTED_PAGE)) {
+    if(!isEncryptedPage(pageNumber)) {
       // not encoded
       return;
     }
@@ -101,6 +101,21 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     byte[] key = applyPageNumber(_encodingKey, PASSWORD_DIGEST_LENGTH,
                                  pageNumber);
     decodePage(buffer, new KeyParameter(key));
+  }
+
+  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber) {
+    if(!isEncryptedPage(pageNumber)) {
+      // not encoded
+      return buffer;
+    }
+
+    byte[] key = applyPageNumber(_encodingKey, PASSWORD_DIGEST_LENGTH,
+                                 pageNumber);
+    return encodePage(buffer, new KeyParameter(key));
+  }
+
+  private boolean isEncryptedPage(int pageNumber) {
+    return ((pageNumber > 0) && (pageNumber <= MSISAM_MAX_ENCRYPTED_PAGE));
   }
 
   private void verifyPassword(ByteBuffer buffer, byte[] testEncodingKey,

@@ -34,9 +34,12 @@ import org.bouncycastle.crypto.params.KeyParameter;
  */
 public abstract class BaseCryptCodecHandler implements CodecHandler
 {
+  private final PageChannel _channel;
   private RC4Engine _engine;
+  private TempBufferHolder _encodeBuf;
 
-  protected BaseCryptCodecHandler() {
+  protected BaseCryptCodecHandler(PageChannel channel) {
+    _channel = channel;
   }
 
   protected final RC4Engine getEngine()
@@ -45,6 +48,13 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
       _engine = new RC4Engine();
     }
     return _engine;
+  }
+
+  protected ByteBuffer getTempEncodeBuffer() {
+    if(_encodeBuf == null) {
+      _encodeBuf = TempBufferHolder.newHolder(TempBufferHolder.Type.SOFT, true);
+    }
+    return _encodeBuf.getPageBuffer(_channel);
   }
 
   /**
@@ -76,13 +86,15 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * @param buffer decoded page buffer
    * @param params RC4 encryption parameters
    */
-  protected void encodePage(ByteBuffer buffer, KeyParameter params) {
+  protected ByteBuffer encodePage(ByteBuffer buffer, KeyParameter params) {
     RC4Engine engine = getEngine();
 
     engine.init(true, params);
 
-    byte[] array = buffer.array();
-    engine.processBytes(array, 0, array.length, array, 0);
+    ByteBuffer encodeBuf = getTempEncodeBuffer();
+    byte[] inArray = buffer.array();
+    engine.processBytes(inArray, 0, inArray.length, encodeBuf.array(), 0);
+    return encodeBuf;
   }
 
   /**
