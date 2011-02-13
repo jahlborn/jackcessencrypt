@@ -103,7 +103,9 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     decodePage(buffer, new KeyParameter(key));
   }
 
-  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber) {
+  @Override
+  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
+                               int pageOffset) {
     if(!isEncryptedPage(pageNumber)) {
       // not encoded
       return buffer;
