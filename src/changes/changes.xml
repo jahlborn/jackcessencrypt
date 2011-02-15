@@ -4,7 +4,12 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="1.0,0" date="2010-11-29">
+    <release version="1.0.1" date="TBD">
+      <action dev="jahlborn" type="update">
+        Enable encrypted file write support (experimental).
+      </action>
+    </release>
+    <release version="1.0.0" date="2010-11-29">
       <action dev="jahlborn" type="add">
         Initial project release.
       </action>
