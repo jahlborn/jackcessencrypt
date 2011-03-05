@@ -152,7 +152,7 @@
   <distributionManagement>
     <site>
       <id>jackcessencrypt-build-site</id>
-      <url>scp://shell.sourceforge.net/home/groups/j/ja/jackcessencrypt/htdocs</url>
+      <url>scp://shell.sourceforge.net/home/project-web/jackcessencrypt/htdocs</url>
     </site>    
   </distributionManagement>
   <properties>
