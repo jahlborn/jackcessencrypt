@@ -52,7 +52,8 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
 
   private final byte[] _encodingKey;
 
-  MSISAMCryptCodecHandler(PageChannel channel, String password, Charset charset, ByteBuffer buffer) 
+  MSISAMCryptCodecHandler(PageChannel channel, String password, Charset charset,
+                          ByteBuffer buffer) 
     throws IOException
   {
     super(channel);
@@ -127,6 +128,11 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     engine.init(false, new KeyParameter(testEncodingKey));
 
     byte[] encrypted4BytesCheck = getPasswordTestBytes(buffer);
+    if(isBlankKey(encrypted4BytesCheck)) {
+      // no password?
+      return;
+    }
+    
     byte[] decrypted4BytesCheck = new byte[4];
     engine.processBytes(encrypted4BytesCheck, 0,
                         encrypted4BytesCheck.length, decrypted4BytesCheck, 0);

@@ -127,4 +127,16 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     return tmp;
   }
 
+  /**
+   * @return {@code true} if the given bytes are all 0, {@code false}
+   *         otherwise
+   */
+  protected static boolean isBlankKey(byte[] key) {
+    for (byte byteVal : key) {
+      if (byteVal != 0) {
+        return false;
+      }
+    }
+    return true;
+  }  
 }
