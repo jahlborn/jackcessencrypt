@@ -4,7 +4,7 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="1.0.2" date="TBD">
+    <release version="1.0.2" date="2011-08-17">
       <action dev="jahlborn" type="fix" issue="3376228">
         Fix handling of money 2002 files with no password (thanks to
         hleofxquotes).
