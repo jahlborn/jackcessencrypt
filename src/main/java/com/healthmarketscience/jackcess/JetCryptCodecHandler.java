@@ -49,14 +49,7 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     buffer.position(format.OFFSET_ENCODING_KEY);
     buffer.get(encodingKey);
 
-    boolean clearData = true;
-    for (byte byteVal : encodingKey) {
-      if (byteVal != 0) {
-        clearData = false;
-      }
-    }
-
-    return (clearData ? DefaultCodecProvider.DUMMY_HANDLER :
+    return (isBlankKey(encodingKey) ? DefaultCodecProvider.DUMMY_HANDLER :
             new JetCryptCodecHandler(channel, encodingKey));
   }
 

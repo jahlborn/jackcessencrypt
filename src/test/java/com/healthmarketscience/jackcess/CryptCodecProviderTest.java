@@ -66,6 +66,14 @@ public class CryptCodecProviderTest
 
     db.close();
 
+    db = Database.open(new File("src/test/data/money2002.mny"),
+                       true, true, null, null, 
+                       new CryptCodecProvider());
+
+    doCheckMSISAM2002Db(db);
+
+    db.close();
+
     db = Database.open(new File("src/test/data/money2008.mny"),
                        true, true, null, null, 
                        new CryptCodecProvider());
@@ -123,7 +131,7 @@ public class CryptCodecProviderTest
 
     db.close();    
   }
-
+  
   private void doCheckJetDb(Database db) throws Exception
   {
     Table t = db.getTable("Table1");
@@ -156,6 +164,39 @@ public class CryptCodecProviderTest
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 1, "szName", "Argentinean peso", 
+                     "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
+                 t.getNextRow(cols));
+                 
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 2, "szName", "Australian dollar", 
+                     "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
+                 t.getNextRow(cols));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 3, "szName", "Austrian schilling", 
+                     "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
+                 t.getNextRow(cols));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
+                     "szIsoCode", "BEF", "szSymbol", "/BECUS"),
+                 t.getNextRow(cols));
+  }
+
+  private void doCheckMSISAM2002Db(Database db) throws Exception
+  {
+    assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
+
+    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "BILL", "BILL_FLD", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "FI", "Goal Custom Pool", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "UIE", "UKSavings", "UKWiz", "UKWizAddress", "UKWizCompanyCar", "UKWizLoan", "UKWizMortgage", "UKWizPenScheme", "UKWizPension", "UKWizWillExecutor", "UKWizWillGift", "UKWizWillGuardian", "UKWizWillLovedOne", "UKWizWillMaker", "UKWizWillPerson", "UKWizWillResidue", "UNOTE", "VIEW", "Worksheet Custom Pool", "XACCT", "XBAG", "XMAPACCT", "XMAPSAT", "XPAY"), 
+                 new ArrayList<String>(db.getTableNames()));
+
+    Table t = db.getTable("CRNC");
+
+    Set<String> cols = new HashSet<String>(
+        Arrays.asList("hcrnc", "szName", "lcid", "szIsoCode", "szSymbol"));
+
+    assertEquals(DatabaseTest.createExpectedRow(
+                     "hcrnc", 1, "szName", "Argentinian peso", 
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
                  t.getNextRow(cols));
                  
