@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.healthmarketscience</groupId>
     <artifactId>openhms-parent</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
   </parent>
   <groupId>com.healthmarketscience.jackcess</groupId>
   <artifactId>jackcess-encrypt</artifactId>
@@ -137,8 +137,8 @@
           <minmemory>128m</minmemory>
           <maxmemory>512</maxmemory>
           <links>
-            <list>http://java.sun.com/j2se/1.5.0/docs/api</list>
-            <list>http://java.sun.com/javaee/5/docs/api/</list>
+            <list>http://download.oracle.com/javase/1.5.0/docs/api</list>
+            <list>http://download.oracle.com/javaee/5/api</list>
             <list>http://jackcess.sourceforge.net/apidocs/</list>
             <list>http://www.bouncycastle.org/docs/docs1.5/</list>
           </links>
