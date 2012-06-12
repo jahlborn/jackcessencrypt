@@ -45,9 +45,8 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     ByteBuffer buffer = readHeaderPage(channel);
     JetFormat format = channel.getFormat();
 
-    byte[] encodingKey = new byte[ENCODING_KEY_LENGTH];
-    buffer.position(format.OFFSET_ENCODING_KEY);
-    buffer.get(encodingKey);
+    byte[] encodingKey = ByteUtil.getBytes(buffer, format.OFFSET_ENCODING_KEY, 
+                                           ENCODING_KEY_LENGTH);
 
     return (isBlankKey(encodingKey) ? DefaultCodecProvider.DUMMY_HANDLER :
             new JetCryptCodecHandler(channel, encodingKey));

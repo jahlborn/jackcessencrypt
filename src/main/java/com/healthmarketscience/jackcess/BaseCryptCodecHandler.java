@@ -23,6 +23,7 @@ package com.healthmarketscience.jackcess;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
@@ -34,6 +35,9 @@ import org.bouncycastle.crypto.params.KeyParameter;
  */
 public abstract class BaseCryptCodecHandler implements CodecHandler
 {
+  public static final boolean CIPHER_DECRYPT_MODE = false;
+  public static final boolean CIPHER_ENCRYPT_MODE = true;
+
   private final PageChannel _channel;
   private RC4Engine _engine;
   private TempBufferHolder _encodeBuf;
@@ -67,7 +71,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   protected void decodePage(ByteBuffer buffer, KeyParameter params) {
     RC4Engine engine = getEngine();
 
-    engine.init(false, params);
+    engine.init(CIPHER_DECRYPT_MODE, params);
 
     byte[] array = buffer.array();
     engine.processBytes(array, 0, array.length, array, 0);
@@ -80,8 +84,8 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   }
 
   /**
-   * Encodes the page in the given buffer (in place) using RC4 decryption with
-   * the given params.
+   * Encodes the page in the given buffer to a new buffer using RC4 decryption
+   * with the given params.
    *
    * @param buffer decoded page buffer
    * @param params RC4 encryption parameters
@@ -89,7 +93,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   protected ByteBuffer encodePage(ByteBuffer buffer, KeyParameter params) {
     RC4Engine engine = getEngine();
 
-    engine.init(true, params);
+    engine.init(CIPHER_ENCRYPT_MODE, params);
 
     ByteBuffer encodeBuf = getTempEncodeBuffer();
     byte[] inArray = buffer.array();
@@ -112,11 +116,11 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * Returns a copy of the given key with the bytes of the given pageNumber
    * applied at the given offset using XOR.
    */
-  protected static byte[] applyPageNumber(byte[] key, int offset, 
+  public static byte[] applyPageNumber(byte[] key, int offset, 
                                           int pageNumber)
   {
     byte[] tmp = ByteUtil.copyOf(key, key.length);
-    ByteBuffer bb = ByteBuffer.wrap(tmp).order(PageChannel.DEFAULT_BYTE_ORDER);
+    ByteBuffer bb = wrap(tmp);
     bb.position(offset);
     bb.putInt(pageNumber);
 
@@ -125,6 +129,66 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     }
 
     return tmp;
+  }
+
+  /**
+   * Hashes the given bytes using the given digest and returns the result.
+   */
+  public static byte[] hash(Digest digest, byte[] bytes) {
+    return hash(digest, bytes, null, 0);
+  }
+
+  public static byte[] hash(Digest digest, byte[] bytes1, byte[] bytes2) {
+    return hash(digest, bytes1, bytes2, 0);
+  }
+
+  /**
+   * Hashes the given bytes using the given digest and returns the hash fixed
+   * to the given length.
+   */
+  public static byte[] hash(Digest digest, byte[] bytes, int resultLen) {
+    return hash(digest, bytes, null, resultLen);
+  }
+
+  public static byte[] hash(Digest digest, byte[] bytes1, byte[] bytes2,
+                            int resultLen) {
+    digest.reset();
+
+    digest.update(bytes1, 0, bytes1.length);
+
+    if(bytes2 != null) {
+      digest.update(bytes2, 0, bytes2.length);
+    }
+
+    // Get digest value
+    byte[] digestBytes = new byte[digest.getDigestSize()];
+    digest.doFinal(digestBytes, 0);    
+
+    // adjust to desired length
+    if(resultLen > 0) {
+      digestBytes = fixToLength(digestBytes, resultLen);
+    }
+    
+    return digestBytes;
+  }
+
+  /**
+   * @return a byte array of the given length, truncating or padding the given
+   * byte array as necessary.
+   */
+  public static byte[] fixToLength(byte[] bytes, int len) {
+    if(bytes.length != len) {
+      bytes = ByteUtil.copyOf(bytes, len);
+    } 
+    return bytes;
+  }
+
+  /**
+   * @return a new ByteBuffer wrapping the given bytes with the appropriate
+   *         byte order
+   */
+  public static ByteBuffer wrap(byte[] bytes) {
+    return ByteBuffer.wrap(bytes).order(PageChannel.DEFAULT_BYTE_ORDER);
   }
 
   /**
@@ -139,4 +203,5 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     }
     return true;
   }  
+
 }

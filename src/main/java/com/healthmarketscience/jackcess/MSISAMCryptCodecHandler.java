@@ -58,19 +58,17 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
   {
     super(channel);
 
-    byte[] salt = new byte[8];
-    buffer.position(SALT_OFFSET);
-    buffer.get(salt);
+    byte[] salt = ByteUtil.getBytes(buffer, SALT_OFFSET, 8);
 
     // create decryption key parts
     byte[] pwdDigest = createPasswordDigest(buffer, password, charset);
-    byte[] baseSalt = Arrays.copyOf(salt, SALT_LENGTH);
+    byte[] baseSalt = ByteUtil.copyOf(salt, SALT_LENGTH);
     
     // check password hash using decryption of a known sequence
-    verifyPassword(buffer, concat(pwdDigest, salt), baseSalt);
+    verifyPassword(buffer, ByteUtil.concat(pwdDigest, salt), baseSalt);
 
     // create final key
-    _encodingKey = concat(pwdDigest, baseSalt);
+    _encodingKey = ByteUtil.concat(pwdDigest, baseSalt);
   }
 
   public static CodecHandler create(String password, PageChannel channel, 
@@ -125,7 +123,7 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
                               byte[] testBytes)
   {
     RC4Engine engine = getEngine();
-    engine.init(false, new KeyParameter(testEncodingKey));
+    engine.init(CIPHER_DECRYPT_MODE, new KeyParameter(testEncodingKey));
 
     byte[] encrypted4BytesCheck = getPasswordTestBytes(buffer);
     if(isBlankKey(encrypted4BytesCheck)) {
@@ -158,34 +156,21 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
                Math.min(passwordBytes.length, bb.remaining()));
       }
 
-      digest.update(passwordBytes, 0, passwordBytes.length);
-
       // Get digest value
-      byte[] digestBytes = new byte[digest.getDigestSize()];
-      digest.doFinal(digestBytes, 0);
-      
-      // Truncate to 128 bit to match Max key length as per MSDN
-      if(digestBytes.length != PASSWORD_DIGEST_LENGTH) {
-        digestBytes = ByteUtil.copyOf(digestBytes, PASSWORD_DIGEST_LENGTH);
-      }
-
+      byte[] digestBytes = hash(digest, passwordBytes, PASSWORD_DIGEST_LENGTH);
       return digestBytes;
   }
 
   private static byte[] getOldDecryptionKey(
       ByteBuffer buffer, JetFormat format)
   {
-    byte[] encodingKey = new byte[JetCryptCodecHandler.ENCODING_KEY_LENGTH];
-
-    buffer.position(SALT_OFFSET);
-    buffer.get(encodingKey);
-
+    byte[] encodingKey = ByteUtil.getBytes(
+        buffer, SALT_OFFSET, JetCryptCodecHandler.ENCODING_KEY_LENGTH);
 
     // Hash the salt. Step 1.
     {
-      final byte[] fullHashData = new byte[format.SIZE_PASSWORD*2];
-      buffer.position(format.OFFSET_PASSWORD);
-      buffer.get(fullHashData);
+      final byte[] fullHashData = ByteUtil.getBytes(
+          buffer, format.OFFSET_PASSWORD, format.SIZE_PASSWORD*2);
 
       // apply additional mask to header data
       byte[] pwdMask = Database.getPasswordMask(buffer, format);
@@ -213,9 +198,8 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
 
     // Hash the salt. Step 2
     {
-      byte[] jetHeader = new byte[JetFormat.LENGTH_ENGINE_NAME];
-      buffer.position(JetFormat.OFFSET_ENGINE_NAME);
-      buffer.get(jetHeader);
+      byte[] jetHeader = ByteUtil.getBytes(
+          buffer, JetFormat.OFFSET_ENGINE_NAME, JetFormat.LENGTH_ENGINE_NAME);
       hashSalt(encodingKey, jetHeader);
     }
 
@@ -223,27 +207,14 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
   }
 
   private static byte[] getPasswordTestBytes(ByteBuffer buffer)
-  {
-    byte[] encrypted4BytesCheck = new byte[4];
-      
+  {      
     int cryptCheckOffset = ByteUtil.getUnsignedByte(buffer, SALT_OFFSET);
-    buffer.position(CRYPT_CHECK_START + cryptCheckOffset);
-    buffer.get(encrypted4BytesCheck);
-
-    return encrypted4BytesCheck;
-  }
-
-  private static byte[] concat(byte[] b1, byte[] b2) {
-    byte[] out = new byte[b1.length + b2.length];
-    System.arraycopy(b1, 0, out, 0, b1.length);
-    System.arraycopy(b2, 0, out, b1.length, b2.length);
-    return out;
+    return ByteUtil.getBytes(buffer, CRYPT_CHECK_START + cryptCheckOffset, 4);
   }
 
   private static void hashSalt(byte[] salt, byte[] hashData)
   {
-    ByteBuffer bb = ByteBuffer.wrap(salt)
-      .order(PageChannel.DEFAULT_BYTE_ORDER); 
+    ByteBuffer bb = wrap(salt);
 
     int hash = bb.getInt();
 
