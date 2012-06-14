@@ -88,16 +88,24 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * with the given params.
    *
    * @param buffer decoded page buffer
+   * @param pageOffset offset within the page at which to start encoding the
+   *                   page data
    * @param params RC4 encryption parameters
    */
-  protected ByteBuffer encodePage(ByteBuffer buffer, KeyParameter params) {
+  protected ByteBuffer encodePage(ByteBuffer buffer, int pageOffset,
+                                  KeyParameter params) {
     RC4Engine engine = getEngine();
 
     engine.init(CIPHER_ENCRYPT_MODE, params);
 
+    int limit = buffer.limit();
     ByteBuffer encodeBuf = getTempEncodeBuffer();
+    encodeBuf.clear();
     byte[] inArray = buffer.array();
-    engine.processBytes(inArray, 0, inArray.length, encodeBuf.array(), 0);
+    // note, we always start encoding at offset 0 so that we apply the cipher
+    // to the correct part of the stream.  however, we can stop when we get to
+    // the limit.
+    engine.processBytes(inArray, 0, limit, encodeBuf.array(), 0);
     return encodeBuf;
   }
 

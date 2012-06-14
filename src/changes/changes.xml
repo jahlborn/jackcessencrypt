@@ -8,6 +8,11 @@
       <action dev="jahlborn" type="update">
         Add osgi bundle support to manifest.
       </action>
+      <action dev="jahlborn" type="fix" issue="3532251">
+        Update to latest CodecHandler changes for correctly handling partial
+        page writing.  (this version of Jackcess Encrypt requires Jackcess
+        1.2.8 or later).
+      </action>
     </release>
     <release version="1.0.2" date="2011-08-17">
       <action dev="jahlborn" type="fix" issue="3376228">

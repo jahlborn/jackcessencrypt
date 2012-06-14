@@ -52,6 +52,12 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
             new JetCryptCodecHandler(channel, encodingKey));
   }
 
+  public boolean canEncodePartialPage() {
+    // RC4 ciphers are not influenced by the page contents, so we can easily
+    // encode part of the buffer.
+    return true;
+  }
+
   public void decodePage(ByteBuffer buffer, int pageNumber) {
     if(!isEncryptedPage(pageNumber)) {
       // not encoded
@@ -71,7 +77,7 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     }
 
     byte[] key = applyPageNumber(_encodingKey, 0, pageNumber);
-    return encodePage(buffer, new KeyParameter(key));
+    return encodePage(buffer, pageOffset, new KeyParameter(key));
   }
 
   protected int getMaxEncodedPage()

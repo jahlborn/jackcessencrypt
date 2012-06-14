@@ -91,6 +91,12 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
       };
   }
 
+  public boolean canEncodePartialPage() {
+    // RC4 ciphers are not influenced by the page contents, so we can easily
+    // encode part of the buffer.
+    return true;
+  }
+
   public void decodePage(ByteBuffer buffer, int pageNumber) {
     if(!isEncryptedPage(pageNumber)) {
       // not encoded
@@ -112,7 +118,7 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
 
     byte[] key = applyPageNumber(_encodingKey, PASSWORD_DIGEST_LENGTH,
                                  pageNumber);
-    return encodePage(buffer, new KeyParameter(key));
+    return encodePage(buffer, pageOffset, new KeyParameter(key));
   }
 
   private boolean isEncryptedPage(int pageNumber) {
