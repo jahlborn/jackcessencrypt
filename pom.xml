@@ -122,7 +122,7 @@
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>1.2.8-SNAPSHOT</version>
+      <version>1.2.8</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -132,7 +132,7 @@
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>1.2.8-SNAPSHOT</version>
+      <version>1.2.8</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
