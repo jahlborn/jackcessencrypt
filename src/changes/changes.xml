@@ -4,7 +4,7 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="1.0.3" date="TBD">
+    <release version="1.0.3" date="2012-07-11">
       <action dev="jahlborn" type="update">
         Add osgi bundle support to manifest.
       </action>
