@@ -21,6 +21,17 @@
       <timezone>-5</timezone>
     </developer>
   </developers>
+  <contributors>
+    <contributor>
+      <name>Vladimir Berezniker</name>
+      <email>vmpn@vmpn.net</email>
+      <url>http://www.linkedin.com/in/vladimirberezniker</url>
+      <roles>
+        <role>Deciphered various encryption algorithms</role>
+      </roles>
+      <timezone>-5</timezone>      
+    </contributor>
+  </contributors>
   <issueManagement>
     <system>SourceForge</system>
     <url>https://sourceforge.net/p/jackcessencrypt/bugs/</url>
