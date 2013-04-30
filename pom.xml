@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.healthmarketscience</groupId>
     <artifactId>openhms-parent</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.12</version>
   </parent>
   <groupId>com.healthmarketscience.jackcess</groupId>
   <artifactId>jackcess-encrypt</artifactId>
@@ -23,13 +23,13 @@
   </developers>
   <issueManagement>
     <system>SourceForge</system>
-    <url>https://sourceforge.net/tracker/?group_id=356653&amp;atid=1489281</url>
+    <url>https://sourceforge.net/p/jackcessencrypt/bugs/</url>
   </issueManagement>
   <scm>
-    <connection>scm:svn:http://jackcessencrypt.svn.sourceforge.net/svnroot/jackcessencrypt/trunk/</connection>
+    <connection>scm:svn:svn://svn.code.sf.net/p/jackcessencrypt/code/trunk/</connection>
     <!-- read/write svn connection -->
-    <developerConnection>scm:svn:https://jackcessencrypt.svn.sourceforge.net/svnroot/jackcessencrypt/trunk/</developerConnection>
-    <url>http://jackcessencrypt.svn.sourceforge.net/viewvc/jackcessencrypt/trunk/</url>
+    <developerConnection>scm:svn:svn+ssh://svn.code.sf.net/p/jackcessencrypt/code/trunk/</developerConnection>
+    <url>http://svn.code.sf.net/p/jackcessencrypt/code/trunk/</url>
   </scm>
   <build>
     <defaultGoal>install</defaultGoal>
