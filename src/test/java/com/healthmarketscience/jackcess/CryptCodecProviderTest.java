@@ -132,6 +132,34 @@ public class CryptCodecProviderTest
     db.close();    
   }
   
+  @Test
+  public void testOfficeEncryption() throws Exception
+  {
+    try {
+      Database.open(new File("src/test/data/db2007-oldenc.accdb"), true);
+      fail("UnsupportedOperationException should have been thrown");
+    } catch(UnsupportedOperationException e) {
+      // success
+    }
+
+    Database db = Database.open(new File("src/test/data/db2007-oldenc.accdb"), false, false, null, null, new CryptCodecProvider("Test123"));
+
+    Table t = db.getSystemTable("MSysQueries");
+    System.out.println("FOO " + t);
+
+    // for(Index index : t.getIndexes()) {
+    //   index.initialize();
+    //   System.out.println("FOO idx " + index);
+    // }
+
+    // for(Column col : t.getColumns()) {
+    //   System.out.println("FOO props " + col.getName() + "; " + col.getProperties());
+    // }
+    // System.out.println("FOO row " + t.getNextRow());
+
+    db.close();
+  }
+
   private void doCheckJetDb(Database db) throws Exception
   {
     Table t = db.getTable("Table1");
