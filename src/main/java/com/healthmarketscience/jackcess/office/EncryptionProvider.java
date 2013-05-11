@@ -39,6 +39,7 @@ public abstract class EncryptionProvider
   static final Charset UNICODE_CHARSET = Charset.forName("UTF-16LE");
   private static final int MAX_PASSWORD_LEN = 255;
 
+  private final byte[] _encodingKey;
   private Digest _digest;
   private StreamCipher _cipher;
   private final KeyCache<byte[]> _keyCache = new KeyCache<byte[]>() {
@@ -48,13 +49,14 @@ public abstract class EncryptionProvider
   };
   private ByteBuffer _tempIntBuf;
 
-  protected EncryptionProvider() 
+  protected EncryptionProvider(byte[] encodingKey) 
   {
-
+    _encodingKey = encodingKey;
   }
 
   public static EncryptionProvider create(ByteBuffer encProvBuf, 
-                                          String password)
+                                          String password,
+                                          byte[] encodingKey)
   {
     // read encoding provider version
     // uint (2.1.4 Version)
@@ -97,7 +99,8 @@ public abstract class EncryptionProvider
 
         } else {
           // OC: 2.3.5.1 - RC4 CryptoAPI Encryption: (2,3,4),2
-          provider = new RC4CryptoAPIProvider(encProvBuf, pwdBytes);
+          provider = new RC4CryptoAPIProvider(encProvBuf, pwdBytes, 
+                                              encodingKey);
         }
       }
     }
@@ -113,6 +116,10 @@ public abstract class EncryptionProvider
     }
 
     return provider;
+  }
+
+  protected byte[] getEncodingKey() {
+    return _encodingKey;
   }
 
   protected Digest getDigest() {

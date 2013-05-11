@@ -45,8 +45,10 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
   private final int _encKeyByteSize;
   private final byte[] _pwdBytes;
 
-  public RC4CryptoAPIProvider(ByteBuffer encProvBuf, byte[] pwdBytes) 
+  public RC4CryptoAPIProvider(ByteBuffer encProvBuf, byte[] pwdBytes,
+                              byte[] encodingKey) 
   {
+    super(encodingKey);
     _pwdBytes = pwdBytes;
     _header = readEncryptionHeader(encProvBuf);
     System.out.println("FOO header " + _header.getCspName());
@@ -95,27 +97,28 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
 
   @Override
   protected byte[] getEncryptionKey(int pageNumber) {
+    // when actually decryting pages, we incorporate the "encoding key"
+    return getEncryptionKey(BaseCryptCodecHandler.applyPageNumber(
+                                getEncodingKey(), 0, pageNumber));
+  }
+
+  private byte[] getEncryptionKey(byte[] blockBytes) {
+
     // OC: 2.3.5.2 (part 2)
     byte[] encKey = BaseCryptCodecHandler.hash(getDigest(), 
                                                _baseHash,
-                                               int2bytes(pageNumber), 
+                                               blockBytes, 
                                                _encKeyByteSize);
     if(_header.getKeySize() == 40) {
       encKey = ByteUtil.copyOf(encKey, 128/8);
     }
     return encKey;
-
-    // return BaseCryptCodecHandler.applyPageNumber(
-    //     ByteUtil.concat(_baseHash, _verifier.getSalt()), 16, pageNumber);
-
-    // FIXME
-    // return cryptDeriveKey(_pwdBytes, pageNumber, _verifier.getSalt(),
-    //                       50000, _encKeyByteSize);
   }
 
   @Override
   protected boolean verifyPassword(String password) {
-    byte[] encKey = getEncryptionKey(0);
+
+    byte[] encKey = getEncryptionKey(int2bytes(0));
     StreamCipher cipher = getCipher();
     cipher.init(false, new KeyParameter(encKey));
     

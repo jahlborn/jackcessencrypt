@@ -124,9 +124,8 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * Returns a copy of the given key with the bytes of the given pageNumber
    * applied at the given offset using XOR.
    */
-  public static byte[] applyPageNumber(byte[] key, int offset, 
-                                          int pageNumber)
-  {
+  public static byte[] applyPageNumber(byte[] key, int offset, int pageNumber) {
+    
     byte[] tmp = ByteUtil.copyOf(key, key.length);
     ByteBuffer bb = wrap(tmp);
     bb.position(offset);
