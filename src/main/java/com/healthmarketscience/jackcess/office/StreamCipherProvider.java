@@ -52,17 +52,11 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
   @Override
   protected void decodePageImpl(ByteBuffer buffer, int pageNumber) 
   {
-    System.out.println("FOO decoding page " + pageNumber);
-
-    // System.out.println("FOO enc page\n" + ByteUtil.toHexString(buffer, 0, 200));
-
     StreamCipher cipher = getCipher();
     cipher.init(CIPHER_DECRYPT_MODE, getEncryptionKey(pageNumber));
 
     byte[] array = buffer.array();
     cipher.processBytes(array, 0, array.length, array, 0);
-
-    // System.out.println("FOO dec page\n" + ByteUtil.toHexString(buffer, 0, 200));
   }
 
   @Override

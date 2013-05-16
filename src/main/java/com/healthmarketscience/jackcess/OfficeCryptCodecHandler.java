@@ -75,26 +75,16 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
       return DefaultCodecProvider.DUMMY_HANDLER;
     }
 
-    System.out.println("FOO creating office handler");
-
-    System.out.println("FOO header\n" + ByteUtil.toHexString(buffer, 0, 0xa0));
-
     short infoLen = buffer.getShort(CRYPT_STRUCTURE_OFFSET);
-    System.out.println("FOO info len " + infoLen);
 
     ByteBuffer encProvBuf = 
       wrap(ByteUtil.getBytes(buffer, CRYPT_STRUCTURE_OFFSET + 2, infoLen));
-    
-    System.out.println("FOO info: " + ByteUtil.toHexString(encProvBuf, 0, encProvBuf.remaining()));
-
 
     // read encoding provider version
     // uint (2.1.4 Version)
     int vMajor = ByteUtil.getUnsignedShort(encProvBuf);
     // uint
     int vMinor = ByteUtil.getUnsignedShort(encProvBuf);
-
-    System.out.println("FOO ver " + vMajor + " " + vMinor);
 
     byte[] pwdBytes = getPasswordBytes(password);
 

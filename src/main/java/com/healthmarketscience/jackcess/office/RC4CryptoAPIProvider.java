@@ -49,7 +49,6 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
   {
     super(channel, encodingKey);
     _header = readEncryptionHeader(encProvBuf);
-    System.out.println("FOO header " + _header.getCspName());
 
     // verify some expected header values
     if(_header.getCryptoAlgorithm() != EncryptionHeader.CryptoAlgorithm.RC4) {

@@ -133,8 +133,6 @@ public class AgileEncryptionProvider extends BlockCipherProvider
       testHash = fixToLength(testHash, hashLen);
     }
 
-    System.out.println("FOO agile comparing " + Arrays.toString(verifierHash) +
-                       " and " + Arrays.toString(testHash));
     return Arrays.equals(verifierHash, testHash);
   }
 

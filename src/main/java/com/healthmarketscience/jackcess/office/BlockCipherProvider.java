@@ -75,10 +75,6 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   @Override
   protected void decodePageImpl(ByteBuffer buffer, int pageNumber) 
   {
-    System.out.println("FOO decoding page " + pageNumber);
-
-    // System.out.println("FOO enc page\n" + ByteUtil.toHexString(buffer, 0, 200));
-
     BufferedBlockCipher cipher = getCipher();
     cipher.init(CIPHER_DECRYPT_MODE, getEncryptionKey(pageNumber));
 
@@ -89,8 +85,6 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
-
-    // System.out.println("FOO dec page\n" + ByteUtil.toHexString(buffer, 0, 200));
   }
 
   @Override
