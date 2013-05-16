@@ -22,6 +22,7 @@ package com.healthmarketscience.jackcess;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.engines.RC4Engine;
@@ -78,7 +79,9 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   }
 
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
-                               int pageOffset) {
+                               int pageOffset) 
+    throws IOException
+  {
     throw new UnsupportedOperationException(
         "Encryption is currently not supported");
   }
@@ -107,6 +110,11 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     // the limit.
     engine.processBytes(inArray, 0, limit, encodeBuf.array(), 0);
     return encodeBuf;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
   }
 
   /**
@@ -184,8 +192,20 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * byte array as necessary.
    */
   public static byte[] fixToLength(byte[] bytes, int len) {
-    if(bytes.length != len) {
+    return fixToLength(bytes, len, 0);
+  }
+
+  /**
+   * @return a byte array of the given length, truncating or padding the given
+   * byte array as necessary using the given padByte.
+   */
+  public static byte[] fixToLength(byte[] bytes, int len, int padByte) {
+    int byteLen = bytes.length;
+    if(byteLen != len) {
       bytes = ByteUtil.copyOf(bytes, len);
+      if(byteLen < len) {
+        Arrays.fill(bytes, byteLen, len, (byte)padByte);
+      }
     } 
     return bytes;
   }

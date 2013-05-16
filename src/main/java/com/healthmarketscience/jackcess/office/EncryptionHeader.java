@@ -21,6 +21,7 @@ package com.healthmarketscience.jackcess.office;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
 import com.healthmarketscience.jackcess.ByteUtil;
 import com.healthmarketscience.jackcess.UnsupportedCodecException;
@@ -31,10 +32,12 @@ import com.healthmarketscience.jackcess.UnsupportedCodecException;
  */
 public class EncryptionHeader 
 {
-  static final int FCRYPTO_API_FLAG = 0x04;
-  static final int FDOC_PROPS_FLAG = 0x08;
-  static final int FEXTERNAL_FLAG = 0x10;
-  static final int FAES_FLAG = 0x20;
+  public static final Charset UNICODE_CHARSET = Charset.forName("UTF-16LE");
+
+  public static final int FCRYPTO_API_FLAG = 0x04;
+  public static final int FDOC_PROPS_FLAG = 0x08;
+  public static final int FEXTERNAL_FLAG = 0x10;
+  public static final int FAES_FLAG = 0x20;
 
   private static final int ALGID_FLAGS   = 0;
   private static final int ALGID_RC4     = 0x6801;
@@ -197,8 +200,7 @@ public class EncryptionHeader
     if(rem > 0) {
 
       ByteBuffer cspNameBuf = ByteBuffer.wrap(ByteUtil.getBytes(buffer, rem));
-      CharBuffer tmpCspName = 
-        EncryptionProvider.UNICODE_CHARSET.decode(cspNameBuf);
+      CharBuffer tmpCspName = UNICODE_CHARSET.decode(cspNameBuf);
 
       // should be null terminated, strip that
       for(int i = 0; i < tmpCspName.limit(); ++i) {
@@ -214,7 +216,7 @@ public class EncryptionHeader
     return cspName;
   }
   
-  static boolean isFlagSet(int flagsVal, int flagMask)
+  public static boolean isFlagSet(int flagsVal, int flagMask)
   {
     return ((flagsVal & flagMask) != 0);
   }

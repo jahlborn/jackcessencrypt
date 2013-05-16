@@ -71,6 +71,16 @@
             </systemProperties>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.5</source>
+            <target>1.5</target>
+            <compilerArgument>-Xlint:all,-cast</compilerArgument>
+            <showWarnings>true</showWarnings>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>    
     <plugins>
@@ -129,6 +139,62 @@
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.sun.tools.xjc.maven2</groupId>
+        <artifactId>maven-jaxb-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>jaxb1</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <generatePackage>com.healthmarketscience.jackcess.cryptmodel</generatePackage>
+              <includeSchemas>
+                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/encryptionInfo.xsd</includeSchema>
+              </includeSchemas>
+            </configuration>  
+          </execution>
+          <execution>
+            <id>jaxb2</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <generatePackage>com.healthmarketscience.jackcess.cryptmodel.password</generatePackage>
+              <includeSchemas>
+                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/encryptionInfo.xsd</includeSchema>
+                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/passwordEncryptor.xsd</includeSchema>
+              </includeSchemas>
+            </configuration>  
+          </execution>
+          <execution>
+            <id>jaxb3</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <generatePackage>com.healthmarketscience.jackcess.cryptmodel.cert</generatePackage>
+              <includeSchemas>
+                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/certificateEncryptor.xsd</includeSchema>
+              </includeSchemas>
+            </configuration>  
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <version>2.1.9</version>
+          </dependency>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.1.9</version>
+          </dependency>          
+        </dependencies>
       </plugin>
     </plugins>
   </build>

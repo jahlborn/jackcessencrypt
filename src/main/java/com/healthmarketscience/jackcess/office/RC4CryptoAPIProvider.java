@@ -22,8 +22,8 @@ package com.healthmarketscience.jackcess.office;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.healthmarketscience.jackcess.BaseCryptCodecHandler;
 import com.healthmarketscience.jackcess.ByteUtil;
+import com.healthmarketscience.jackcess.PageChannel;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -34,7 +34,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
  *
  * @author James Ahlborn
  */
-public class RC4CryptoAPIProvider extends EncryptionProvider 
+public class RC4CryptoAPIProvider extends StreamCipherProvider 
 {
   private static final int MIN_KEY_SIZE = 0x28;
   private static final int MAX_KEY_SIZE = 0x80;
@@ -43,13 +43,11 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
   private final EncryptionVerifier _verifier;
   private final byte[] _baseHash;
   private final int _encKeyByteSize;
-  private final byte[] _pwdBytes;
 
-  public RC4CryptoAPIProvider(ByteBuffer encProvBuf, byte[] pwdBytes,
-                              byte[] encodingKey) 
+  public RC4CryptoAPIProvider(PageChannel channel, byte[] encodingKey,
+                              ByteBuffer encProvBuf, byte[] pwdBytes) 
   {
-    super(encodingKey);
-    _pwdBytes = pwdBytes;
+    super(channel, encodingKey);
     _header = readEncryptionHeader(encProvBuf);
     System.out.println("FOO header " + _header.getCspName());
 
@@ -79,10 +77,15 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
     Digest digest = getDigest();
 
     // OC: 2.3.5.2 (part 1)
-    _baseHash = BaseCryptCodecHandler.hash(
-        digest, _verifier.getSalt(), pwdBytes);
+    _baseHash = hash(digest, _verifier.getSalt(), pwdBytes);
     // FIXME, something diff for 40 bits here?
-    _encKeyByteSize = _header.getKeySize() / 8;
+    _encKeyByteSize =  bits2bytes(_header.getKeySize());
+  }
+
+  public boolean canEncodePartialPage() {
+    // RC4 ciphers are not influenced by the page contents, so we can easily
+    // encode part of the buffer.
+    return true;
   }
 
   @Override
@@ -96,41 +99,36 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
   }
 
   @Override
-  protected byte[] getEncryptionKey(int pageNumber) {
-    // when actually decryting pages, we incorporate the "encoding key"
-    return getEncryptionKey(BaseCryptCodecHandler.applyPageNumber(
-                                getEncodingKey(), 0, pageNumber));
+  protected KeyParameter computeEncryptionKey(int pageNumber) {
+    // when actually decrypting pages, we incorporate the "encoding key"
+    return computeEncryptionKey(
+        applyPageNumber(getEncodingKey(), 0, pageNumber));
   }
 
-  private byte[] getEncryptionKey(byte[] blockBytes) {
+  private KeyParameter computeEncryptionKey(byte[] blockBytes) {
 
     // OC: 2.3.5.2 (part 2)
-    byte[] encKey = BaseCryptCodecHandler.hash(getDigest(), 
-                                               _baseHash,
-                                               blockBytes, 
-                                               _encKeyByteSize);
+    byte[] encKey = hash(getDigest(), _baseHash, blockBytes, _encKeyByteSize);
     if(_header.getKeySize() == 40) {
-      encKey = ByteUtil.copyOf(encKey, 128/8);
+      encKey = ByteUtil.copyOf(encKey, bits2bytes(128));
     }
-    return encKey;
+    return new KeyParameter(encKey);
   }
 
   @Override
-  protected boolean verifyPassword(String password) {
+  protected boolean verifyPassword(byte[] pwdBytes) {
 
-    byte[] encKey = getEncryptionKey(int2bytes(0));
+    KeyParameter encKey = computeEncryptionKey(int2bytes(0));
     StreamCipher cipher = getCipher();
-    cipher.init(false, new KeyParameter(encKey));
+    cipher.init(CIPHER_DECRYPT_MODE, encKey);
     
     byte[] verifier = decryptBytes(cipher, _verifier.getEncryptedVerifier());
     byte[] verifierHash = 
-      BaseCryptCodecHandler.fixToLength(
-          decryptBytes(cipher, _verifier.getEncryptedVerifierHash()),
-          _verifier.getVerifierHashSize());
+      fixToLength(decryptBytes(cipher, _verifier.getEncryptedVerifierHash()),
+                  _verifier.getVerifierHashSize());
 
-    byte[] testHash = BaseCryptCodecHandler.fixToLength(
-        BaseCryptCodecHandler.hash(getDigest(), verifier),
-        _verifier.getVerifierHashSize());
+    byte[] testHash = fixToLength(hash(getDigest(), verifier),
+                                  _verifier.getVerifierHashSize());
 
     return Arrays.equals(verifierHash, testHash);
   }
@@ -141,20 +139,16 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
     Digest digest = getDigest();
 
     // OC: 2.3.4.7
-    byte[] baseHash = BaseCryptCodecHandler.hash(
-        digest, salt, pwdBytes);
+    byte[] baseHash = hash(digest, salt, pwdBytes);
 
     byte[] iterHash = iterateHash(baseHash, iterations);
 
-    byte[] finalHash = BaseCryptCodecHandler.hash(
-        digest, iterHash, int2bytes(pageNumber));
+    byte[] finalHash = hash(digest, iterHash, int2bytes(pageNumber));
 
-    byte[] x1 = BaseCryptCodecHandler.hash(
-        digest, genXBytes(finalHash, (byte)0x36));
-    byte[] x2 = BaseCryptCodecHandler.hash(
-        digest, genXBytes(finalHash, (byte)0x5C));
+    byte[] x1 = hash(digest, genXBytes(finalHash, (byte)0x36));
+    byte[] x2 = hash(digest, genXBytes(finalHash, (byte)0x5C));
     
-    return BaseCryptCodecHandler.fixToLength(ByteUtil.concat(x1, x2), keyByteLen);
+    return fixToLength(ByteUtil.concat(x1, x2), keyByteLen);
   }
 
   private static byte[] genXBytes(byte[] finalHash, byte code) {
@@ -166,12 +160,5 @@ public class RC4CryptoAPIProvider extends EncryptionProvider
     }
 
     return x;
-  }
-
-  protected static byte[] decryptBytes(StreamCipher cipher, byte[] encBytes)
-  {
-    byte[] bytes = new byte[encBytes.length];
-    cipher.processBytes(encBytes, 0, encBytes.length, bytes, 0);
-    return bytes;
   }
 }

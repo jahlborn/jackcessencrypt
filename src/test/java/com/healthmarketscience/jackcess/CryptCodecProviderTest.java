@@ -147,6 +147,18 @@ public class CryptCodecProviderTest
     Table t = db.getSystemTable("MSysQueries");
     System.out.println("FOO " + t);
 
+    try {
+      Database.open(new File("src/test/data/db2007-enc.accdb"), true);
+      fail("UnsupportedOperationException should have been thrown");
+    } catch(UnsupportedOperationException e) {
+      // success
+    }
+
+    db = Database.open(new File("src/test/data/db2007-enc.accdb"), false, false, null, null, new CryptCodecProvider("Test123"));
+
+    t = db.getSystemTable("MSysQueries");
+    System.out.println("FOO " + t);
+
     // for(Index index : t.getIndexes()) {
     //   index.initialize();
     //   System.out.println("FOO idx " + index);

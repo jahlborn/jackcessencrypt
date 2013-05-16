@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="http://schemas.microsoft.com/office/2006/encryption"
+           xmlns="http://schemas.microsoft.com/office/2006/encryption"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:simpleType name="ST_SaltSize">
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="1" />
+      <xs:maxInclusive value="65536" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_BlockSize">
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="2" />
+      <xs:maxInclusive value="4096" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_KeyBits">
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="8" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_HashSize">
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="1" />
+      <xs:maxInclusive value="65536" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_SpinCount">
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="0" />
+      <xs:maxInclusive value="10000000" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_CipherAlgorithm">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_CipherChaining">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ST_HashAlgorithm">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="CT_KeyData">
+    <xs:attribute name="saltSize" type="ST_SaltSize" use="required" />
+    <xs:attribute name="blockSize" type="ST_BlockSize" use="required" />
+    <xs:attribute name="keyBits" type="ST_KeyBits" use="required" />
+    <xs:attribute name="hashSize" type="ST_HashSize" use="required" />
+    <xs:attribute name="cipherAlgorithm" type="ST_CipherAlgorithm"
+                  use="required" />
+    <xs:attribute name="cipherChaining" type="ST_CipherChaining"
+                  use="required" />
+    <xs:attribute name="hashAlgorithm" type="ST_HashAlgorithm" use="required" />
+    <xs:attribute name="saltValue" type="xs:base64Binary" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="CT_DataIntegrity">
+    <xs:attribute name="encryptedHmacKey" type="xs:base64Binary"
+                  use="required" />
+    <xs:attribute name="encryptedHmacValue" type="xs:base64Binary"
+                  use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="CT_KeyEncryptor">
+    <xs:sequence>
+      <xs:any processContents="lax" />
+    </xs:sequence>
+    <xs:attribute name="uri" type="xs:token" />
+  </xs:complexType>
+
+  <xs:complexType name="CT_KeyEncryptors">
+    <xs:sequence>
+      <xs:element name="keyEncryptor" type="CT_KeyEncryptor" minOccurs="1"
+                  maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CT_Encryption">
+    <xs:sequence>
+      <xs:element name="keyData" type="CT_KeyData" minOccurs="1" maxOccurs="1" />
+      <xs:element name="dataIntegrity" type="CT_DataIntegrity" minOccurs="0"
+                  maxOccurs="1" />
+      <xs:element name="keyEncryptors" type="CT_KeyEncryptors" minOccurs="1"
+                  maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="encryption" type="CT_Encryption" />
+</xs:schema>
+

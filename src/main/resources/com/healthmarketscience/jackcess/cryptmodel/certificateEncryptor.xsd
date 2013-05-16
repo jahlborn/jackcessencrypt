@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="http://schemas.microsoft.com/office/2006/keyEncryptor/certificate"
+           xmlns="http://schemas.microsoft.com/office/2006/keyEncryptor/certificate"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!-- jta: this schema import does not seem to be used -->
+  <!-- xmlns:e="http://schemas.microsoft.com/office/2006/encryption" -->
+  <!-- <xs:import namespace="http://schemas.microsoft.com/office/2006/encryption" -->
+  <!--            schemaLocation="encryptionInfo.xsd" /> -->
+
+  <xs:simpleType name="ST_CertificateKeyEncryptorUri">
+    <xs:restriction base="xs:token">
+      <xs:enumeration
+          value="http://schemas.microsoft.com/office/2006/keyEncryptor/certificate" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="CT_CertificateKeyEncryptor">
+    <xs:attribute name="encryptedKeyValue" type="xs:base64Binary" use="required" />
+    <xs:attribute name="X509Certificate" type="xs:base64Binary" use="required" />
+    <xs:attribute name="certVerifier" type="xs:base64Binary" use="required" />
+  </xs:complexType>
+
+  <xs:element name="encryptedKey" type="CT_CertificateKeyEncryptor" />
+
+</xs:schema>
+
