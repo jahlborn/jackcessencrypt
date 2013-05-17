@@ -1,3 +1,4 @@
+// Copyright (c) 2013 Dell Boomi, Inc.
 /*
 Copyright (c) 2013 James Ahlborn
 
@@ -19,6 +20,7 @@ USA
 
 package com.healthmarketscience.jackcess.office;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -26,59 +28,61 @@ import java.util.Set;
 
 import com.healthmarketscience.jackcess.ByteUtil;
 import com.healthmarketscience.jackcess.PageChannel;
+import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.engines.RC4Engine;
+import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
  *
  * @author James Ahlborn
  */
-public class RC4CryptoAPIProvider extends StreamCipherProvider 
+public class ECMAStandardEncryptionProvider extends BlockCipherProvider 
 {
   private static final Set<EncryptionHeader.CryptoAlgorithm> VALID_CRYPTO_ALGOS =
-    EnumSet.of(EncryptionHeader.CryptoAlgorithm.RC4);
+    EnumSet.of(EncryptionHeader.CryptoAlgorithm.AES_128,
+               EncryptionHeader.CryptoAlgorithm.AES_192,
+               EncryptionHeader.CryptoAlgorithm.AES_256);
   private static final Set<EncryptionHeader.HashAlgorithm> VALID_HASH_ALGOS =
     EnumSet.of(EncryptionHeader.HashAlgorithm.SHA1);
+  private static final int HASH_ITERATIONS = 50000;
   
   private final EncryptionHeader _header;
   private final EncryptionVerifier _verifier;
   private final byte[] _baseHash;
   private final int _encKeyByteSize;
-
-  public RC4CryptoAPIProvider(PageChannel channel, byte[] encodingKey,
-                              ByteBuffer encProvBuf, byte[] pwdBytes) 
+  
+  public ECMAStandardEncryptionProvider(PageChannel channel, byte[] encodingKey,
+                                        ByteBuffer encProvBuf, byte[] pwdBytes) 
+    throws IOException
   {
     super(channel, encodingKey);
+
+    // OC: 2.3.4.6
     _header = EncryptionHeader.read(encProvBuf, VALID_CRYPTO_ALGOS,
                                     VALID_HASH_ALGOS);
 
     _verifier = new EncryptionVerifier(encProvBuf, _header.getCryptoAlgorithm());
 
-    Digest digest = getDigest();
-
-    // OC: 2.3.5.2 (part 1)
-    _baseHash = hash(digest, _verifier.getSalt(), pwdBytes);
-    // FIXME, something diff for 40 bits here?
+    // OC: 2.3.4.7 (part 1)
+    _baseHash = hash(getDigest(), _verifier.getSalt(), pwdBytes);
     _encKeyByteSize =  bits2bytes(_header.getKeySize());
-  }
+  }  
 
   public boolean canEncodePartialPage() {
-    // RC4 ciphers are not influenced by the page contents, so we can easily
-    // encode part of the buffer.
-    return true;
+    // TODO: unsure if this can do partial decryption, default to "safe"
+    return false;
   }
-
+  
   @Override
   protected Digest initDigest() {
     return new SHA1Digest();
   }
 
   @Override
-  protected StreamCipher initCipher() {
-    return new RC4Engine();
+  protected BlockCipher initCipher() {
+    return new AESEngine();
   }
 
   @Override
@@ -87,32 +91,44 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
     return computeEncryptionKey(
         applyPageNumber(getEncodingKey(), 0, pageNumber));
   }
-
-  private KeyParameter computeEncryptionKey(byte[] blockBytes) {
-
-    // OC: 2.3.5.2 (part 2)
-    byte[] encKey = hash(getDigest(), _baseHash, blockBytes, _encKeyByteSize);
-    if(_header.getKeySize() == 40) {
-      encKey = ByteUtil.copyOf(encKey, bits2bytes(128));
-    }
-    return new KeyParameter(encKey);
-  }
-
+  
   @Override
   protected boolean verifyPassword(byte[] pwdBytes) {
+    // FIXME
+    return false;
+  }
 
-    KeyParameter encKey = computeEncryptionKey(int2bytes(0));
-    StreamCipher cipher = getCipher();
-    cipher.init(CIPHER_DECRYPT_MODE, encKey);
+  private KeyParameter computeEncryptionKey(byte[] blockBytes) {
+    byte[] encKey = cryptDeriveKey(_baseHash, blockBytes, HASH_ITERATIONS,
+                                   _encKeyByteSize);
+    return new KeyParameter(encKey);
+  }
+  
+  private byte[] cryptDeriveKey(byte[] baseHash, byte[] blockBytes, int iterations,
+                                int keyByteLen)
+  {
+    Digest digest = getDigest();
+
+    // OC: 2.3.4.7 (after part 1)
+    byte[] iterHash = iterateHash(baseHash, iterations);
+
+    byte[] finalHash = hash(digest, iterHash, blockBytes);
+
+    byte[] x1 = hash(digest, genXBytes(finalHash, (byte)0x36));
+    byte[] x2 = hash(digest, genXBytes(finalHash, (byte)0x5C));
     
-    byte[] verifier = decryptBytes(cipher, _verifier.getEncryptedVerifier());
-    byte[] verifierHash = 
-      fixToLength(decryptBytes(cipher, _verifier.getEncryptedVerifierHash()),
-                  _verifier.getVerifierHashSize());
+    return fixToLength(ByteUtil.concat(x1, x2), keyByteLen);
+  }
 
-    byte[] testHash = fixToLength(hash(getDigest(), verifier),
-                                  _verifier.getVerifierHashSize());
+  private static byte[] genXBytes(byte[] finalHash, byte code) {
+    byte[] x = new byte[64];
+    Arrays.fill(x, code);
 
-    return Arrays.equals(verifierHash, testHash);
+    for(int i = 0; i < finalHash.length; ++i) {
+      x[0] ^= finalHash[i];
+    }
+
+    return x;
   }
 }
+

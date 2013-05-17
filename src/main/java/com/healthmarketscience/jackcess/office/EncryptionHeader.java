@@ -22,6 +22,7 @@ package com.healthmarketscience.jackcess.office;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Set;
 
 import com.healthmarketscience.jackcess.ByteUtil;
 import com.healthmarketscience.jackcess.UnsupportedCodecException;
@@ -49,18 +50,23 @@ public class EncryptionHeader
   private static final int HASHALGID_SHA1    = 0x8004;
 
   public enum CryptoAlgorithm {
-    EXTERNAL(ALGID_FLAGS, 0),
-    RC4(ALGID_RC4, 20), 
-    AES_128(ALGID_AES_128, 32), 
-    AES_192(ALGID_AES_192, 32), 
-    AES_256(ALGID_AES_256, 32);
+    EXTERNAL(ALGID_FLAGS, 0, 0, 0),
+    RC4(ALGID_RC4, 20, 0x28, 0x80), 
+    AES_128(ALGID_AES_128, 32, 0x80, 0x80), 
+    AES_192(ALGID_AES_192, 32, 0xC0, 0xC0), 
+    AES_256(ALGID_AES_256, 32, 0x100, 0x100);
 
     private final int _algId;
     private final int _encVerifierHashLen;
+    private final int _keySizeMin;
+    private final int _keySizeMax;
 
-    private CryptoAlgorithm(int algId, int encVerifierHashLen) {
+    private CryptoAlgorithm(int algId, int encVerifierHashLen,
+                            int keySizeMin, int keySizeMax) {
       _algId = algId;
       _encVerifierHashLen = encVerifierHashLen;
+      _keySizeMin = keySizeMin;
+      _keySizeMax = keySizeMax;
     }
 
     public int getAlgId() {
@@ -70,6 +76,10 @@ public class EncryptionHeader
     public int getEncryptedVerifierHashLen() {
       return  _encVerifierHashLen;
     }
+
+    public boolean isValidKeySize(int keySize) {
+      return ((_keySizeMin <= keySize) && (keySize <= _keySizeMax));
+    } 
   }
 
   public enum HashAlgorithm {
@@ -146,6 +156,47 @@ public class EncryptionHeader
     return _cspName;
   }
 
+  public static EncryptionHeader read(ByteBuffer encProvBuf,
+                                      Set<CryptoAlgorithm> validCryptoAlgos,
+                                      Set<HashAlgorithm> validHashAlgos)
+  {
+    // read length of header
+    int headerLen = encProvBuf.getInt();
+
+    // read header (temporarily narrowing buf to header)
+    int curLimit = encProvBuf.limit();
+    int curPos = encProvBuf.position();
+    encProvBuf.limit(curPos + headerLen);
+    EncryptionHeader header = new EncryptionHeader(encProvBuf);
+
+    // verify parameters
+    if(!validCryptoAlgos.contains(header.getCryptoAlgorithm())) {
+      throw new IllegalStateException(
+          header + " crypto algorithm must be one of " + validCryptoAlgos);
+    }
+    
+    if(!validHashAlgos.contains(header.getHashAlgorithm())) {
+      throw new IllegalStateException(
+          header + " hash algorithm must be one of " + validHashAlgos);
+    }
+    
+    int keySize = header.getKeySize();
+    if(!header.getCryptoAlgorithm().isValidKeySize(keySize)) {
+      throw new IllegalStateException(
+          header + " key size is outside allowable range");
+    }
+    if((keySize % 8) != 0) {
+      throw new IllegalStateException(
+          header + " key size must be multiple of 8");      
+    }
+    
+    // move to after header
+    encProvBuf.limit(curLimit);
+    encProvBuf.position(curPos + headerLen);
+
+    return header;
+  }
+  
   private static CryptoAlgorithm parseCryptoAlgorithm(
       int algId, int flags) 
   {

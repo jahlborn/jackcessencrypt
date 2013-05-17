@@ -76,24 +76,6 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
     _cipher = null;
   }
 
-  protected static EncryptionHeader readEncryptionHeader(ByteBuffer encProvBuf)
-  {
-    // read length of header
-    int headerLen = encProvBuf.getInt();
-
-    // read header (temporarily narrowing buf to header)
-    int curLimit = encProvBuf.limit();
-    int curPos = encProvBuf.position();
-    encProvBuf.limit(curPos + headerLen);
-    EncryptionHeader header = new EncryptionHeader(encProvBuf);
-    
-    // move to after header
-    encProvBuf.limit(curLimit);
-    encProvBuf.position(curPos + headerLen);
-
-    return header;
-  }
-
   protected static byte[] decryptBytes(StreamCipher cipher, byte[] encBytes)
   {
     byte[] bytes = new byte[encBytes.length];
