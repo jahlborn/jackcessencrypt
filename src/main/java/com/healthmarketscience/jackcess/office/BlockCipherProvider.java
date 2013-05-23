@@ -21,6 +21,7 @@ package com.healthmarketscience.jackcess.office;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import com.healthmarketscience.jackcess.OfficeCryptCodecHandler;
 import com.healthmarketscience.jackcess.PageChannel;
@@ -78,10 +79,12 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     BufferedBlockCipher cipher = getCipher();
     cipher.init(CIPHER_DECRYPT_MODE, getEncryptionKey(pageNumber));
 
-    try {
-      byte[] array = buffer.array();
-      int outLen = cipher.processBytes(array, 0, array.length, array, 0);
-      cipher.doFinal(array, outLen);
+    try {      
+      byte[] outArray = buffer.array();
+      byte[] inArray = getTempEncodeBuffer().array();
+      System.arraycopy(outArray, 0, inArray, 0, outArray.length);
+      Arrays.fill(outArray, (byte)0);
+      processBytesFully(cipher, inArray, outArray);
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
@@ -96,10 +99,7 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     cipher.init(CIPHER_ENCRYPT_MODE, getEncryptionKey(pageNumber));
 
     try {
-      byte[] inArray = buffer.array();
-      byte[] outArray = encodeBuf.array();
-      int outLen = cipher.processBytes(inArray, 0, inArray.length, outArray, 0);
-      cipher.doFinal(outArray, outLen);
+      processBytesFully(cipher, buffer.array(), encodeBuf.array());
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
@@ -122,12 +122,18 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
                                        byte[] encBytes)
   {
     try {
-      byte[] bytes = new byte[encBytes.length];
-      int outLen = cipher.processBytes(encBytes, 0, encBytes.length, bytes, 0);
-      cipher.doFinal(bytes, outLen);
-      return bytes;
+      return processBytesFully(cipher, encBytes, new byte[encBytes.length]);
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  private static byte[] processBytesFully(BufferedBlockCipher cipher,
+                                          byte[] inArray, byte[] outArray)
+    throws InvalidCipherTextException
+  {
+    int outLen = cipher.processBytes(inArray, 0, inArray.length, outArray, 0);
+    cipher.doFinal(outArray, outLen);
+    return outArray;
   }
 }
