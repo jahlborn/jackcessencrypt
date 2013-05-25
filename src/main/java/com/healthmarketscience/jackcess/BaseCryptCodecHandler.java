@@ -72,13 +72,11 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     throw new UnsupportedOperationException();
   }
 
-  protected ByteBuffer getTempBuffer() {
+  protected ByteBuffer getTempBuffer(int bufLen) {
     if(_tempBufH == null) {
       _tempBufH = TempBufferHolder.newHolder(TempBufferHolder.Type.SOFT, true);
     }
-    // FIXME, for now add a fixed amount to allow block ciphers to work
-    ByteBuffer tempBuf =
-      _tempBufH.getBuffer(_channel, _channel.getFormat().PAGE_SIZE + 64);
+    ByteBuffer tempBuf = _tempBufH.getBuffer(_channel, bufLen);
     tempBuf.clear();
     return tempBuf;
   }
@@ -109,7 +107,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     // to the correct part of the stream.  however, we can stop when we get to
     // the limit.
     int limit = buffer.limit();
-    ByteBuffer encodeBuf = getTempBuffer();
+    ByteBuffer encodeBuf = getTempBuffer(limit);
     cipher.processBytes(buffer.array(), 0, limit, encodeBuf.array(), 0);
     return encodeBuf;
   }
@@ -127,7 +125,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
       // decoding
       byte[] outArray = buffer.array();
       int inLen = outArray.length;
-      byte[] inArray = getTempBuffer().array();
+      byte[] inArray = getTempBuffer(cipher.getOutputSize(inLen)).array();
       System.arraycopy(outArray, 0, inArray, 0, inLen);
       processBytesFully(cipher, inArray, fill(outArray, 0), inLen);
     } catch(InvalidCipherTextException e) {
@@ -146,9 +144,9 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
                                              getCipherParams(pageNumber));
 
     try {
-      ByteBuffer encodeBuf = getTempBuffer();
       byte[] inArray = buffer.array();
       int inLen = buffer.limit();
+      ByteBuffer encodeBuf = getTempBuffer(cipher.getOutputSize(inLen));
       processBytesFully(cipher, inArray, fill(encodeBuf.array(), 0), inLen);
       return encodeBuf;
     } catch(InvalidCipherTextException e) {
