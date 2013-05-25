@@ -80,11 +80,13 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     cipher.init(CIPHER_DECRYPT_MODE, getEncryptionKey(pageNumber));
 
     try {      
+      // we can't encode inline, so copy encoded data to temp buf before
+      // decoding
       byte[] outArray = buffer.array();
+      int inLen = outArray.length;
       byte[] inArray = getTempEncodeBuffer().array();
-      System.arraycopy(outArray, 0, inArray, 0, outArray.length);
-      Arrays.fill(outArray, (byte)0);
-      processBytesFully(cipher, inArray, outArray);
+      System.arraycopy(outArray, 0, inArray, 0, inLen);
+      processBytesFully(cipher, inArray, fill(outArray, 0), inLen);
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
@@ -99,7 +101,9 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     cipher.init(CIPHER_ENCRYPT_MODE, getEncryptionKey(pageNumber));
 
     try {
-      processBytesFully(cipher, buffer.array(), encodeBuf.array());
+      byte[] inArray = buffer.array();
+      int inLen = inArray.length;
+      processBytesFully(cipher, inArray, fill(encodeBuf.array(), 0), inLen);
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
@@ -122,17 +126,19 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
                                        byte[] encBytes)
   {
     try {
-      return processBytesFully(cipher, encBytes, new byte[encBytes.length]);
+      int inLen = encBytes.length;
+      return processBytesFully(cipher, encBytes, new byte[inLen], inLen);
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
   }
 
   private static byte[] processBytesFully(BufferedBlockCipher cipher,
-                                          byte[] inArray, byte[] outArray)
+                                          byte[] inArray, byte[] outArray,
+                                          int inLen)
     throws InvalidCipherTextException
   {
-    int outLen = cipher.processBytes(inArray, 0, inArray.length, outArray, 0);
+    int outLen = cipher.processBytes(inArray, 0, inLen, outArray, 0);
     cipher.doFinal(outArray, outLen);
     return outArray;
   }

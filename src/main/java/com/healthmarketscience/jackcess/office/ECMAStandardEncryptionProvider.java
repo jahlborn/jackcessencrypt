@@ -22,7 +22,6 @@ package com.healthmarketscience.jackcess.office;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -114,15 +113,14 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
 
     byte[] finalHash = hash(digest, iterHash, blockBytes);
 
-    byte[] x1 = hash(digest, genXBytes(finalHash, (byte)0x36));
-    byte[] x2 = hash(digest, genXBytes(finalHash, (byte)0x5C));
+    byte[] x1 = hash(digest, genXBytes(finalHash, 0x36));
+    byte[] x2 = hash(digest, genXBytes(finalHash, 0x5C));
     
     return fixToLength(ByteUtil.concat(x1, x2), keyByteLen);
   }
 
-  private static byte[] genXBytes(byte[] finalHash, byte code) {
-    byte[] x = new byte[64];
-    Arrays.fill(x, code);
+  private static byte[] genXBytes(byte[] finalHash, int code) {
+    byte[] x = fill(new byte[64], code);
 
     for(int i = 0; i < finalHash.length; ++i) {
       x[0] ^= finalHash[i];

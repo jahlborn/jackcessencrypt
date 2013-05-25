@@ -188,11 +188,6 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     _tempIntBuf.putInt(0, val);
     return _tempIntBuf.array();
   }
-
-  // public boolean canEncodePartialPage() {
-  //   // FIXME, this will probably depend on the algo
-  //   return false;
-  // }
   
   protected void reset() {
     _digest = null;

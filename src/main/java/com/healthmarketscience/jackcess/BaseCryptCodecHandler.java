@@ -59,7 +59,8 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     if(_encodeBuf == null) {
       _encodeBuf = TempBufferHolder.newHolder(TempBufferHolder.Type.SOFT, true);
     }
-    return _encodeBuf.getPageBuffer(_channel);
+    // FIXME, for now add a fixed amount to allow block ciphers to work
+    return _encodeBuf.getBuffer(_channel, _channel.getFormat().PAGE_SIZE + 64);
   }
 
   /**
@@ -216,6 +217,14 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    */
   public static ByteBuffer wrap(byte[] bytes) {
     return ByteBuffer.wrap(bytes).order(PageChannel.DEFAULT_BYTE_ORDER);
+  }
+
+  /**
+   * Fills the given array with the given value and returns it.
+   */
+  public static byte[] fill(byte[] bytes, int value) {
+    Arrays.fill(bytes, (byte)value);
+    return bytes;
   }
 
   /**
