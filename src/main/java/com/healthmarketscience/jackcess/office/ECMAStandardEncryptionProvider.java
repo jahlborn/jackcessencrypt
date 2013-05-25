@@ -1,4 +1,3 @@
-// Copyright (c) 2013 Dell Boomi, Inc.
 /*
 Copyright (c) 2013 James Ahlborn
 
@@ -85,7 +84,7 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
   }
 
   @Override
-  protected KeyParameter computeEncryptionKey(int pageNumber) {
+  protected KeyParameter computeCipherParams(int pageNumber) {
     // when actually decrypting pages, we incorporate the "encoding key"
     return computeEncryptionKey(
         applyPageNumber(getEncodingKey(), 0, pageNumber));

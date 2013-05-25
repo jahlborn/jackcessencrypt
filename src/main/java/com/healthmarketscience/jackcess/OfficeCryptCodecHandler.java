@@ -41,21 +41,13 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
 
   protected enum Phase { PWD_VERIFY, CRYPT; }
 
-  private final byte[] _encodingKey;
   private Digest _digest;
   private ByteBuffer _tempIntBuf;
-  private final KeyCache<CipherParameters> _keyCache = 
-    new KeyCache<CipherParameters>() {
-      @Override protected CipherParameters computeKey(int pageNumber) {
-        return computeEncryptionKey(pageNumber);
-      }
-    };
   private Phase _phase = Phase.PWD_VERIFY;
 
   protected OfficeCryptCodecHandler(PageChannel channel, byte[] encodingKey) 
   {
-    super(channel);
-    _encodingKey = encodingKey;
+    super(channel, encodingKey);
   }
 
   public static CodecHandler create(String password, PageChannel channel,
@@ -146,10 +138,6 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     return _phase;
   }
 
-  protected byte[] getEncodingKey() {
-    return _encodingKey;
-  }
-
   protected Digest getDigest() {
     if(_digest == null) {
       _digest = initDigest();
@@ -176,11 +164,6 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     throw new UnsupportedOperationException();
   }
 
-  protected CipherParameters getEncryptionKey(int pageNumber)
-  {
-    return _keyCache.get(pageNumber);
-  }
-
   protected final byte[] int2bytes(int val) {
     if(_tempIntBuf == null) {
       _tempIntBuf = wrap(new byte[4]);
@@ -204,7 +187,6 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     decodePageImpl(buffer, pageNumber);
   }
 
-  @Override
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
                                int pageOffset) 
     throws IOException
@@ -214,9 +196,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
       return buffer;
     }
 
-    ByteBuffer encodeBuf = getTempEncodeBuffer();
-    encodePageImpl(buffer, encodeBuf, pageNumber);
-    return encodeBuf;
+    return encodePageImpl(buffer, pageNumber, pageOffset);
   }
 
   protected byte[] iterateHash(byte[] baseHash, int iterations) {
@@ -247,11 +227,9 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
   protected abstract void decodePageImpl(ByteBuffer buffer, int pageNumber)
     throws IOException;
 
-  protected abstract void encodePageImpl(ByteBuffer buffer, 
-                                         ByteBuffer encodeBuf, int pageNumber)
+  protected abstract ByteBuffer encodePageImpl(
+      ByteBuffer buffer, int pageNumber, int pageOffset)
     throws IOException;
 
   protected abstract boolean verifyPassword(byte[] pwdBytes);
-
-  protected abstract CipherParameters computeEncryptionKey(int pageNumber);
 }

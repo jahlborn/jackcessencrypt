@@ -38,7 +38,8 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
     super(channel, encodingKey);
   }
 
-  protected StreamCipher getCipher() {
+  @Override
+  protected StreamCipher getStreamCipher() {
     if(_cipher == null) {
       _cipher = initCipher();
     }
@@ -52,22 +53,14 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
   @Override
   protected void decodePageImpl(ByteBuffer buffer, int pageNumber) 
   {
-    StreamCipher cipher = getCipher();
-    cipher.init(CIPHER_DECRYPT_MODE, getEncryptionKey(pageNumber));
-
-    byte[] array = buffer.array();
-    cipher.processBytes(array, 0, array.length, array, 0);
+    streamDecrypt(buffer, pageNumber);
   }
 
   @Override
-  public void encodePageImpl(ByteBuffer buffer, ByteBuffer encodeBuf,
-                             int pageNumber) 
+  public ByteBuffer encodePageImpl(ByteBuffer buffer, int pageNumber, 
+                                   int pageOffset) 
   {
-    StreamCipher cipher = getCipher();
-    cipher.init(CIPHER_ENCRYPT_MODE, getEncryptionKey(pageNumber));
-
-    byte[] inArray = buffer.array();
-    cipher.processBytes(inArray, 0, inArray.length, encodeBuf.array(), 0);
+    return streamEncrypt(buffer, pageNumber, pageOffset);
   }
 
   @Override

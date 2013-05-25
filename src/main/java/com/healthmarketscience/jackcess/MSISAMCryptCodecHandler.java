@@ -25,9 +25,9 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
@@ -35,7 +35,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
  *
  * @author Vladimir Berezniker
  */
-public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
+public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
 {
   private static final int SALT_OFFSET = 0x72;
   private static final int CRYPT_CHECK_START = 0x2e9;
@@ -50,13 +50,13 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
   private static final int TRAILING_PWD_LEN = 20;
 
 
-  private final byte[] _encodingKey;
+  private final byte[] _baseHash;
 
   MSISAMCryptCodecHandler(PageChannel channel, String password, Charset charset,
                           ByteBuffer buffer) 
     throws IOException
   {
-    super(channel);
+    super(channel, null);
 
     byte[] salt = ByteUtil.getBytes(buffer, SALT_OFFSET, 8);
 
@@ -68,7 +68,7 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     verifyPassword(buffer, ByteUtil.concat(pwdDigest, salt), baseSalt);
 
     // create final key
-    _encodingKey = ByteUtil.concat(pwdDigest, baseSalt);
+    _baseHash = ByteUtil.concat(pwdDigest, baseSalt);
   }
 
   public static CodecHandler create(String password, PageChannel channel, 
@@ -97,39 +97,22 @@ public class MSISAMCryptCodecHandler extends BaseCryptCodecHandler
     return true;
   }
 
-  public void decodePage(ByteBuffer buffer, int pageNumber) {
-    if(!isEncryptedPage(pageNumber)) {
-      // not encoded
-      return;
-    }
-
-    byte[] key = applyPageNumber(_encodingKey, PASSWORD_DIGEST_LENGTH,
-                                 pageNumber);
-    decodePage(buffer, new KeyParameter(key));
+  @Override
+  protected KeyParameter computeCipherParams(int pageNumber) {
+    return new KeyParameter(
+        applyPageNumber(_baseHash, PASSWORD_DIGEST_LENGTH, pageNumber));
   }
 
   @Override
-  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
-                               int pageOffset) {
-    if(!isEncryptedPage(pageNumber)) {
-      // not encoded
-      return buffer;
-    }
-
-    byte[] key = applyPageNumber(_encodingKey, PASSWORD_DIGEST_LENGTH,
-                                 pageNumber);
-    return encodePage(buffer, pageOffset, new KeyParameter(key));
-  }
-
-  private boolean isEncryptedPage(int pageNumber) {
-    return ((pageNumber > 0) && (pageNumber <= MSISAM_MAX_ENCRYPTED_PAGE));
+  protected int getMaxEncodedPage() {
+    return MSISAM_MAX_ENCRYPTED_PAGE;
   }
 
   private void verifyPassword(ByteBuffer buffer, byte[] testEncodingKey,
                               byte[] testBytes)
   {
-    RC4Engine engine = getEngine();
-    engine.init(CIPHER_DECRYPT_MODE, new KeyParameter(testEncodingKey));
+    StreamCipher engine = decryptInit(getStreamCipher(),
+                                      new KeyParameter(testEncodingKey));
 
     byte[] encrypted4BytesCheck = getPasswordTestBytes(buffer);
     if(isBlankKey(encrypted4BytesCheck)) {

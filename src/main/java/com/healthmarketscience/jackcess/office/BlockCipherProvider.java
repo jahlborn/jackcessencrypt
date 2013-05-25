@@ -21,7 +21,6 @@ package com.healthmarketscience.jackcess.office;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import com.healthmarketscience.jackcess.OfficeCryptCodecHandler;
 import com.healthmarketscience.jackcess.PageChannel;
@@ -46,7 +45,8 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     super(channel, encodingKey);
   }
 
-  protected BufferedBlockCipher getCipher() {
+  @Override
+  protected BufferedBlockCipher getBlockCipher() {
     if(_cipher == null) {
       _cipher = new 
         PaddedBufferedBlockCipher(initCipher(), new ZeroBytePadding());
@@ -76,37 +76,15 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   @Override
   protected void decodePageImpl(ByteBuffer buffer, int pageNumber) 
   {
-    BufferedBlockCipher cipher = getCipher();
-    cipher.init(CIPHER_DECRYPT_MODE, getEncryptionKey(pageNumber));
-
-    try {      
-      // we can't encode inline, so copy encoded data to temp buf before
-      // decoding
-      byte[] outArray = buffer.array();
-      int inLen = outArray.length;
-      byte[] inArray = getTempEncodeBuffer().array();
-      System.arraycopy(outArray, 0, inArray, 0, inLen);
-      processBytesFully(cipher, inArray, fill(outArray, 0), inLen);
-    } catch(InvalidCipherTextException e) {
-      throw new IllegalStateException(e);
-    }
+    blockDecrypt(buffer, pageNumber);
   }
 
   @Override
-  public void encodePageImpl(ByteBuffer buffer, ByteBuffer encodeBuf,
-                             int pageNumber) 
+  public ByteBuffer encodePageImpl(ByteBuffer buffer, int pageNumber, 
+                                   int pageOffset) 
     throws IOException
   {
-    BufferedBlockCipher cipher = getCipher();
-    cipher.init(CIPHER_ENCRYPT_MODE, getEncryptionKey(pageNumber));
-
-    try {
-      byte[] inArray = buffer.array();
-      int inLen = inArray.length;
-      processBytesFully(cipher, inArray, fill(encodeBuf.array(), 0), inLen);
-    } catch(InvalidCipherTextException e) {
-      throw new IllegalStateException(e);
-    }
+    return blockEncrypt(buffer, pageNumber, pageOffset);
   }
 
   @Override
@@ -116,9 +94,8 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   }
 
   protected byte[] decryptBytes(byte[] keyBytes, byte[] iv, byte[] encBytes) {
-    BufferedBlockCipher cipher = getCipher();
-    cipher.init(CIPHER_DECRYPT_MODE, 
-                new ParametersWithIV(new KeyParameter(keyBytes), iv));
+    BufferedBlockCipher cipher = decryptInit(
+        getBlockCipher(), new ParametersWithIV(new KeyParameter(keyBytes), iv));
     return decryptBytes(cipher, encBytes);
   }
 
@@ -131,15 +108,5 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
     }
-  }
-
-  private static byte[] processBytesFully(BufferedBlockCipher cipher,
-                                          byte[] inArray, byte[] outArray,
-                                          int inLen)
-    throws InvalidCipherTextException
-  {
-    int outLen = cipher.processBytes(inArray, 0, inLen, outArray, 0);
-    cipher.doFinal(outArray, outLen);
-    return outArray;
   }
 }

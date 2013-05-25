@@ -82,7 +82,7 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
   }
 
   @Override
-  protected KeyParameter computeEncryptionKey(int pageNumber) {
+  protected KeyParameter computeCipherParams(int pageNumber) {
     // when actually decrypting pages, we incorporate the "encoding key"
     return computeEncryptionKey(
         applyPageNumber(getEncodingKey(), 0, pageNumber));
@@ -101,9 +101,8 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
   @Override
   protected boolean verifyPassword(byte[] pwdBytes) {
 
-    KeyParameter encKey = computeEncryptionKey(int2bytes(0));
-    StreamCipher cipher = getCipher();
-    cipher.init(CIPHER_DECRYPT_MODE, encKey);
+    StreamCipher cipher = decryptInit(getStreamCipher(), 
+                                      computeEncryptionKey(int2bytes(0)));
     
     byte[] verifier = decryptBytes(cipher, _verifier.getEncryptedVerifier());
     byte[] verifierHash = 
