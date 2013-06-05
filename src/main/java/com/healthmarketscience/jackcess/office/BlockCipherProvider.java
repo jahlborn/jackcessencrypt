@@ -54,6 +54,12 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     return _cipher;
   }
 
+  public final boolean canEncodePartialPage() {
+    // for a variety of reasons, it's difficult (or impossible if chaining
+    // modes are in use) for block ciphers to encode partial pages.
+    return false;
+  }
+
   protected BlockCipher initCipher() {
     switch(getPhase()) {
     case PWD_VERIFY:
@@ -84,29 +90,12 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
                                    int pageOffset) 
     throws IOException
   {
-    return blockEncrypt(buffer, pageNumber, pageOffset);
+    return blockEncrypt(buffer, pageNumber);
   }
 
   @Override
   protected void reset() {
     super.reset();
     _cipher = null;
-  }
-
-  protected byte[] decryptBytes(byte[] keyBytes, byte[] iv, byte[] encBytes) {
-    BufferedBlockCipher cipher = decryptInit(
-        getBlockCipher(), new ParametersWithIV(new KeyParameter(keyBytes), iv));
-    return decryptBytes(cipher, encBytes);
-  }
-
-  protected static byte[] decryptBytes(BufferedBlockCipher cipher, 
-                                       byte[] encBytes)
-  {
-    try {
-      int inLen = encBytes.length;
-      return processBytesFully(cipher, encBytes, new byte[inLen], inLen);
-    } catch(InvalidCipherTextException e) {
-      throw new IllegalStateException(e);
-    }
   }
 }

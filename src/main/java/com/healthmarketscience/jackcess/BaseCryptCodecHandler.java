@@ -29,6 +29,8 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.StreamCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 
 
 /**
@@ -84,8 +86,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   /**
    * Decrypts the given buffer using a stream cipher.
    */
-  protected void streamDecrypt(ByteBuffer buffer, int pageNumber) 
-  {
+  protected void streamDecrypt(ByteBuffer buffer, int pageNumber) {
     StreamCipher cipher = decryptInit(getStreamCipher(),
                                       getCipherParams(pageNumber));
 
@@ -122,7 +123,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
 
     try {      
       // we can't encode inline, so copy encoded data to temp buf before
-      // decoding
+      // decoding (also, always encode the full page)
       byte[] outArray = buffer.array();
       int inLen = outArray.length;
       byte[] inArray = getTempBuffer(cipher.getOutputSize(inLen)).array();
@@ -137,8 +138,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * Encrypts the given buffer using a block cipher and returns the encrypted
    * buffer.
    */
-  protected ByteBuffer blockEncrypt(ByteBuffer buffer, int pageNumber,
-                                    int pageOffset) 
+  protected ByteBuffer blockEncrypt(ByteBuffer buffer, int pageNumber) 
   {
     BufferedBlockCipher cipher = encryptInit(getBlockCipher(),
                                              getCipherParams(pageNumber));
@@ -199,6 +199,41 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     return cipher;
   }
 
+  /**
+   * Decrypts the given bytes using a stream cipher into a new byte[].
+   */
+  protected static byte[] decryptBytes(StreamCipher cipher, byte[] encBytes)
+  {
+    byte[] bytes = new byte[encBytes.length];
+    cipher.processBytes(encBytes, 0, encBytes.length, bytes, 0);
+    return bytes;
+  }
+
+  /**
+   * Decrypts the given bytes using a block cipher configured with the given
+   * key and IV into a new byte[].
+   */
+  protected byte[] blockDecryptBytes(byte[] keyBytes, byte[] iv, byte[] encBytes)
+  {
+    BufferedBlockCipher cipher = decryptInit(
+        getBlockCipher(), new ParametersWithIV(new KeyParameter(keyBytes), iv));
+    return decryptBytes(cipher, encBytes);
+  }
+
+  /**
+   * Decrypts the given bytes using a block cipher into a new byte[].
+   */
+  protected static byte[] decryptBytes(BufferedBlockCipher cipher,
+                                       byte[] encBytes)
+  {
+    try {
+      int inLen = encBytes.length;
+      return processBytesFully(cipher, encBytes, new byte[inLen], inLen);
+    } catch(InvalidCipherTextException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+  
   /**
    * Reads and returns the header page (page 0) from the given pageChannel.
    */

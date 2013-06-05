@@ -21,12 +21,14 @@ package com.healthmarketscience.jackcess.office;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
 import com.healthmarketscience.jackcess.ByteUtil;
 import com.healthmarketscience.jackcess.PageChannel;
 import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -67,11 +69,6 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     _baseHash = hash(getDigest(), _verifier.getSalt(), pwdBytes);
     _encKeyByteSize =  bits2bytes(_header.getKeySize());
   }  
-
-  public boolean canEncodePartialPage() {
-    // TODO: unsure if this can do partial decryption, default to "safe"
-    return false;
-  }
   
   @Override
   protected Digest initDigest() {
@@ -92,8 +89,20 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
   
   @Override
   protected boolean verifyPassword(byte[] pwdBytes) {
-    // FIXME
-    return false;
+
+    // OC: 2.3.4.9
+    BufferedBlockCipher cipher = decryptInit(getBlockCipher(), 
+                                             computeEncryptionKey(int2bytes(0)));
+    
+    byte[] verifier = decryptBytes(cipher, _verifier.getEncryptedVerifier());
+    byte[] verifierHash = 
+      fixToLength(decryptBytes(cipher, _verifier.getEncryptedVerifierHash()),
+                  _verifier.getVerifierHashSize());
+
+    byte[] testHash = fixToLength(hash(getDigest(), verifier),
+                                  _verifier.getVerifierHashSize());
+
+    return Arrays.equals(verifierHash, testHash);
   }
 
   private KeyParameter computeEncryptionKey(byte[] blockBytes) {

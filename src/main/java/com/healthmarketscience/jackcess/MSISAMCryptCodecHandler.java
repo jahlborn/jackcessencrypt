@@ -120,9 +120,7 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
       return;
     }
     
-    byte[] decrypted4BytesCheck = new byte[4];
-    engine.processBytes(encrypted4BytesCheck, 0,
-                        encrypted4BytesCheck.length, decrypted4BytesCheck, 0);
+    byte[] decrypted4BytesCheck = decryptBytes(engine, encrypted4BytesCheck);
 
     if (!Arrays.equals(decrypted4BytesCheck, testBytes)) {
       throw new IllegalStateException("Incorrect password provided");

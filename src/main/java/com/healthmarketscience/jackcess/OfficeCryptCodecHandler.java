@@ -25,8 +25,8 @@ import java.nio.charset.Charset;
 
 import com.healthmarketscience.jackcess.office.AgileEncryptionProvider;
 import com.healthmarketscience.jackcess.office.EncryptionHeader;
+import com.healthmarketscience.jackcess.office.ECMAStandardEncryptionProvider;
 import com.healthmarketscience.jackcess.office.RC4CryptoAPIProvider;
-import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
 
 /**
@@ -108,8 +108,8 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
              flags, EncryptionHeader.FCRYPTO_API_FLAG)) {
         if(EncryptionHeader.isFlagSet(flags, EncryptionHeader.FAES_FLAG)) {
           // OC: 2.3.4.5 - Standard Encryption: (3,4),2
-          // FIXME
-
+          handler = new ECMAStandardEncryptionProvider(channel, encodingKey,
+                                                       encProvBuf, pwdBytes);
         } else {
           // OC: 2.3.5.1 - RC4 CryptoAPI Encryption: (2,3,4),2
           handler = new RC4CryptoAPIProvider(channel, encodingKey, encProvBuf,

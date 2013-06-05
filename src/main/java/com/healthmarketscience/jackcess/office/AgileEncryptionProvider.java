@@ -90,12 +90,6 @@ public class AgileEncryptionProvider extends BlockCipherProvider
     _keyValue = decryptKeyValue(pwdBytes);
   }
 
-  public boolean canEncodePartialPage() {
-    // the block ciphers use chaining modes which require the whole page to be
-    // handled at once
-    return false;
-  }
-
   @Override
   protected Digest initPwdDigest() {
     return XmlEncryptionDescriptor.initDigest(_pwdKeyEnc.getHashAlgorithm());
@@ -154,8 +148,8 @@ public class AgileEncryptionProvider extends BlockCipherProvider
                                 (int)_pwdKeyEnc.getSpinCount(),
                                 bits2bytes((int)_pwdKeyEnc.getKeyBits()));
   
-    return decryptBytes(key, _pwdKeyEnc.getSaltValue(), 
-                        _pwdKeyEnc.getEncryptedVerifierHashInput());
+    return blockDecryptBytes(key, _pwdKeyEnc.getSaltValue(), 
+                             _pwdKeyEnc.getEncryptedVerifierHashInput());
   }
 
   private byte[] decryptVerifierHashValue(byte[] pwdBytes) {
@@ -165,8 +159,8 @@ public class AgileEncryptionProvider extends BlockCipherProvider
                                 (int)_pwdKeyEnc.getSpinCount(),
                                 bits2bytes((int)_pwdKeyEnc.getKeyBits()));    
   
-    return decryptBytes(key, _pwdKeyEnc.getSaltValue(), 
-                        _pwdKeyEnc.getEncryptedVerifierHashValue());
+    return blockDecryptBytes(key, _pwdKeyEnc.getSaltValue(), 
+                             _pwdKeyEnc.getEncryptedVerifierHashValue());
   }
 
   private byte[] decryptKeyValue(byte[] pwdBytes) {
@@ -176,8 +170,8 @@ public class AgileEncryptionProvider extends BlockCipherProvider
                                 (int)_pwdKeyEnc.getSpinCount(),
                                 bits2bytes((int)_pwdKeyEnc.getKeyBits()));
     
-    return decryptBytes(key, _pwdKeyEnc.getSaltValue(), 
-                        _pwdKeyEnc.getEncryptedKeyValue());
+    return blockDecryptBytes(key, _pwdKeyEnc.getSaltValue(), 
+                             _pwdKeyEnc.getEncryptedKeyValue());
   }
 
   private byte[] cryptDeriveKey(byte[] pwdBytes, byte[] blockBytes,

@@ -68,11 +68,4 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
     super.reset();
     _cipher = null;
   }
-
-  protected static byte[] decryptBytes(StreamCipher cipher, byte[] encBytes)
-  {
-    byte[] bytes = new byte[encBytes.length];
-    cipher.processBytes(encBytes, 0, encBytes.length, bytes, 0);
-    return bytes;
-  }
 }
