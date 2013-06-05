@@ -57,10 +57,8 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
 
     _verifier = new EncryptionVerifier(encProvBuf, _header.getCryptoAlgorithm());
 
-    Digest digest = getDigest();
-
     // OC: 2.3.5.2 (part 1)
-    _baseHash = hash(digest, _verifier.getSalt(), pwdBytes);
+    _baseHash = hash(getDigest(), _verifier.getSalt(), pwdBytes);
     // FIXME, something diff for 40 bits here?
     _encKeyByteSize =  bits2bytes(_header.getKeySize());
   }

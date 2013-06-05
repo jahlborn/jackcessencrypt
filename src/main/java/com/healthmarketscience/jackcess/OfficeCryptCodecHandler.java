@@ -27,6 +27,7 @@ import com.healthmarketscience.jackcess.office.AgileEncryptionProvider;
 import com.healthmarketscience.jackcess.office.EncryptionHeader;
 import com.healthmarketscience.jackcess.office.ECMAStandardEncryptionProvider;
 import com.healthmarketscience.jackcess.office.RC4CryptoAPIProvider;
+import com.healthmarketscience.jackcess.office.OfficeBinaryDocRC4Provider;
 import org.bouncycastle.crypto.Digest;
 
 /**
@@ -82,16 +83,20 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
 
     OfficeCryptCodecHandler handler = null;
     if((vMajor == 4) && (vMinor == 4)) {
+
       // OC: 2.3.4.10 - Agile Encryption: 4,4
       handler = new AgileEncryptionProvider(channel, encodingKey, encProvBuf, 
                                             pwdBytes);
 
     } else if((vMajor == 1) && (vMinor == 1)) {
+
       // OC: 2.3.6.1 - RC4 Encryption: 1,1
-      // FIXME
+      handler = new OfficeBinaryDocRC4Provider(channel, encodingKey, encProvBuf,
+                                               pwdBytes);
 
     } else if(((vMajor == 3) || (vMajor == 4)) && 
               (vMinor == 3)) {
+
       // OC: 2.3.4.6 - Extensible Encryption: (3,4),3
 
       // since this utilizes arbitrary external providers, we can't really

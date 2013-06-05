@@ -22,6 +22,7 @@ package com.healthmarketscience.jackcess.office;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.healthmarketscience.jackcess.ByteUtil;
 import com.healthmarketscience.jackcess.PageChannel;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.StreamCipher;
@@ -35,9 +36,9 @@ import org.bouncycastle.crypto.params.KeyParameter;
  */
 public class OfficeBinaryDocRC4Provider extends StreamCipherProvider 
 {
-  private final byte[] _salt = new byte[16];
   private final byte[] _encVerifier = new byte[16];
   private final byte[] _encVerifierHash = new byte[16];
+  private final byte[] _baseHash;
   
   public OfficeBinaryDocRC4Provider(PageChannel channel, byte[] encodingKey,
                                     ByteBuffer encProvBuf, byte[] pwdBytes) 
@@ -45,9 +46,19 @@ public class OfficeBinaryDocRC4Provider extends StreamCipherProvider
     super(channel, encodingKey);
 
     // OC: 2.3.6.1
-    encProvBuf.get(_salt);
+    byte[] salt = new byte[16];
+    encProvBuf.get(salt);
     encProvBuf.get(_encVerifier);
     encProvBuf.get(_encVerifierHash);
+
+    // OC: 2.3.6.2 (Part 1)
+    byte[] fillHash = ByteUtil.concat(hash(getDigest(), pwdBytes, 5), salt);
+    byte[] intBuf = new byte[336];
+    for(int i = 0; i < intBuf.length; i += fillHash.length) {
+      System.arraycopy(fillHash, 0, intBuf, i, fillHash.length);
+    }
+
+    _baseHash = hash(getDigest(), intBuf, 5);
   }
 
   public boolean canEncodePartialPage() {
@@ -66,13 +77,17 @@ public class OfficeBinaryDocRC4Provider extends StreamCipherProvider
     return new RC4Engine();
   }
 
+  @Override
+  protected KeyParameter computeCipherParams(int pageNumber) {
+    // when actually decrypting pages, we incorporate the "encoding key"
+    return computeEncryptionKey(
+        applyPageNumber(getEncodingKey(), 0, pageNumber));
+  }
+
   private KeyParameter computeEncryptionKey(byte[] blockBytes) {
 
-    // FIXME, writeme
-    // byte[] encKey = hash(getDigest(), _baseHash, blockBytes, _encKeyByteSize);
-    // if(_header.getKeySize() == 40) {
-    //   encKey = ByteUtil.copyOf(encKey, bits2bytes(128));
-    // }
+    // OC: 2.3.6.2 (Part 2)
+    byte[] encKey = hash(getDigest(), _baseHash, blockBytes, bits2bytes(128));
     return new KeyParameter(encKey);
   }
 
