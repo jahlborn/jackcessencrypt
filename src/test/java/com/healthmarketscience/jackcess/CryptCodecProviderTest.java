@@ -144,8 +144,8 @@ public class CryptCodecProviderTest
 
     Database db = Database.open(new File("src/test/data/db2007-oldenc.accdb"), false, false, null, null, new CryptCodecProvider("Test123"));
 
-    Table t = db.getSystemTable("MSysQueries");
-    System.out.println("FOO " + t);
+    db.getSystemTable("MSysQueries");
+    doCheckOfficeDb(db);
 
     try {
       Database.open(new File("src/test/data/db2007-enc.accdb"), true);
@@ -156,18 +156,8 @@ public class CryptCodecProviderTest
 
     db = Database.open(new File("src/test/data/db2007-enc.accdb"), false, false, null, null, new CryptCodecProvider("Test123"));
 
-    t = db.getSystemTable("MSysQueries");
-    System.out.println("FOO " + t);
-
-    // for(Index index : t.getIndexes()) {
-    //   index.initialize();
-    //   System.out.println("FOO idx " + index);
-    // }
-
-    // for(Column col : t.getColumns()) {
-    //   System.out.println("FOO props " + col.getName() + "; " + col.getProperties());
-    // }
-    // System.out.println("FOO row " + t.getNextRow());
+    db.getSystemTable("MSysQueries");
+    doCheckOfficeDb(db);
 
     db.close();
   }
@@ -186,6 +176,19 @@ public class CryptCodecProviderTest
               "ID", 2,
               "col1", "world",
               "col2", 42));
+    
+    DatabaseTest.assertTable(expectedRows, t);
+  }
+
+  private void doCheckOfficeDb(Database db) throws Exception
+  {
+    Table t = db.getTable("Table1");
+
+    List<Map<String, Object>> expectedRows = 
+      DatabaseTest.createExpectedTable(
+          DatabaseTest.createExpectedRow(
+              "ID", 1,
+              "Field1", "foo"));
     
     DatabaseTest.assertTable(expectedRows, t);
   }
