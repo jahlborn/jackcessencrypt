@@ -65,6 +65,9 @@ public class CryptCodecProvider implements CodecProvider
     case MSISAM:
       return MSISAMCryptCodecHandler.create(getPassword(), channel, charset);
 
+    case OFFICE:
+      return OfficeCryptCodecHandler.create(getPassword(), channel, charset);
+
     default:
       throw new RuntimeException("Unknown codec type " + format.CODEC_TYPE);
     }

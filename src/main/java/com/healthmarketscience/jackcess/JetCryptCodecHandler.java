@@ -28,15 +28,12 @@ import org.bouncycastle.crypto.params.KeyParameter;
  *
  * @author Vladimir Berezniker
  */
-public class JetCryptCodecHandler extends BaseCryptCodecHandler 
+public class JetCryptCodecHandler extends BaseJetCryptCodecHandler 
 {
   final static int ENCODING_KEY_LENGTH = 0x4;
 
-  private final byte[] _encodingKey;
-
   JetCryptCodecHandler(PageChannel channel, byte[] encodingKey) {
-    super(channel);
-    _encodingKey = encodingKey;
+    super(channel, encodingKey);
   }
 
   public static CodecHandler create(PageChannel channel)
@@ -58,35 +55,14 @@ public class JetCryptCodecHandler extends BaseCryptCodecHandler
     return true;
   }
 
-  public void decodePage(ByteBuffer buffer, int pageNumber) {
-    if(!isEncryptedPage(pageNumber)) {
-      // not encoded
-      return;
-    }
-
-    byte[] key = applyPageNumber(_encodingKey, 0, pageNumber);
-    decodePage(buffer, new KeyParameter(key));
+  @Override
+  protected KeyParameter computeCipherParams(int pageNumber) {
+    return new KeyParameter(applyPageNumber(getEncodingKey(), 0, pageNumber));
   }
 
   @Override
-  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
-                               int pageOffset) {
-    if(!isEncryptedPage(pageNumber)) {
-      // not encoded
-      return buffer;
-    }
-
-    byte[] key = applyPageNumber(_encodingKey, 0, pageNumber);
-    return encodePage(buffer, pageOffset, new KeyParameter(key));
-  }
-
-  protected int getMaxEncodedPage()
-  {
+  protected int getMaxEncodedPage() {
     return Integer.MAX_VALUE;
-  }
-
-  private boolean isEncryptedPage(int pageNumber) {
-    return ((pageNumber > 0) && (pageNumber <= getMaxEncodedPage()));
   }
 
 }

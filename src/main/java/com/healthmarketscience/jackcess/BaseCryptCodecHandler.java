@@ -22,14 +22,19 @@ package com.healthmarketscience.jackcess;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
+import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.engines.RC4Engine;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 
 
 /**
- * Base CodecHandler support for RC4 encryption based CodecHandlers.
+ * Common CodecHandler support.
  *
  * @author Vladimir Berezniker
  */
@@ -39,76 +44,196 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   public static final boolean CIPHER_ENCRYPT_MODE = true;
 
   private final PageChannel _channel;
-  private RC4Engine _engine;
-  private TempBufferHolder _encodeBuf;
+  private final byte[] _encodingKey;
+  private final KeyCache<CipherParameters> _paramCache = 
+    new KeyCache<CipherParameters>() {
+      @Override protected CipherParameters computeKey(int pageNumber) {
+        return computeCipherParams(pageNumber);
+      }
+    };
+  private TempBufferHolder _tempBufH;
 
-  protected BaseCryptCodecHandler(PageChannel channel) {
+  protected BaseCryptCodecHandler(PageChannel channel, byte[] encodingKey) {
     _channel = channel;
+    _encodingKey = encodingKey;
   }
 
-  protected final RC4Engine getEngine()
-  {
-    if(_engine == null) {
-      _engine = new RC4Engine();
-    }
-    return _engine;
+  protected CipherParameters getCipherParams(int pageNumber) {
+    return _paramCache.get(pageNumber);
   }
 
-  protected ByteBuffer getTempEncodeBuffer() {
-    if(_encodeBuf == null) {
-      _encodeBuf = TempBufferHolder.newHolder(TempBufferHolder.Type.SOFT, true);
+  protected byte[] getEncodingKey() {
+    return _encodingKey;
+  }
+
+  protected StreamCipher getStreamCipher() {
+    throw new UnsupportedOperationException();
+  }
+
+  protected BufferedBlockCipher getBlockCipher() {
+    throw new UnsupportedOperationException();
+  }
+
+  protected ByteBuffer getTempBuffer(int bufLen) {
+    if(_tempBufH == null) {
+      _tempBufH = TempBufferHolder.newHolder(TempBufferHolder.Type.SOFT, true);
     }
-    return _encodeBuf.getPageBuffer(_channel);
+    ByteBuffer tempBuf = _tempBufH.getBuffer(_channel, bufLen);
+    tempBuf.clear();
+    return tempBuf;
   }
 
   /**
-   * Decodes the page in the given buffer (in place) using RC4 decryption with
-   * the given params.
-   *
-   * @param buffer encoded page buffer
-   * @param params RC4 decryption parameters
+   * Decrypts the given buffer using a stream cipher.
    */
-  protected void decodePage(ByteBuffer buffer, KeyParameter params) {
-    RC4Engine engine = getEngine();
-
-    engine.init(CIPHER_DECRYPT_MODE, params);
+  protected void streamDecrypt(ByteBuffer buffer, int pageNumber) {
+    StreamCipher cipher = decryptInit(getStreamCipher(),
+                                      getCipherParams(pageNumber));
 
     byte[] array = buffer.array();
-    engine.processBytes(array, 0, array.length, array, 0);
-  }
-
-  public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
-                               int pageOffset) {
-    throw new UnsupportedOperationException(
-        "Encryption is currently not supported");
+    cipher.processBytes(array, 0, array.length, array, 0);
   }
 
   /**
-   * Encodes the page in the given buffer to a new buffer using RC4 decryption
-   * with the given params.
-   *
-   * @param buffer decoded page buffer
-   * @param pageOffset offset within the page at which to start encoding the
-   *                   page data
-   * @param params RC4 encryption parameters
+   * Encrypts the given buffer using a stream cipher and returns the encrypted
+   * buffer.
    */
-  protected ByteBuffer encodePage(ByteBuffer buffer, int pageOffset,
-                                  KeyParameter params) {
-    RC4Engine engine = getEngine();
+  protected ByteBuffer streamEncrypt(
+      ByteBuffer buffer, int pageNumber, int pageOffset) 
+  {
+    StreamCipher cipher = encryptInit(getStreamCipher(),
+                                      getCipherParams(pageNumber));
 
-    engine.init(CIPHER_ENCRYPT_MODE, params);
-
-    int limit = buffer.limit();
-    ByteBuffer encodeBuf = getTempEncodeBuffer();
-    encodeBuf.clear();
-    byte[] inArray = buffer.array();
     // note, we always start encoding at offset 0 so that we apply the cipher
     // to the correct part of the stream.  however, we can stop when we get to
     // the limit.
-    engine.processBytes(inArray, 0, limit, encodeBuf.array(), 0);
+    int limit = buffer.limit();
+    ByteBuffer encodeBuf = getTempBuffer(limit);
+    cipher.processBytes(buffer.array(), 0, limit, encodeBuf.array(), 0);
     return encodeBuf;
   }
 
+  /**
+   * Decrypts the given buffer using a block cipher.
+   */
+  protected void blockDecrypt(ByteBuffer buffer, int pageNumber) 
+  {
+    BufferedBlockCipher cipher = decryptInit(getBlockCipher(),
+                                             getCipherParams(pageNumber));
+
+    try {      
+      // we can't encode inline, so copy encoded data to temp buf before
+      // decoding (also, always encode the full page)
+      byte[] outArray = buffer.array();
+      int inLen = outArray.length;
+      byte[] inArray = getTempBuffer(cipher.getOutputSize(inLen)).array();
+      System.arraycopy(outArray, 0, inArray, 0, inLen);
+      processBytesFully(cipher, inArray, fill(outArray, 0), inLen);
+    } catch(InvalidCipherTextException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  /**
+   * Encrypts the given buffer using a block cipher and returns the encrypted
+   * buffer.
+   */
+  protected ByteBuffer blockEncrypt(ByteBuffer buffer, int pageNumber) 
+  {
+    BufferedBlockCipher cipher = encryptInit(getBlockCipher(),
+                                             getCipherParams(pageNumber));
+
+    try {
+      byte[] inArray = buffer.array();
+      int inLen = buffer.limit();
+      ByteBuffer encodeBuf = getTempBuffer(cipher.getOutputSize(inLen));
+      processBytesFully(cipher, inArray, fill(encodeBuf.array(), 0), inLen);
+      return encodeBuf;
+    } catch(InvalidCipherTextException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
+
+  /**
+   * Inits the given cipher for decryption with the given params.
+   */
+  protected static StreamCipher decryptInit(
+      StreamCipher cipher, CipherParameters params)
+  {
+    cipher.init(CIPHER_DECRYPT_MODE, params);
+    return cipher;
+  }
+
+  /**
+   * Inits the given cipher for encryption with the given params.
+   */
+  protected static StreamCipher encryptInit(
+      StreamCipher cipher, CipherParameters params)
+  {
+    cipher.init(CIPHER_ENCRYPT_MODE, params);
+    return cipher;
+  }
+
+  /**
+   * Inits the given cipher for decryption with the given params.
+   */
+  protected static BufferedBlockCipher decryptInit(
+      BufferedBlockCipher cipher, CipherParameters params)
+  {
+    cipher.init(CIPHER_DECRYPT_MODE, params);
+    return cipher;
+  }
+
+  /**
+   * Inits the given cipher for encryption with the given params.
+   */
+  protected static BufferedBlockCipher encryptInit(
+      BufferedBlockCipher cipher, CipherParameters params)
+  {
+    cipher.init(CIPHER_ENCRYPT_MODE, params);
+    return cipher;
+  }
+
+  /**
+   * Decrypts the given bytes using a stream cipher into a new byte[].
+   */
+  protected static byte[] decryptBytes(StreamCipher cipher, byte[] encBytes)
+  {
+    byte[] bytes = new byte[encBytes.length];
+    cipher.processBytes(encBytes, 0, encBytes.length, bytes, 0);
+    return bytes;
+  }
+
+  /**
+   * Decrypts the given bytes using a block cipher configured with the given
+   * key and IV into a new byte[].
+   */
+  protected byte[] blockDecryptBytes(byte[] keyBytes, byte[] iv, byte[] encBytes)
+  {
+    BufferedBlockCipher cipher = decryptInit(
+        getBlockCipher(), new ParametersWithIV(new KeyParameter(keyBytes), iv));
+    return decryptBytes(cipher, encBytes);
+  }
+
+  /**
+   * Decrypts the given bytes using a block cipher into a new byte[].
+   */
+  protected static byte[] decryptBytes(BufferedBlockCipher cipher,
+                                       byte[] encBytes)
+  {
+    try {
+      int inLen = encBytes.length;
+      return processBytesFully(cipher, encBytes, new byte[inLen], inLen);
+    } catch(InvalidCipherTextException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+  
   /**
    * Reads and returns the header page (page 0) from the given pageChannel.
    */
@@ -124,9 +249,8 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * Returns a copy of the given key with the bytes of the given pageNumber
    * applied at the given offset using XOR.
    */
-  public static byte[] applyPageNumber(byte[] key, int offset, 
-                                          int pageNumber)
-  {
+  public static byte[] applyPageNumber(byte[] key, int offset, int pageNumber) {
+    
     byte[] tmp = ByteUtil.copyOf(key, key.length);
     ByteBuffer bb = wrap(tmp);
     bb.position(offset);
@@ -146,6 +270,10 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     return hash(digest, bytes, null, 0);
   }
 
+  /**
+   * Hashes the given bytes1 and bytes2 using the given digest and returns the
+   * result.
+   */
   public static byte[] hash(Digest digest, byte[] bytes1, byte[] bytes2) {
     return hash(digest, bytes1, bytes2, 0);
   }
@@ -158,6 +286,10 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     return hash(digest, bytes, null, resultLen);
   }
 
+  /**
+   * Hashes the given bytes1 and bytes2 using the given digest and returns the
+   * hash fixed to the given length.
+   */
   public static byte[] hash(Digest digest, byte[] bytes1, byte[] bytes2,
                             int resultLen) {
     digest.reset();
@@ -185,8 +317,20 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * byte array as necessary.
    */
   public static byte[] fixToLength(byte[] bytes, int len) {
-    if(bytes.length != len) {
+    return fixToLength(bytes, len, 0);
+  }
+
+  /**
+   * @return a byte array of the given length, truncating or padding the given
+   * byte array as necessary using the given padByte.
+   */
+  public static byte[] fixToLength(byte[] bytes, int len, int padByte) {
+    int byteLen = bytes.length;
+    if(byteLen != len) {
       bytes = ByteUtil.copyOf(bytes, len);
+      if(byteLen < len) {
+        Arrays.fill(bytes, byteLen, len, (byte)padByte);
+      }
     } 
     return bytes;
   }
@@ -197,6 +341,27 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    */
   public static ByteBuffer wrap(byte[] bytes) {
     return ByteBuffer.wrap(bytes).order(PageChannel.DEFAULT_BYTE_ORDER);
+  }
+
+  /**
+   * Fills the given array with the given value and returns it.
+   */
+  public static byte[] fill(byte[] bytes, int value) {
+    Arrays.fill(bytes, (byte)value);
+    return bytes;
+  }
+
+  /**
+   * Processes all the bytes for the given block cipher.
+   */
+  protected static byte[] processBytesFully(BufferedBlockCipher cipher,
+                                            byte[] inArray, byte[] outArray,
+                                            int inLen)
+    throws InvalidCipherTextException
+  {
+    int outLen = cipher.processBytes(inArray, 0, inLen, outArray, 0);
+    cipher.doFinal(outArray, outLen);
+    return outArray;
   }
 
   /**
@@ -211,5 +376,10 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     }
     return true;
   }  
+
+  /**
+   * Generates the cipher parameters for the given page number.
+   */
+  protected abstract CipherParameters computeCipherParams(int pageNumber);
 
 }
