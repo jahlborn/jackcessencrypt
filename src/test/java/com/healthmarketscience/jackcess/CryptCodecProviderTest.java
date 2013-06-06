@@ -28,9 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 
 /**
@@ -50,50 +49,38 @@ public class CryptCodecProviderTest
       // success
     }
 
-    Database db = Database.open(new File("src/test/data/money2001.mny"),
-                                true, true, null, null, 
-                                new CryptCodecProvider());
+    Database db = open("src/test/data/money2001.mny", true, null);
 
     doCheckMSISAM2001Db(db);
 
     db.close();
 
-    db = Database.open(new File("src/test/data/money2001-pwd.mny"),
-                       true, true, null, null, 
-                       new CryptCodecProvider());
+    db = open("src/test/data/money2001-pwd.mny", true, null);
 
     doCheckMSISAM2001Db(db);
 
     db.close();
 
-    db = Database.open(new File("src/test/data/money2002.mny"),
-                       true, true, null, null, 
-                       new CryptCodecProvider());
+    db = open("src/test/data/money2002.mny", true, null);
 
     doCheckMSISAM2002Db(db);
 
     db.close();
 
-    db = Database.open(new File("src/test/data/money2008.mny"),
-                       true, true, null, null, 
-                       new CryptCodecProvider());
+    db = open("src/test/data/money2008.mny", true, null);
 
     doCheckMSISAM2008Db(db);
 
     db.close();
 
     try {
-      Database.open(new File("src/test/data/money2008-pwd.mny"),
-                    true, true, null, null, 
-                    new CryptCodecProvider());
+      open("src/test/data/money2008-pwd.mny", true, null);
       fail("IllegalStateException should have been thrown");
     } catch(IllegalStateException e) {
       // success
     }
 
-    db = Database.open(new File("src/test/data/money2008-pwd.mny"),
-                       true, true, null, null, 
-                       new CryptCodecProvider("Test12345"));
+    db = open("src/test/data/money2008-pwd.mny", true, "Test12345");
 
     doCheckMSISAM2008Db(db);
 
@@ -101,7 +88,7 @@ public class CryptCodecProviderTest
   }
 
   @Test
-  public void testJet() throws Exception
+  public void testReadJet() throws Exception
   {
     try {
       Database.open(new File("src/test/data/db-enc.mdb"), true);
@@ -111,9 +98,7 @@ public class CryptCodecProviderTest
     }
 
 
-    Database db = Database.open(new File("src/test/data/db-enc.mdb"),
-                                true, true, null, null, 
-                                new CryptCodecProvider());
+    Database db = open("src/test/data/db-enc.mdb", true, null);
 
     assertEquals(Database.FileFormat.V2000, db.getFileFormat());
 
@@ -121,15 +106,25 @@ public class CryptCodecProviderTest
 
     db.close();
 
-    db = Database.open(new File("src/test/data/db97-enc.mdb"),
-                       true, true, null, null, 
-                       new CryptCodecProvider());
+    db = open("src/test/data/db97-enc.mdb", true, null);
 
     assertEquals(Database.FileFormat.V1997, db.getFileFormat());
 
     doCheckJetDb(db);
 
-    db.close();    
+    // FIXME, test updates
+
+    db.close();
+  }
+
+  @Test
+  public void testWriteJet() throws Exception
+  {
+    Database db = openCopy("src/test/data/db-enc.mdb", null);
+
+
+
+    db.close();
   }
   
   @Test
@@ -142,7 +137,7 @@ public class CryptCodecProviderTest
       // success
     }
 
-    Database db = Database.open(new File("src/test/data/db2007-oldenc.accdb"), false, false, null, null, new CryptCodecProvider("Test123"));
+    Database db = open("src/test/data/db2007-oldenc.accdb", true, "Test123");
 
     db.getSystemTable("MSysQueries");
     doCheckOfficeDb(db);
@@ -154,7 +149,7 @@ public class CryptCodecProviderTest
       // success
     }
 
-    db = Database.open(new File("src/test/data/db2007-enc.accdb"), false, false, null, null, new CryptCodecProvider("Test123"));
+    db = open("src/test/data/db2007-enc.accdb", true, "Test123");
 
     db.getSystemTable("MSysQueries");
     doCheckOfficeDb(db);
@@ -290,6 +285,23 @@ public class CryptCodecProviderTest
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BEFUS"),
                  t.getNextRow(cols));
+  }
+
+  private static Database openCopy(String fileName, String pwd)
+    throws Exception
+  {
+    File copy = DatabaseTest.createTempFile(false);
+    DatabaseTest.copyFile(new File(fileName), copy);
+    return open(copy.getPath(), false, pwd);
+  }
+
+  private static Database open(String fileName, boolean readOnly, String pwd)
+    throws Exception
+  {
+    return new DatabaseBuilder(new File(fileName))
+      .setReadOnly(readOnly)
+      .setCodecProvider(new CryptCodecProvider(pwd))
+      .open();
   }
 
 }
