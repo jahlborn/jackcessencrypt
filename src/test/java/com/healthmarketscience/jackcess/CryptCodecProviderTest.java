@@ -78,6 +78,15 @@ public class CryptCodecProviderTest
       fail("IllegalStateException should have been thrown");
     } catch(IllegalStateException e) {
       // success
+      assertEquals("Incorrect password provided", e.getMessage());
+    }
+
+    try {
+      open("src/test/data/money2008-pwd.mny", true, "WrongPassword");
+      fail("IllegalStateException should have been thrown");
+    } catch(IllegalStateException e) {
+      // success
+      assertEquals("Incorrect password provided", e.getMessage());
     }
 
     db = open("src/test/data/money2008-pwd.mny", true, "Test12345");
@@ -102,7 +111,7 @@ public class CryptCodecProviderTest
 
     assertEquals(Database.FileFormat.V2000, db.getFileFormat());
 
-    doCheckJetDb(db);
+    doCheckJetDb(db, 0);
 
     db.close();
 
@@ -110,7 +119,7 @@ public class CryptCodecProviderTest
 
     assertEquals(Database.FileFormat.V1997, db.getFileFormat());
 
-    doCheckJetDb(db);
+    doCheckJetDb(db, 0);
 
     // FIXME, test updates
 
@@ -122,42 +131,79 @@ public class CryptCodecProviderTest
   {
     Database db = openCopy("src/test/data/db-enc.mdb", null);
 
+    Table t = db.getTable("Table1");
+    
+    for(int i = 0; i < 1000; ++i) {
+      t.addRow(null, "this is the value of col1 " + i, i);
+    }
 
+    db.flush();
+
+    doCheckJetDb(db, 1000);
 
     db.close();
   }
   
   @Test
-  public void testOfficeEncryption() throws Exception
+  public void testReadOfficeEnc() throws Exception
   {
-    try {
-      Database.open(new File("src/test/data/db2007-oldenc.accdb"), true);
-      fail("UnsupportedOperationException should have been thrown");
-    } catch(UnsupportedOperationException e) {
-      // success
+    for(String fname : Arrays.asList("src/test/data/db2007-oldenc.accdb",
+                                     "src/test/data/db2007-enc.accdb")) {
+      try {
+        Database.open(new File(fname), true);
+        fail("UnsupportedOperationException should have been thrown");
+      } catch(UnsupportedOperationException e) {
+        // success
+      }
+
+      try {
+        open(fname, true, null);
+        fail("IllegalStateException should have been thrown");
+      } catch(IllegalStateException e) {
+        // success
+        assertEquals("Incorrect password provided", e.getMessage());
+      }
+
+      try {
+        open(fname, true, "WrongPassword");
+        fail("IllegalStateException should have been thrown");
+      } catch(IllegalStateException e) {
+        // success
+        assertEquals("Incorrect password provided", e.getMessage());
+      }
+
+      Database db = open(fname, true, "Test123");
+
+      db.getSystemTable("MSysQueries");
+      doCheckOfficeDb(db, 0);
+
+      db.close();
     }
-
-    Database db = open("src/test/data/db2007-oldenc.accdb", true, "Test123");
-
-    db.getSystemTable("MSysQueries");
-    doCheckOfficeDb(db);
-
-    try {
-      Database.open(new File("src/test/data/db2007-enc.accdb"), true);
-      fail("UnsupportedOperationException should have been thrown");
-    } catch(UnsupportedOperationException e) {
-      // success
-    }
-
-    db = open("src/test/data/db2007-enc.accdb", true, "Test123");
-
-    db.getSystemTable("MSysQueries");
-    doCheckOfficeDb(db);
-
-    db.close();
   }
 
-  private void doCheckJetDb(Database db) throws Exception
+  @Test
+  public void testWriteOfficeEnc() throws Exception
+  {
+
+    for(String fname : Arrays.asList("src/test/data/db2007-oldenc.accdb",
+                                     "src/test/data/db2007-enc.accdb")) {
+      Database db = openCopy(fname, "Test123");
+
+      Table t = db.getTable("Table1");
+    
+      for(int i = 0; i < 1000; ++i) {
+        t.addRow(null, "this is the value of col1 " + i);
+      }
+
+      db.flush();
+
+      doCheckOfficeDb(db, 1000);      
+      
+      db.close();
+    } 
+  }
+
+  private static void doCheckJetDb(Database db, int addedRows) throws Exception
   {
     Table t = db.getTable("Table1");
 
@@ -171,11 +217,22 @@ public class CryptCodecProviderTest
               "ID", 2,
               "col1", "world",
               "col2", 42));
+
+    if(addedRows > 0) {
+      expectedRows = new ArrayList<Map<String, Object>>(expectedRows);
+      int nextId = 3;
+      for(int i = 0; i < addedRows; ++i) {
+        expectedRows.add(DatabaseTest.createExpectedRow(
+                             "ID", nextId++,
+                             "col1", "this is the value of col1 " + i,
+                             "col2", i));
+      }
+    }
     
     DatabaseTest.assertTable(expectedRows, t);
   }
 
-  private void doCheckOfficeDb(Database db) throws Exception
+  private static void doCheckOfficeDb(Database db, int addedRows) throws Exception
   {
     Table t = db.getTable("Table1");
 
@@ -184,11 +241,21 @@ public class CryptCodecProviderTest
           DatabaseTest.createExpectedRow(
               "ID", 1,
               "Field1", "foo"));
+
+    if(addedRows > 0) {
+      expectedRows = new ArrayList<Map<String, Object>>(expectedRows);
+      int nextId = 2;
+      for(int i = 0; i < addedRows; ++i) {
+        expectedRows.add(DatabaseTest.createExpectedRow(
+                             "ID", nextId++,
+                             "Field1", "this is the value of col1 " + i));
+      }
+    }
     
     DatabaseTest.assertTable(expectedRows, t);
   }
 
-  private void doCheckMSISAM2001Db(Database db) throws Exception
+  private static void doCheckMSISAM2001Db(Database db) throws Exception
   {
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 
@@ -221,7 +288,7 @@ public class CryptCodecProviderTest
                  t.getNextRow(cols));
   }
 
-  private void doCheckMSISAM2002Db(Database db) throws Exception
+  private static void doCheckMSISAM2002Db(Database db) throws Exception
   {
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 
@@ -254,7 +321,7 @@ public class CryptCodecProviderTest
                  t.getNextRow(cols));
   }
 
-  private void doCheckMSISAM2008Db(Database db) throws Exception
+  private static void doCheckMSISAM2008Db(Database db) throws Exception
   {
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 

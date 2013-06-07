@@ -218,6 +218,9 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
   }
 
   private static byte[] getPasswordBytes(String password) {
+    if(password == null) {
+      return new byte[0];
+    }
     if(password.length() > MAX_PASSWORD_LEN) {
       password = password.substring(0, MAX_PASSWORD_LEN);
     } 
