@@ -57,7 +57,7 @@ public class JetCryptCodecHandler extends BaseJetCryptCodecHandler
 
   @Override
   protected KeyParameter computeCipherParams(int pageNumber) {
-    return new KeyParameter(applyPageNumber(getEncodingKey(), 0, pageNumber));
+    return new KeyParameter(getEncodingKey(pageNumber));
   }
 
   @Override

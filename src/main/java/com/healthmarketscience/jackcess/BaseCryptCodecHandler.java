@@ -233,6 +233,13 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
       throw new IllegalStateException(e);
     }
   }
+
+  /**
+   * Gets the encoding key combined with the given page number.
+   */
+  protected byte[] getEncodingKey(int pageNumber) {
+    return applyPageNumber(getEncodingKey(), 0, pageNumber);
+  }
   
   /**
    * Reads and returns the header page (page 0) from the given pageChannel.

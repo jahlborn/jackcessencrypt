@@ -80,8 +80,7 @@ public class OfficeBinaryDocRC4Provider extends StreamCipherProvider
   @Override
   protected KeyParameter computeCipherParams(int pageNumber) {
     // when actually decrypting pages, we incorporate the "encoding key"
-    return computeEncryptionKey(
-        applyPageNumber(getEncodingKey(), 0, pageNumber));
+    return computeEncryptionKey(getEncodingKey(pageNumber));
   }
 
   private KeyParameter computeEncryptionKey(byte[] blockBytes) {

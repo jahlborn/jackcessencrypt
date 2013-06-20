@@ -59,7 +59,6 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
 
     // OC: 2.3.5.2 (part 1)
     _baseHash = hash(getDigest(), _verifier.getSalt(), pwdBytes);
-    // FIXME, something diff for 40 bits here?
     _encKeyByteSize =  bits2bytes(_header.getKeySize());
   }
 
@@ -82,8 +81,7 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
   @Override
   protected KeyParameter computeCipherParams(int pageNumber) {
     // when actually decrypting pages, we incorporate the "encoding key"
-    return computeEncryptionKey(
-        applyPageNumber(getEncodingKey(), 0, pageNumber));
+    return computeEncryptionKey(getEncodingKey(pageNumber));
   }
 
   private KeyParameter computeEncryptionKey(byte[] blockBytes) {

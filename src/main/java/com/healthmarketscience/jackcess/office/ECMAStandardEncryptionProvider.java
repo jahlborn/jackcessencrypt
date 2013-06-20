@@ -83,8 +83,7 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
   @Override
   protected KeyParameter computeCipherParams(int pageNumber) {
     // when actually decrypting pages, we incorporate the "encoding key"
-    return computeEncryptionKey(
-        applyPageNumber(getEncodingKey(), 0, pageNumber));
+    return computeEncryptionKey(getEncodingKey(pageNumber));
   }
   
   @Override

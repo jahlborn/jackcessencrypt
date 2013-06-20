@@ -133,7 +133,7 @@ public class AgileEncryptionProvider extends BlockCipherProvider
   @Override
   protected ParametersWithIV computeCipherParams(int pageNumber) {
     // when actually decrypting pages, we incorporate the "encoding key"
-    byte[] blockBytes = applyPageNumber(getEncodingKey(), 0, pageNumber);
+    byte[] blockBytes = getEncodingKey(pageNumber);
 
     CTKeyData keyData = _encryptDesc.getKeyData();
     byte[] iv = cryptDeriveIV(blockBytes, keyData.getSaltValue(),
