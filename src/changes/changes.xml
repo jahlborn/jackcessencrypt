@@ -4,7 +4,7 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="1.0.4" date="TBD">
+    <release version="1.0.4" date="2013-06-19">
       <action dev="jahlborn" type="update">
         Implement 2007/2010 encryption support, thanks to Vladimir Berezniker.
       </action>

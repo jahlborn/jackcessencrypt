@@ -121,8 +121,6 @@ public class CryptCodecProviderTest
 
     doCheckJetDb(db, 0);
 
-    // FIXME, test updates
-
     db.close();
   }
 
