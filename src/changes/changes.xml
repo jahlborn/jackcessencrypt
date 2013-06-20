@@ -6,7 +6,9 @@
   <body>
     <release version="1.0.4" date="2013-06-19">
       <action dev="jahlborn" type="update">
-        Implement 2007/2010 encryption support, thanks to Vladimir Berezniker.
+        Implement 2007/2010 encryption support, thanks to Vladimir
+        Berezniker.  (this version of Jackcess Encrypt requires Jackcess
+        1.2.13 or later).
       </action>
     </release>
     <release version="1.0.3" date="2012-07-11">
