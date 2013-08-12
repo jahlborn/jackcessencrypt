@@ -30,6 +30,7 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import com.healthmarketscience.jackcess.Row;
 
 
 /**
@@ -43,7 +44,8 @@ public class CryptCodecProviderTest
   public void testMSISAM() throws Exception
   {
     try {
-      Database.open(new File("src/test/data/money2001.mny"), true);
+      new DatabaseBuilder(new File("src/test/data/money2001.mny"))
+        .setReadOnly(true).open();
       fail("UnsupportedOperationException should have been thrown");
     } catch(UnsupportedOperationException e) {
       // success
@@ -100,7 +102,8 @@ public class CryptCodecProviderTest
   public void testReadJet() throws Exception
   {
     try {
-      Database.open(new File("src/test/data/db-enc.mdb"), true);
+      new DatabaseBuilder(new File("src/test/data/db-enc.mdb")).setReadOnly(true)
+        .open();
       fail("UnsupportedOperationException should have been thrown");
     } catch(UnsupportedOperationException e) {
       // success
@@ -148,7 +151,7 @@ public class CryptCodecProviderTest
     for(String fname : Arrays.asList("src/test/data/db2007-oldenc.accdb",
                                      "src/test/data/db2007-enc.accdb")) {
       try {
-        Database.open(new File(fname), true);
+        new DatabaseBuilder(new File(fname)).setReadOnly(true).open();
         fail("UnsupportedOperationException should have been thrown");
       } catch(UnsupportedOperationException e) {
         // success
@@ -205,7 +208,7 @@ public class CryptCodecProviderTest
   {
     Table t = db.getTable("Table1");
 
-    List<Map<String, Object>> expectedRows = 
+    List<Row> expectedRows = 
       DatabaseTest.createExpectedTable(
           DatabaseTest.createExpectedRow(
               "ID", 1,
@@ -217,7 +220,7 @@ public class CryptCodecProviderTest
               "col2", 42));
 
     if(addedRows > 0) {
-      expectedRows = new ArrayList<Map<String, Object>>(expectedRows);
+      expectedRows = new ArrayList<Row>(expectedRows);
       int nextId = 3;
       for(int i = 0; i < addedRows; ++i) {
         expectedRows.add(DatabaseTest.createExpectedRow(
@@ -234,14 +237,14 @@ public class CryptCodecProviderTest
   {
     Table t = db.getTable("Table1");
 
-    List<Map<String, Object>> expectedRows = 
+    List<Row> expectedRows = 
       DatabaseTest.createExpectedTable(
           DatabaseTest.createExpectedRow(
               "ID", 1,
               "Field1", "foo"));
 
     if(addedRows > 0) {
-      expectedRows = new ArrayList<Map<String, Object>>(expectedRows);
+      expectedRows = new ArrayList<Row>(expectedRows);
       int nextId = 2;
       for(int i = 0; i < addedRows; ++i) {
         expectedRows.add(DatabaseTest.createExpectedRow(
@@ -268,22 +271,22 @@ public class CryptCodecProviderTest
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 1, "szName", "Argentinean peso", 
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
                  
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 2, "szName", "Australian dollar", 
                      "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 3, "szName", "Austrian schilling", 
                      "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BECUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
   }
 
   private static void doCheckMSISAM2002Db(Database db) throws Exception
@@ -301,22 +304,22 @@ public class CryptCodecProviderTest
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 1, "szName", "Argentinian peso", 
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
                  
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 2, "szName", "Australian dollar", 
                      "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 3, "szName", "Austrian schilling", 
                      "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BECUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
   }
 
   private static void doCheckMSISAM2008Db(Database db) throws Exception
@@ -334,22 +337,22 @@ public class CryptCodecProviderTest
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 1, "szName", "Argentine peso", 
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
                  
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 2, "szName", "Australian dollar", 
                      "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 3, "szName", "Austrian schilling", 
                      "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
 
     assertEquals(DatabaseTest.createExpectedRow(
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BEFUS"),
-                 t.getNextRow(cols));
+                 t.getDefaultCursor().getNextRow(cols));
   }
 
   private static Database openCopy(String fileName, String pwd)

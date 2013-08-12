@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess.office;
+package com.healthmarketscience.jackcess.impl.office;
 
 import java.io.ByteArrayInputStream;
 import javax.xml.bind.JAXBContext;

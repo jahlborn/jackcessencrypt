@@ -17,17 +17,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess;
+package com.healthmarketscience.jackcess.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import com.healthmarketscience.jackcess.office.AgileEncryptionProvider;
-import com.healthmarketscience.jackcess.office.EncryptionHeader;
-import com.healthmarketscience.jackcess.office.ECMAStandardEncryptionProvider;
-import com.healthmarketscience.jackcess.office.RC4CryptoAPIProvider;
-import com.healthmarketscience.jackcess.office.OfficeBinaryDocRC4Provider;
+import com.healthmarketscience.jackcess.impl.office.AgileEncryptionProvider;
+import com.healthmarketscience.jackcess.impl.office.EncryptionHeader;
+import com.healthmarketscience.jackcess.impl.office.ECMAStandardEncryptionProvider;
+import com.healthmarketscience.jackcess.impl.office.RC4CryptoAPIProvider;
+import com.healthmarketscience.jackcess.impl.office.OfficeBinaryDocRC4Provider;
 import org.bouncycastle.crypto.Digest;
 
 /**
@@ -181,7 +181,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     _digest = null;
   }
 
-  public void decodePage(ByteBuffer buffer, int pageNumber) 
+  public void decodePage(ByteBuffer inPage, ByteBuffer outPage, int pageNumber) 
     throws IOException
   {
     if(!isEncryptedPage(pageNumber)) {
@@ -189,7 +189,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
       return;
     }
 
-    decodePageImpl(buffer, pageNumber);
+    decodePageImpl(inPage, outPage, pageNumber);
   }
 
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
@@ -232,7 +232,8 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     return bits/8;
   }
 
-  protected abstract void decodePageImpl(ByteBuffer buffer, int pageNumber)
+  protected abstract void decodePageImpl(ByteBuffer inPage, ByteBuffer outPage,
+                                         int pageNumber)
     throws IOException;
 
   protected abstract ByteBuffer encodePageImpl(

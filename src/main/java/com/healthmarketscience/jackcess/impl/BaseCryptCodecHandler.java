@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess;
+package com.healthmarketscience.jackcess.impl;
 
 
 import java.io.IOException;
@@ -74,11 +74,11 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     throw new UnsupportedOperationException();
   }
 
-  protected ByteBuffer getTempBuffer(int bufLen) {
+  protected ByteBuffer getTempBuffer() {
     if(_tempBufH == null) {
       _tempBufH = TempBufferHolder.newHolder(TempBufferHolder.Type.SOFT, true);
     }
-    ByteBuffer tempBuf = _tempBufH.getBuffer(_channel, bufLen);
+    ByteBuffer tempBuf = _tempBufH.getPageBuffer(_channel);
     tempBuf.clear();
     return tempBuf;
   }
@@ -108,7 +108,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     // to the correct part of the stream.  however, we can stop when we get to
     // the limit.
     int limit = buffer.limit();
-    ByteBuffer encodeBuf = getTempBuffer(limit);
+    ByteBuffer encodeBuf = getTempBuffer();
     cipher.processBytes(buffer.array(), 0, limit, encodeBuf.array(), 0);
     return encodeBuf;
   }
@@ -116,18 +116,16 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   /**
    * Decrypts the given buffer using a block cipher.
    */
-  protected void blockDecrypt(ByteBuffer buffer, int pageNumber) 
+  protected void blockDecrypt(ByteBuffer inPage, ByteBuffer outPage,
+                              int pageNumber) 
   {
     BufferedBlockCipher cipher = decryptInit(getBlockCipher(),
                                              getCipherParams(pageNumber));
 
     try {      
-      // we can't encode inline, so copy encoded data to temp buf before
-      // decoding (also, always encode the full page)
-      byte[] outArray = buffer.array();
-      int inLen = outArray.length;
-      byte[] inArray = getTempBuffer(cipher.getOutputSize(inLen)).array();
-      System.arraycopy(outArray, 0, inArray, 0, inLen);
+      byte[] inArray = inPage.array();
+      int inLen = inArray.length;
+      byte[] outArray = outPage.array();
       processBytesFully(cipher, inArray, fill(outArray, 0), inLen);
     } catch(InvalidCipherTextException e) {
       throw new IllegalStateException(e);
@@ -146,7 +144,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     try {
       byte[] inArray = buffer.array();
       int inLen = buffer.limit();
-      ByteBuffer encodeBuf = getTempBuffer(cipher.getOutputSize(inLen));
+      ByteBuffer encodeBuf = getTempBuffer();
       processBytesFully(cipher, inArray, fill(encodeBuf.array(), 0), inLen);
       return encodeBuf;
     } catch(InvalidCipherTextException e) {

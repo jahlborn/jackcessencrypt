@@ -17,13 +17,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess.office;
+package com.healthmarketscience.jackcess.impl.office;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.healthmarketscience.jackcess.PageChannel;
+import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.cryptmodel.CTEncryption;
 import com.healthmarketscience.jackcess.cryptmodel.CTKeyData;
 import com.healthmarketscience.jackcess.cryptmodel.CTKeyEncryptor;

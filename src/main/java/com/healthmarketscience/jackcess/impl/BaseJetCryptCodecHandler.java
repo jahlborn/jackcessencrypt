@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess;
+package com.healthmarketscience.jackcess.impl;
 
 import java.nio.ByteBuffer;
 
@@ -37,6 +37,17 @@ public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
     super(channel, encodingKey);
   }
 
+  public boolean canEncodePartialPage() {
+    // RC4 ciphers are not influenced by the page contents, so we can easily
+    // encode part of the buffer.
+    return true;
+  }
+
+  public boolean canDecodeInline() {
+    // RC4 ciphers can decode on top of the input buffer
+    return true;
+  }
+
   @Override
   protected final RC4Engine getStreamCipher() {
     if(_engine == null) {
@@ -45,13 +56,13 @@ public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
     return _engine;
   }
 
-  public void decodePage(ByteBuffer buffer, int pageNumber) {
+  public void decodePage(ByteBuffer inPage, ByteBuffer outPage, int pageNumber) {
     if(!isEncryptedPage(pageNumber)) {
       // not encoded
       return;
     }
 
-    streamDecrypt(buffer, pageNumber);
+    streamDecrypt(inPage, pageNumber);
   }
 
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 

@@ -17,12 +17,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess.office;
+package com.healthmarketscience.jackcess.impl.office;
 
 import java.nio.ByteBuffer;
 
-import com.healthmarketscience.jackcess.OfficeCryptCodecHandler;
-import com.healthmarketscience.jackcess.PageChannel;
+import com.healthmarketscience.jackcess.impl.OfficeCryptCodecHandler;
+import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.StreamCipher;
 
 /**
@@ -38,6 +38,11 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
     super(channel, encodingKey);
   }
 
+  public boolean canDecodeInline() {
+    // stream ciphers can decode on top of the input buffer
+    return true;
+  }
+
   @Override
   protected StreamCipher getStreamCipher() {
     if(_cipher == null) {
@@ -51,9 +56,10 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
   }
 
   @Override
-  protected void decodePageImpl(ByteBuffer buffer, int pageNumber) 
+  protected void decodePageImpl(ByteBuffer inPage, ByteBuffer outPage,
+                                int pageNumber) 
   {
-    streamDecrypt(buffer, pageNumber);
+    streamDecrypt(inPage, pageNumber);
   }
 
   @Override

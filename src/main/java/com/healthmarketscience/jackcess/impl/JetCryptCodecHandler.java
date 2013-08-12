@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess;
+package com.healthmarketscience.jackcess.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,12 +47,6 @@ public class JetCryptCodecHandler extends BaseJetCryptCodecHandler
 
     return (isBlankKey(encodingKey) ? DefaultCodecProvider.DUMMY_HANDLER :
             new JetCryptCodecHandler(channel, encodingKey));
-  }
-
-  public boolean canEncodePartialPage() {
-    // RC4 ciphers are not influenced by the page contents, so we can easily
-    // encode part of the buffer.
-    return true;
   }
 
   @Override

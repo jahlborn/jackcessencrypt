@@ -17,11 +17,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess.office;
+package com.healthmarketscience.jackcess.impl.office;
 
 import java.nio.ByteBuffer;
 
-import com.healthmarketscience.jackcess.ByteUtil;
+import com.healthmarketscience.jackcess.impl.ByteUtil;
 
 /**
  *

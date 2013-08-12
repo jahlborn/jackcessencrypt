@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess;
+package com.healthmarketscience.jackcess.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -91,12 +91,6 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
       };
   }
 
-  public boolean canEncodePartialPage() {
-    // RC4 ciphers are not influenced by the page contents, so we can easily
-    // encode part of the buffer.
-    return true;
-  }
-
   @Override
   protected KeyParameter computeCipherParams(int pageNumber) {
     return new KeyParameter(
@@ -137,7 +131,7 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
       byte[] passwordBytes = new byte[PASSWORD_LENGTH];
 
       if (password != null) {
-        ByteBuffer bb = Column.encodeUncompressedText(
+        ByteBuffer bb = ColumnImpl.encodeUncompressedText(
             password.toUpperCase(), charset);
         bb.get(passwordBytes, 0,
                Math.min(passwordBytes.length, bb.remaining()));
@@ -160,7 +154,7 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
           buffer, format.OFFSET_PASSWORD, format.SIZE_PASSWORD*2);
 
       // apply additional mask to header data
-      byte[] pwdMask = Database.getPasswordMask(buffer, format);
+      byte[] pwdMask = DatabaseImpl.getPasswordMask(buffer, format);
       if(pwdMask != null) {
 
         for(int i = 0; i < format.SIZE_PASSWORD; ++i) {

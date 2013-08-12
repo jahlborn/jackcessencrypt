@@ -17,20 +17,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 USA
 */
 
-package com.healthmarketscience.jackcess.office;
+package com.healthmarketscience.jackcess.impl.office;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.healthmarketscience.jackcess.OfficeCryptCodecHandler;
-import com.healthmarketscience.jackcess.PageChannel;
+import com.healthmarketscience.jackcess.impl.OfficeCryptCodecHandler;
+import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
-import org.bouncycastle.crypto.paddings.ZeroBytePadding;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
 
 /**
  *
@@ -48,8 +43,7 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   @Override
   protected BufferedBlockCipher getBlockCipher() {
     if(_cipher == null) {
-      _cipher = new 
-        PaddedBufferedBlockCipher(initCipher(), new ZeroBytePadding());
+      _cipher = new BufferedBlockCipher(initCipher());
     }
     return _cipher;
   }
@@ -57,6 +51,11 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   public final boolean canEncodePartialPage() {
     // for a variety of reasons, it's difficult (or impossible if chaining
     // modes are in use) for block ciphers to encode partial pages.
+    return false;
+  }
+
+  public final boolean canDecodeInline() {
+    // block ciphers cannot decode on top of the input buffer
     return false;
   }
 
@@ -80,9 +79,10 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   }
 
   @Override
-  protected void decodePageImpl(ByteBuffer buffer, int pageNumber) 
+  protected void decodePageImpl(ByteBuffer inPage, ByteBuffer outPage,
+                                int pageNumber) 
   {
-    blockDecrypt(buffer, pageNumber);
+    blockDecrypt(inPage, outPage, pageNumber);
   }
 
   @Override

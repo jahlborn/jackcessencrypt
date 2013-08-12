@@ -21,6 +21,15 @@ package com.healthmarketscience.jackcess;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import com.healthmarketscience.jackcess.impl.CodecProvider;
+import com.healthmarketscience.jackcess.impl.CodecHandler;
+import com.healthmarketscience.jackcess.impl.PageChannel;
+import com.healthmarketscience.jackcess.impl.JetFormat;
+import com.healthmarketscience.jackcess.impl.DefaultCodecProvider;
+import com.healthmarketscience.jackcess.impl.JetCryptCodecHandler;
+import com.healthmarketscience.jackcess.impl.MSISAMCryptCodecHandler;
+import com.healthmarketscience.jackcess.impl.OfficeCryptCodecHandler;
+
 
 /**
  * Implementation of CodecProvider with support for some forms of Microsoft
