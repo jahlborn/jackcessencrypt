@@ -6,6 +6,7 @@
     <title>Java Library for MS Access Encryption (Jackcess extension)</title>
   </properties>
   <body>
+    
     <section name="Jackcess Encrypt">
       <p>
         Jackcess Encrypt is an extension library for the <a href="http://jackcess.sourceforge.net/">Jackcess</a> project
@@ -28,19 +29,33 @@
         </ul>
       </p>
     </section>
+
+    <section name="Jackcess Encrypt 2.0">
+      <p>
+        In order to match the API changes made in <a href="http://jackcess.sourceforge.net/jackcess-2.html">Jackess 2.0</a>, the Jackcess
+        Encrypt project has made a similar version change.  Read the
+        <a href="jackcess-2.html">Upgrade Guide</a> for full details.
+      </p>
+    </section>
+
     <section name="Sample code">
       This project's encryption support can be utilized by providing a
       CryptCodecProvider when opening an Access Database.
       <ul>
         <li>Open a Database with normal Jet file encoding:
-          <source>Database db = Database.open(myDbFile, true, true, null, null, new CryptCodecProvider());</source>
+          <source>Database db = new DatabaseBuilder(myDbFile)
+  .setCodecProvider(new CryptCodecProvider())
+  .open();</source>
         </li>
         <li>Open a Database with an encoding which requires a password to
             decode:
-            <source>Database db = Database.open(myDbFile, true, true, null, null, new CryptCodecProvider("MyDbPassword"));</source>
+            <source>Database db = new DatabaseBuilder(myDbFile)
+  .setCodecProvider(new CryptCodecProvider("MyDbPassword"))
+  .open();</source>
         </li>
       </ul>
     </section>
+
   </body>
 
 </document>

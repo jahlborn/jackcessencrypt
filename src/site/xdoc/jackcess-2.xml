@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<document>
+  <properties>
+    <author email="jahlborn@users.sf.net">James Ahlborn</author>
+    <title>Upgrading from Jackcess Encrypt 1.x to 2.x</title>
+  </properties>
+  <body>
+
+    <section name="Why the new version?">
+      <p>
+        The Jackcess project has changed its public API to version 2.x as part
+        of a long-overdue overhaul.  These changes are superficial, but are not
+        backwards compatible with Jackcess 1.x (<a href="http://jackcess.sourceforge.net/jackcess-2.html">full details
+        here</a>).  Jackcess Encrypt has similarly changed its version number in
+        order to make it easy to match compatible versions:
+        <ul>
+          <li>Jackcess 2.x -&gt; Jackcess Encrypt 2.y</li>
+          <li>Jackcess 1.x -&gt; Jackcess Encrypt 1.y</li>
+        </ul>
+      </p>
+    </section>
+
+    <section name="What does this mean for 1.x?">
+      <p>
+        Moving forward, all new feature development will be in Jackcess
+        Encrypt 2.x.  The Jackcess Encrypt 1.x code has been branched at
+        version 1.0.4 and some bugfixes may be backported to that branch on a
+        case by case basis.  However, no new feature development will be done
+        on the 1.x branch.
+      </p>
+    </section>
+
+  </body>
+</document>
