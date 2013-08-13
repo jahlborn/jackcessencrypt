@@ -28,19 +28,22 @@
               library to be distributed more freely.</li>
         </ul>
       </p>
-    </section>
 
-    <section name="Jackcess Encrypt 2.0">
-      <p>
-        In order to match the API changes made in <a href="http://jackcess.sourceforge.net/jackcess-2.html">Jackess 2.0</a>, the Jackcess
-        Encrypt project has made a similar version change.  Read the
-        <a href="jackcess-2.html">Upgrade Guide</a> for full details.
-      </p>
+      <subsection name="Jackcess Encrypt 2.0">
+        <p>
+          In order to match the API changes made in <a href="http://jackcess.sourceforge.net/jackcess-2.html">Jackess 2.0</a>, the Jackcess
+          Encrypt project has made a similar version change.  Read the
+          <a href="jackcess-2.html">Upgrade Guide</a> for full details.
+        </p>
+      </subsection>
+
     </section>
 
     <section name="Sample code">
-      This project's encryption support can be utilized by providing a
-      CryptCodecProvider when opening an Access Database.
+      <p>
+        This project's encryption support can be utilized by providing a
+        CryptCodecProvider when opening an Access Database.
+      </p>
       <ul>
         <li>Open a Database with normal Jet file encoding:
           <source>Database db = new DatabaseBuilder(myDbFile)
