@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import com.healthmarketscience.jackcess.PasswordCallback;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.MD5Digest;
@@ -71,14 +72,15 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
     _baseHash = ByteUtil.concat(pwdDigest, baseSalt);
   }
 
-  public static CodecHandler create(String password, PageChannel channel, 
+  public static CodecHandler create(PasswordCallback callback, PageChannel channel, 
                                     Charset charset)
     throws IOException
   {
     ByteBuffer buffer = readHeaderPage(channel);
 
     if ((buffer.get(ENCRYPTION_FLAGS_OFFSET) & NEW_ENCRYPTION) != 0) {
-      return new MSISAMCryptCodecHandler(channel, password, charset, buffer);
+      return new MSISAMCryptCodecHandler(channel, callback.getPassword(),
+                                         charset, buffer);
     }
 
     // old MSISAM dbs use jet-style encryption w/ a different key

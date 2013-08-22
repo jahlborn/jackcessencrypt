@@ -23,11 +23,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.healthmarketscience.jackcess.PasswordCallback;
 import com.healthmarketscience.jackcess.impl.office.AgileEncryptionProvider;
-import com.healthmarketscience.jackcess.impl.office.EncryptionHeader;
 import com.healthmarketscience.jackcess.impl.office.ECMAStandardEncryptionProvider;
-import com.healthmarketscience.jackcess.impl.office.RC4CryptoAPIProvider;
+import com.healthmarketscience.jackcess.impl.office.EncryptionHeader;
 import com.healthmarketscience.jackcess.impl.office.OfficeBinaryDocRC4Provider;
+import com.healthmarketscience.jackcess.impl.office.RC4CryptoAPIProvider;
 import org.bouncycastle.crypto.Digest;
 
 /**
@@ -51,7 +52,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     super(channel, encodingKey);
   }
 
-  public static CodecHandler create(String password, PageChannel channel,
+  public static CodecHandler create(PasswordCallback callback, PageChannel channel,
                                     Charset charset)
     throws IOException
   {
@@ -79,7 +80,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     // uint
     int vMinor = ByteUtil.getUnsignedShort(encProvBuf);
 
-    byte[] pwdBytes = getPasswordBytes(password);
+    byte[] pwdBytes = getPasswordBytes(callback.getPassword());
 
     OfficeCryptCodecHandler handler = null;
     if((vMajor == 4) && (vMinor == 4)) {

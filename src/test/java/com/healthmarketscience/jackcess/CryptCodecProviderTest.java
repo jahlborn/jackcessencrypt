@@ -204,6 +204,12 @@ public class CryptCodecProviderTest
     } 
   }
 
+  @Test
+  public void testPasswordCallback() throws Exception
+  {
+    assertTrue("FIXME writeme", false);
+  }
+  
   private static void doCheckJetDb(Database db, int addedRows) throws Exception
   {
     Table t = db.getTable("Table1");
