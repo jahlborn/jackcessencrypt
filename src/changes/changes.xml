@@ -4,6 +4,18 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="2.0.0" date="2013-08-26">
+      <action dev="jahlborn" type="update">
+        This release is a major version number release in order to match the
+        changes made in the Jackcess project.  This release is not backwards
+        compatible with Jackcess 1.x.  See the Migration Guide at
+        http://jackcessencrypt.sourceforge.net/jackcess-2.html for more
+        details.
+      </action>
+      <action dev="jahlborn" type="update">
+        Added PasswordCallback for more flexible password prompting.
+      </action>
+    </release>
     <release version="1.0.4" date="2013-06-19">
       <action dev="jahlborn" type="update">
         Implement 2007/2010 encryption support, thanks to Vladimir
