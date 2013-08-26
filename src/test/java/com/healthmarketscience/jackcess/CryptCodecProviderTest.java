@@ -27,10 +27,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import com.healthmarketscience.jackcess.Row;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import com.healthmarketscience.jackcess.Row;
 
 
 /**
@@ -207,7 +208,34 @@ public class CryptCodecProviderTest
   @Test
   public void testPasswordCallback() throws Exception
   {
-    assertTrue("FIXME writeme", false);
+    final AtomicInteger _count = new AtomicInteger();
+    PasswordCallback pc = new PasswordCallback() {
+      public String getPassword() {
+        _count.incrementAndGet();
+        return "Test123";
+      }
+    };
+
+    Database db = new DatabaseBuilder(new File("src/test/data/db-enc.mdb"))
+      .setReadOnly(true)
+      .setCodecProvider(new CryptCodecProvider().setPasswordCallback(pc))
+      .open();
+
+    Table t = db.getTable("Table1");
+    assertNotNull(t);
+
+    assertEquals(0, _count.get());
+
+    db = new DatabaseBuilder(
+        new File("src/test/data/db2007-enc.accdb"))
+      .setReadOnly(true)
+      .setCodecProvider(new CryptCodecProvider().setPasswordCallback(pc))
+      .open();
+    
+    t = db.getTable("Table1");
+    assertNotNull(t);
+
+    assertEquals(1, _count.get());
   }
   
   private static void doCheckJetDb(Database db, int addedRows) throws Exception
