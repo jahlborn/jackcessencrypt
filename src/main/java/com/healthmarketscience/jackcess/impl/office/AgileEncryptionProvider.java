@@ -62,8 +62,9 @@ public class AgileEncryptionProvider extends BlockCipherProvider
     super(channel, encodingKey);
 
     // OC: 2.3.4.10
-    if(encProvBuf.getInt() != RESERVED_VAL) {
-      throw new IllegalStateException("Unexpected reserved value");
+    int reservedVal = encProvBuf.getInt();
+    if(reservedVal != RESERVED_VAL) {
+      throw new IllegalStateException("Unexpected reserved value " + reservedVal);
     }
 
     byte[] xmlBytes = new byte[encProvBuf.remaining()];

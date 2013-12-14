@@ -25,7 +25,9 @@ import java.nio.charset.Charset;
 import java.util.Set;
 
 import com.healthmarketscience.jackcess.impl.ByteUtil;
+import com.healthmarketscience.jackcess.impl.CustomToStringStyle;
 import com.healthmarketscience.jackcess.impl.UnsupportedCodecException;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  *
@@ -181,7 +183,7 @@ public class EncryptionHeader
     }
     
     int keySize = header.getKeySize();
-    if(!header.getCryptoAlgorithm().isValidKeySize(keySize)) {
+    if(header.getCryptoAlgorithm().isValidKeySize(keySize)) {
       throw new IllegalStateException(
           header + " key size is outside allowable range");
     }
@@ -270,5 +272,11 @@ public class EncryptionHeader
   public static boolean isFlagSet(int flagsVal, int flagMask)
   {
     return ((flagsVal & flagMask) != 0);
+  }
+
+  @Override
+  public String toString()
+  {
+    return ToStringBuilder.reflectionToString(this, CustomToStringStyle.VALUE_INSTANCE);
   }
 }

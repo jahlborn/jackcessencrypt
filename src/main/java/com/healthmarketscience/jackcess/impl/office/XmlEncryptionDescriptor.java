@@ -203,8 +203,7 @@ public class XmlEncryptionDescriptor
       return clazz.newInstance();
     } catch(Exception e) {
       throw new IllegalStateException(
-          "Failed initializing encryption algorithm: " + clazz.getSimpleName(),
-                                      e);
+          "Failed initializing encryption algorithm: " + clazz.getSimpleName(), e);
     }
   }
 

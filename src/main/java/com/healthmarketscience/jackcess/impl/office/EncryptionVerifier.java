@@ -44,7 +44,7 @@ public class EncryptionVerifier
     // OC: 2.3.3 EncryptionVerifier Structure
     _saltSize = buffer.getInt();
     if(_saltSize != SALT_SIZE) {
-      throw new IllegalStateException("salt size must be " + SALT_SIZE);
+      throw new IllegalStateException("salt size " + _saltSize + " must be " + SALT_SIZE);
     }
     _salt = ByteUtil.getBytes(buffer, _saltSize);
     _encryptedVerifier = ByteUtil.getBytes(buffer, ENC_VERIFIER_SIZE);
