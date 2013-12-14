@@ -183,7 +183,7 @@ public class EncryptionHeader
     }
     
     int keySize = header.getKeySize();
-    if(header.getCryptoAlgorithm().isValidKeySize(keySize)) {
+    if(!header.getCryptoAlgorithm().isValidKeySize(keySize)) {
       throw new IllegalStateException(
           header + " key size is outside allowable range");
     }
