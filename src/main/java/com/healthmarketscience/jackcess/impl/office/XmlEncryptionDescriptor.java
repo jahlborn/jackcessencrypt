@@ -329,7 +329,8 @@ public class XmlEncryptionDescriptor
       } else if(params instanceof KeyParameter) {
         _cipher.init(forEncryption, params);
       } else {
-        throw new IllegalArgumentException("invalid parameters passed to ECB");
+        throw new IllegalArgumentException("invalid parameters passed to " + 
+                                           getAlgorithmName());
       }
     }
 
