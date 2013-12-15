@@ -27,6 +27,7 @@ import javax.xml.bind.JAXBException;
 import com.healthmarketscience.jackcess.cryptmodel.CTEncryption;
 import com.healthmarketscience.jackcess.cryptmodel.password.CTPasswordKeyEncryptor;
 import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.MD2Digest;
 import org.bouncycastle.crypto.digests.MD4Digest;
@@ -42,8 +43,13 @@ import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.engines.DESedeEngine;
 import org.bouncycastle.crypto.engines.RC2Engine;
+import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.modes.CCMBlockCipher;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
+import org.bouncycastle.crypto.modes.GCMBlockCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.w3c.dom.Node;
 
 /**
@@ -101,6 +107,21 @@ public class XmlEncryptionDescriptor
     CHAININGMODECFB {
       @Override public BlockCipher initChainingMode(BlockCipher baseCipher) {
         return new CFBBlockCipher(baseCipher, 8);
+      }
+    },
+    CHAININGMODECCM {
+      @Override public BlockCipher initChainingMode(BlockCipher baseCipher) {
+        return new AEADBlockCipherAdapter(new CCMBlockCipher(baseCipher));
+      }
+    },
+    CHAININGMODEGCM {
+      @Override public BlockCipher initChainingMode(BlockCipher baseCipher) {
+        return new AEADBlockCipherAdapter(new GCMBlockCipher(baseCipher));
+      }
+    },
+    CHAININGMODEECB {
+      @Override public BlockCipher initChainingMode(BlockCipher baseCipher) {
+        return new ECBBlockCipher(baseCipher);
       }
     };
 
@@ -214,6 +235,70 @@ public class XmlEncryptionDescriptor
       return JAXBContext.newInstance(name, XmlEncryptionDescriptor.class.getClassLoader());
     } catch(JAXBException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private static final class AEADBlockCipherAdapter implements BlockCipher
+  {
+    private final AEADBlockCipher _cipher;
+
+    private AEADBlockCipherAdapter(AEADBlockCipher cipher) {
+      _cipher = cipher;
+    }
+
+    public String getAlgorithmName() {
+      return _cipher.getAlgorithmName();
+    }
+
+    public int getBlockSize() {
+      return _cipher.getUnderlyingCipher().getBlockSize();
+    }
+
+    public void init(boolean forEncryption, CipherParameters params) {
+      _cipher.init(forEncryption, params);
+    }
+
+    public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
+      return _cipher.processBytes(in, inOff, getBlockSize(), out, outOff);
+    }
+    
+    public void reset() {
+      _cipher.reset();
+    }
+  }
+
+  private static final class ECBBlockCipher implements BlockCipher
+  {
+    private final BlockCipher _cipher;
+
+    private ECBBlockCipher(BlockCipher cipher) {
+      _cipher = cipher;
+    }
+
+    public String getAlgorithmName() {
+      return _cipher.getAlgorithmName();
+    }
+
+    public int getBlockSize() {
+      return _cipher.getBlockSize();
+    }
+
+    public void init(boolean forEncryption, CipherParameters params) {
+      if(params instanceof ParametersWithIV) {
+        _cipher.init(forEncryption, ((ParametersWithIV)params).getParameters());
+      } else if(params instanceof KeyParameter) {
+        _cipher.init(forEncryption, params);
+      } else {
+        throw new IllegalArgumentException("invalid parameters passed to ECB");
+      }
+    }
+
+    public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
+      return _cipher.processBlock(in, inOff, out, outOff);
+    }
+    
+    public void reset() {
+      _cipher.reset();
     }
   }
 }
