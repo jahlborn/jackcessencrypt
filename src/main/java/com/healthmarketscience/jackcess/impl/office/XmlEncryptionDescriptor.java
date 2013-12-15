@@ -29,6 +29,7 @@ import com.healthmarketscience.jackcess.cryptmodel.password.CTPasswordKeyEncrypt
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.MD2Digest;
 import org.bouncycastle.crypto.digests.MD4Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
@@ -43,6 +44,7 @@ import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.engines.DESedeEngine;
 import org.bouncycastle.crypto.engines.RC2Engine;
+import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.modes.CCMBlockCipher;
@@ -65,7 +67,7 @@ public class XmlEncryptionDescriptor
   // private static final String CERT_ENCRYPTOR_CONTEXT_NAME =
   //   "com.healthmarketscience.jackcess.cryptmodel.cert";
 
-  private static final class Encypt {
+  private static final class Encrypt {
     private static final JAXBContext CONTEXT = loadContext(ENCRYPT_CONTEXT_NAME);
   }
   private static final class PasswordEncryptor {
@@ -76,11 +78,14 @@ public class XmlEncryptionDescriptor
   //   private static final JAXBContext CONTEXT = 
   //     loadContext(CERT_ENCRYPTOR_CONTEXT_NAME);
   // }
+  
+  // this value doesn't matter, just multiple of 2
+  private static final int STREAM_CIPHER_BLOCK_SIZE = 16;
 
   public enum CipherAlgorithm {
     AES(AESEngine.class), 
     RC2(RC2Engine.class), 
-    // RC4, 
+    RC4(RC4BlockCipher.class), 
     DES(DESEngine.class), 
     // DESX, 
     _3DES(DESedeEngine.class), 
@@ -157,7 +162,7 @@ public class XmlEncryptionDescriptor
 
   public static final CTEncryption parseEncryptionDescriptor(byte[] xmlBytes) {
     try {
-      return (CTEncryption)unwrap(Encypt.CONTEXT.createUnmarshaller().unmarshal(
+      return (CTEncryption)unwrap(Encrypt.CONTEXT.createUnmarshaller().unmarshal(
                                       new ByteArrayInputStream(xmlBytes)));
     } catch(JAXBException e) {
       throw new IllegalStateException("Failed parsing encryption descriptor", e);
@@ -301,4 +306,49 @@ public class XmlEncryptionDescriptor
       _cipher.reset();
     }
   }
+
+  private static class BlockCipherAdapter implements BlockCipher
+  {
+    private final StreamCipher _cipher;
+
+    private BlockCipherAdapter(StreamCipher cipher) {
+      _cipher = cipher;
+    }
+
+    public String getAlgorithmName() {
+      return _cipher.getAlgorithmName();
+    }
+
+    public int getBlockSize() {
+      return STREAM_CIPHER_BLOCK_SIZE;
+    }
+
+    public void init(boolean forEncryption, CipherParameters params) {
+      if(params instanceof ParametersWithIV) {
+        _cipher.init(forEncryption, ((ParametersWithIV)params).getParameters());
+      } else if(params instanceof KeyParameter) {
+        _cipher.init(forEncryption, params);
+      } else {
+        throw new IllegalArgumentException("invalid parameters passed to ECB");
+      }
+    }
+
+    public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
+      _cipher.processBytes(in, inOff, STREAM_CIPHER_BLOCK_SIZE, out, outOff);
+      return STREAM_CIPHER_BLOCK_SIZE;
+    }
+    
+    public void reset() {
+      _cipher.reset();
+    }
+  }
+
+  public static final class RC4BlockCipher extends BlockCipherAdapter 
+  {
+    public RC4BlockCipher() {
+      super(new RC4Engine());
+    }
+  }                                                   
+
 }
+
