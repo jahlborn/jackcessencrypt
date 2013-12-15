@@ -35,6 +35,7 @@ import org.bouncycastle.crypto.digests.RIPEMD128Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.digests.WhirlpoolDigest;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -109,6 +110,7 @@ public class XmlEncryptionDescriptor
   public enum HashAlgorithm {
     SHA1(SHA1Digest.class), 
     SHA256(SHA256Digest.class), 
+    SHA384(SHA384Digest.class), 
     SHA512(SHA512Digest.class), 
     MD5(MD5Digest.class), 
     MD4(MD4Digest.class), 

@@ -53,7 +53,10 @@ public class EncryptionHeader
 
   public enum CryptoAlgorithm {
     EXTERNAL(ALGID_FLAGS, 0, 0, 0),
-    RC4(ALGID_RC4, 20, 0x28, 0x80), 
+    // the CryptoAPI gives a valid range of 40-128 bits.  the CNG spec
+    // (http://msdn.microsoft.com/en-us/library/windows/desktop/bb931354%28v=vs.85%29.aspx)
+    // gives a range from 8-512 bits.  bouncycastle supports 40-2048 bits.
+    RC4(ALGID_RC4, 20, 0x28, 0x200), 
     AES_128(ALGID_AES_128, 32, 0x80, 0x80), 
     AES_192(ALGID_AES_192, 32, 0xC0, 0xC0), 
     AES_256(ALGID_AES_256, 32, 0x100, 0x100);
