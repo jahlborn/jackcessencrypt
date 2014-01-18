@@ -4,6 +4,12 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="2.0.1" date="2014-01-18">
+      <action dev="jahlborn" type="update">
+        Expand the range of keys supported for RC4 cipher to 40-512 bits.  Add
+        support for a few other chaining block modes.
+      </action>
+    </release>
     <release version="2.0.0" date="2013-08-26">
       <action dev="jahlborn" type="update">
         This release is a major version number release in order to match the
