@@ -238,7 +238,7 @@
             <list>http://download.oracle.com/javase/1.5.0/docs/api</list>
             <list>http://download.oracle.com/javaee/5/api</list>
             <list>http://jackcess.sourceforge.net/apidocs/</list>
-            <list>http://www.bouncycastle.org/docs/docs1.5/</list>
+            <list>http://www.bouncycastle.org/docs/docs1.5on/</list>
           </links>
           <source>1.5</source>
           <show>public</show>
