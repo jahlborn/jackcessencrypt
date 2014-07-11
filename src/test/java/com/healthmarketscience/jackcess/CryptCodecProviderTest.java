@@ -180,6 +180,13 @@ public class CryptCodecProviderTest
       doCheckOfficeDb(db, 0);
 
       db.close();
+
+      db = open("src/test/data/db2013-enc.accdb", true, "1234");
+
+      db.getSystemTable("MSysQueries");
+      doCheckOffice2013Db(db, 0);
+
+      db.close();
     }
   }
 
@@ -276,6 +283,47 @@ public class CryptCodecProviderTest
           DatabaseTest.createExpectedRow(
               "ID", 1,
               "Field1", "foo"));
+
+    if(addedRows > 0) {
+      expectedRows = new ArrayList<Row>(expectedRows);
+      int nextId = 2;
+      for(int i = 0; i < addedRows; ++i) {
+        expectedRows.add(DatabaseTest.createExpectedRow(
+                             "ID", nextId++,
+                             "Field1", "this is the value of col1 " + i));
+      }
+    }
+    
+    DatabaseTest.assertTable(expectedRows, t);
+  }
+
+  private static void doCheckOffice2013Db(Database db, int addedRows) throws Exception
+  {
+    Table t = db.getTable("Customers");
+
+    List<Row> expectedRows = 
+      DatabaseTest.createExpectedTable(
+          DatabaseTest.createExpectedRow(
+              "ID", 1,
+              "Field1", "Test"),
+          DatabaseTest.createExpectedRow(
+              "ID", 2,
+              "Field1", "Test2"),
+          DatabaseTest.createExpectedRow(
+              "ID", 3,
+              "Field1", "a"),
+          DatabaseTest.createExpectedRow(
+              "ID", 4,
+              "Field1", null),
+          DatabaseTest.createExpectedRow(
+              "ID", 5,
+              "Field1", "c"),
+          DatabaseTest.createExpectedRow(
+              "ID", 6,
+              "Field1", "d"),
+          DatabaseTest.createExpectedRow(
+              "ID", 7,
+              "Field1", "f"));
 
     if(addedRows > 0) {
       expectedRows = new ArrayList<Row>(expectedRows);
@@ -389,7 +437,7 @@ public class CryptCodecProviderTest
                  t.getDefaultCursor().getNextRow(cols));
   }
 
-  private static Database openCopy(String fileName, String pwd)
+  static Database openCopy(String fileName, String pwd)
     throws Exception
   {
     File copy = DatabaseTest.createTempFile(false);
@@ -397,7 +445,7 @@ public class CryptCodecProviderTest
     return open(copy.getPath(), false, pwd);
   }
 
-  private static Database open(String fileName, boolean readOnly, String pwd)
+  static Database open(String fileName, boolean readOnly, String pwd)
     throws Exception
   {
     return new DatabaseBuilder(new File(fileName))
@@ -406,4 +454,12 @@ public class CryptCodecProviderTest
       .open();
   }
 
+  static void checkCryptoStrength()
+  {
+    boolean unlimitedCrypto = false;
+    try {
+      unlimitedCrypto = (javax.crypto.Cipher.getMaxAllowedKeyLength("AES") > 256);
+    } catch(Exception e) {}    
+    System.out.println("Unlimited strength cryptography: " + unlimitedCrypto);    
+  }
 }

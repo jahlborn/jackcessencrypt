@@ -121,10 +121,12 @@ public class AgileEncryptionProvider extends BlockCipherProvider
     byte[] verifier = decryptVerifierHashInput(pwdBytes);
     byte[] verifierHash = decryptVerifierHashValue(pwdBytes);
 
+
     byte[] testHash = hash(getDigest(), verifier);
-    if((testHash.length / _pwdKeyEnc.getBlockSize()) != 0) {
-      int hashLen = ((testHash.length / (int)_pwdKeyEnc.getBlockSize()) + 1) *
-        (int)_pwdKeyEnc.getBlockSize();
+    int blockSize = (int)_pwdKeyEnc.getBlockSize();
+    // hash length needs to be rounded up to nearest blockSize
+    if((testHash.length % blockSize) != 0) {
+      int hashLen = ((testHash.length + blockSize - 1) / blockSize) * blockSize;
       testHash = fixToLength(testHash, hashLen);
     }
 
