@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.healthmarketscience.jackcess.Row;
+import com.healthmarketscience.jackcess.impl.DatabaseImpl;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -135,8 +136,13 @@ public class CryptCodecProviderTest
 
     Table t = db.getTable("Table1");
     
-    for(int i = 0; i < 1000; ++i) {
-      t.addRow(null, "this is the value of col1 " + i, i);
+    ((DatabaseImpl)db).getPageChannel().startWrite();
+    try {
+      for(int i = 0; i < 1000; ++i) {
+        t.addRow(null, "this is the value of col1 " + i, i);
+      }
+    } finally {
+      ((DatabaseImpl)db).getPageChannel().finishWrite();
     }
 
     db.flush();
@@ -200,8 +206,13 @@ public class CryptCodecProviderTest
 
       Table t = db.getTable("Table1");
     
-      for(int i = 0; i < 1000; ++i) {
-        t.addRow(null, "this is the value of col1 " + i);
+      ((DatabaseImpl)db).getPageChannel().startWrite();
+      try {
+        for(int i = 0; i < 1000; ++i) {
+          t.addRow(null, "this is the value of col1 " + i);
+        }
+      } finally {
+        ((DatabaseImpl)db).getPageChannel().finishWrite();
       }
 
       db.flush();
