@@ -51,6 +51,10 @@ public class EncryptionHeader
   private static final int HASHALGID_FLAGS   = 0;
   private static final int HASHALGID_SHA1    = 0x8004;
 
+  private static final String CSP_BASE_STRING = " base ";
+  private static final int RC4_BASE_DEFAULT_KEY_SIZE = 0x28;
+  private static final int RC4_STRONG_DEFAULT_KEY_SIZE = 0x80;
+
   public enum CryptoAlgorithm {
     EXTERNAL(ALGID_FLAGS, 0, 0, 0),
     // the CryptoAPI gives a valid range of 40-128 bits.  the CNG spec
@@ -76,6 +80,10 @@ public class EncryptionHeader
 
     public int getAlgId() {
       return _algId;
+    }
+
+    public int getKeySizeMin() {
+      return _keySizeMin;
     }
 
     public int getEncryptedVerifierHashLen() {
@@ -117,7 +125,7 @@ public class EncryptionHeader
     _sizeExtra = buffer.getInt();
     int algId = buffer.getInt();
     int algIdHash = buffer.getInt();
-    _keySize = buffer.getInt();
+    int keySize = buffer.getInt();
     _providerType = buffer.getInt();
 
     // determine encryption algorithm
@@ -131,6 +139,8 @@ public class EncryptionHeader
     buffer.getInt();
 
     _cspName = readCspName(buffer);
+
+    _keySize = parseKeySize(keySize, _cryptoAlg, _cspName);
   }
 
   public int getFlags() {
@@ -246,6 +256,29 @@ public class EncryptionHeader
     throw new UnsupportedCodecException(
         "Unsupported hash algorithm " + algIdHash + " (flags " + 
         flags +")");
+  }
+
+  private static int parseKeySize(int keySize, CryptoAlgorithm cryptoAlg,
+                                  String cspName)
+  {
+    if(keySize != 0) {
+      return keySize;
+    }
+
+    // if keySize is 0, then use algorithm/provider default
+    if(cryptoAlg == CryptoAlgorithm.RC4) {
+      
+      // the default key size depends on the crypto service provider.  if the
+      // provider name was not given, or contains the string " base " use the
+      // Base provider default.  otherwise, use the Strong provider default.
+      // CSPs: http://msdn.microsoft.com/en-us/library/windows/desktop/bb931357%28v=vs.85%29.aspx
+      cspName = cspName.trim().toLowerCase();
+      return (((cspName.length() == 0) || cspName.contains(CSP_BASE_STRING))
+              ? RC4_BASE_DEFAULT_KEY_SIZE : RC4_STRONG_DEFAULT_KEY_SIZE);
+    }
+
+    // for all other algorithms, use min key size
+    return cryptoAlg.getKeySizeMin();
   }
 
   private static String readCspName(ByteBuffer buffer) {
