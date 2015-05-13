@@ -12,8 +12,7 @@
         Jackcess Encrypt is an extension library for the <a href="http://jackcess.sourceforge.net/">Jackcess</a> project
         which implements support for some forms of Microsoft Access and
         Microsoft Money encryption.  Jackcess Encrypt is licensed under the
-
-        <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser General Public License</a>.
+        <a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License</a> (as of version 2.1.0).
       </p>
       <p>
         This project is separate from the main Jackcess project for two main
@@ -28,6 +27,15 @@
               library to be distributed more freely.</li>
         </ul>
       </p>
+
+      <subsection name="Brand New License!">
+        <p>
+          In order to match the License changes made in <a href="http://jackcess.sourceforge.net/changes-report.html#a2.1.0">Jackcess 2.1.0</a>, the
+          Jackcess Encrypt project has been relicensed under the <b>Apache
+          License, Version 2.0</b> (Jackcess Encrypt versions 2.1.0 and
+          higher).
+        </p>
+      </subsection>
 
       <subsection name="Jackcess Encrypt 2.0">
         <p>

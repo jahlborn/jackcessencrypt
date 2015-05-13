@@ -4,6 +4,12 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="2.1.0" date="2015-05-12" 
+             description="Relicense to Apache License">
+      <action dev="jahlborn" type="add">
+        Jackcess Encrypt relicenses to Apache License, 2.0!
+      </action>
+    </release>
     <release version="2.0.2" date="2014-10-04">
       <action dev="jahlborn" type="fix" system="SourceForge2" issue="5">
         Fix hash verifier length handling for agile encryption.
