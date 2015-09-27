@@ -46,6 +46,15 @@
     <url>http://svn.code.sf.net/p/jackcessencrypt/code/trunk</url>
   </scm>
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>**/*.class</include>
+        </includes>
+      </resource>
+    </resources>
     <defaultGoal>install</defaultGoal>
     <pluginManagement>
       <plugins>
@@ -197,8 +206,8 @@
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15</artifactId>
-      <version>1.45</version>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.52</version>
     </dependency>    
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
@@ -219,7 +228,9 @@
       <plugin>
         <artifactId>maven-changes-plugin</artifactId>
         <configuration> 
-          <issueLinkTemplate>%URL%/index.php?func=detail&amp;aid=%ISSUE%&amp;group_id=356653&amp;atid=1489281</issueLinkTemplate>
+          <issueLinkTemplatePerSystem>
+            <SourceForge2Features>http://sourceforge.net/p/jackcessencrypt/feature-requests/%ISSUE%</SourceForge2Features>
+          </issueLinkTemplatePerSystem>
         </configuration>        
         <reportSets>
           <reportSet>

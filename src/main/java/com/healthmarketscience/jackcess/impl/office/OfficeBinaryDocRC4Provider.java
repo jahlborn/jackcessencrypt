@@ -22,9 +22,9 @@ import java.util.Arrays;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.StreamCipher;
+import com.healthmarketscience.jackcess.util.StreamCipherCompat;
+import com.healthmarketscience.jackcess.util.StreamCipherFactory;
 import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
@@ -70,8 +70,8 @@ public class OfficeBinaryDocRC4Provider extends StreamCipherProvider
   }
 
   @Override
-  protected StreamCipher initCipher() {
-    return new RC4Engine();
+  protected StreamCipherCompat initCipher() {
+    return StreamCipherFactory.newRC4Engine();
   }
 
   @Override
@@ -90,7 +90,7 @@ public class OfficeBinaryDocRC4Provider extends StreamCipherProvider
   @Override
   protected boolean verifyPassword(byte[] pwdBytes) {
 
-    StreamCipher cipher = decryptInit(getStreamCipher(), 
+    StreamCipherCompat cipher = decryptInit(getStreamCipher(), 
                                       computeEncryptionKey(int2bytes(0)));
     
     byte[] verifier = decryptBytes(cipher, _encVerifier);

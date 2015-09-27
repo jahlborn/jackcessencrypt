@@ -25,7 +25,7 @@ import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.StreamCipher;
+import com.healthmarketscience.jackcess.util.StreamCipherCompat;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 
@@ -63,7 +63,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     return _encodingKey;
   }
 
-  protected StreamCipher getStreamCipher() {
+  protected StreamCipherCompat getStreamCipher() {
     throw new UnsupportedOperationException();
   }
 
@@ -84,11 +84,11 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
    * Decrypts the given buffer using a stream cipher.
    */
   protected void streamDecrypt(ByteBuffer buffer, int pageNumber) {
-    StreamCipher cipher = decryptInit(getStreamCipher(),
+    StreamCipherCompat cipher = decryptInit(getStreamCipher(),
                                       getCipherParams(pageNumber));
 
     byte[] array = buffer.array();
-    cipher.processBytes(array, 0, array.length, array, 0);
+    cipher.processStreamBytes(array, 0, array.length, array, 0);
   }
 
   /**
@@ -98,7 +98,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   protected ByteBuffer streamEncrypt(
       ByteBuffer buffer, int pageNumber, int pageOffset) 
   {
-    StreamCipher cipher = encryptInit(getStreamCipher(),
+    StreamCipherCompat cipher = encryptInit(getStreamCipher(),
                                       getCipherParams(pageNumber));
 
     // note, we always start encoding at offset 0 so that we apply the cipher
@@ -106,7 +106,7 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     // the limit.
     int limit = buffer.limit();
     ByteBuffer encodeBuf = getTempBuffer();
-    cipher.processBytes(buffer.array(), 0, limit, encodeBuf.array(), 0);
+    cipher.processStreamBytes(buffer.array(), 0, limit, encodeBuf.array(), 0);
     return encodeBuf;
   }
 
@@ -157,8 +157,8 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   /**
    * Inits the given cipher for decryption with the given params.
    */
-  protected static StreamCipher decryptInit(
-      StreamCipher cipher, CipherParameters params)
+  protected static StreamCipherCompat decryptInit(
+      StreamCipherCompat cipher, CipherParameters params)
   {
     cipher.init(CIPHER_DECRYPT_MODE, params);
     return cipher;
@@ -167,8 +167,8 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   /**
    * Inits the given cipher for encryption with the given params.
    */
-  protected static StreamCipher encryptInit(
-      StreamCipher cipher, CipherParameters params)
+  protected static StreamCipherCompat encryptInit(
+      StreamCipherCompat cipher, CipherParameters params)
   {
     cipher.init(CIPHER_ENCRYPT_MODE, params);
     return cipher;
@@ -197,10 +197,10 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
   /**
    * Decrypts the given bytes using a stream cipher into a new byte[].
    */
-  protected static byte[] decryptBytes(StreamCipher cipher, byte[] encBytes)
+  protected static byte[] decryptBytes(StreamCipherCompat cipher, byte[] encBytes)
   {
     byte[] bytes = new byte[encBytes.length];
-    cipher.processBytes(encBytes, 0, encBytes.length, bytes, 0);
+    cipher.processStreamBytes(encBytes, 0, encBytes.length, bytes, 0);
     return bytes;
   }
 

@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import com.healthmarketscience.jackcess.PasswordCallback;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.StreamCipher;
+import com.healthmarketscience.jackcess.util.StreamCipherCompat;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -104,7 +104,7 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
   private void verifyPassword(ByteBuffer buffer, byte[] testEncodingKey,
                               byte[] testBytes)
   {
-    StreamCipher engine = decryptInit(getStreamCipher(),
+    StreamCipherCompat engine = decryptInit(getStreamCipher(),
                                       new KeyParameter(testEncodingKey));
 
     byte[] encrypted4BytesCheck = getPasswordTestBytes(buffer);

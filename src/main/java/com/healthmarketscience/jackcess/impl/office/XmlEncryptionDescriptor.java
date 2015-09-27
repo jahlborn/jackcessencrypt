@@ -26,7 +26,8 @@ import com.healthmarketscience.jackcess.cryptmodel.password.CTPasswordKeyEncrypt
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.StreamCipher;
+import com.healthmarketscience.jackcess.util.StreamCipherCompat;
+import com.healthmarketscience.jackcess.util.StreamCipherFactory;
 import org.bouncycastle.crypto.digests.MD2Digest;
 import org.bouncycastle.crypto.digests.MD4Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
@@ -41,7 +42,6 @@ import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.engines.DESedeEngine;
 import org.bouncycastle.crypto.engines.RC2Engine;
-import org.bouncycastle.crypto.engines.RC4Engine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.modes.CCMBlockCipher;
@@ -306,9 +306,9 @@ public class XmlEncryptionDescriptor
 
   private static class BlockCipherAdapter implements BlockCipher
   {
-    private final StreamCipher _cipher;
+    private final StreamCipherCompat _cipher;
 
-    private BlockCipherAdapter(StreamCipher cipher) {
+    private BlockCipherAdapter(StreamCipherCompat cipher) {
       _cipher = cipher;
     }
 
@@ -332,7 +332,7 @@ public class XmlEncryptionDescriptor
     }
 
     public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
-      _cipher.processBytes(in, inOff, STREAM_CIPHER_BLOCK_SIZE, out, outOff);
+      _cipher.processStreamBytes(in, inOff, STREAM_CIPHER_BLOCK_SIZE, out, outOff);
       return STREAM_CIPHER_BLOCK_SIZE;
     }
     
@@ -344,7 +344,7 @@ public class XmlEncryptionDescriptor
   public static final class RC4BlockCipher extends BlockCipherAdapter 
   {
     public RC4BlockCipher() {
-      super(new RC4Engine());
+      super(StreamCipherFactory.newRC4Engine());
     }
   }                                                   
 

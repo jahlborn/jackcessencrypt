@@ -18,7 +18,8 @@ package com.healthmarketscience.jackcess.impl;
 
 import java.nio.ByteBuffer;
 
-import org.bouncycastle.crypto.engines.RC4Engine;
+import com.healthmarketscience.jackcess.util.StreamCipherCompat;
+import com.healthmarketscience.jackcess.util.StreamCipherFactory;
 
 
 /**
@@ -28,7 +29,7 @@ import org.bouncycastle.crypto.engines.RC4Engine;
  */
 public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
 {
-  private RC4Engine _engine;
+  private StreamCipherCompat _engine;
 
   protected BaseJetCryptCodecHandler(PageChannel channel, byte[] encodingKey) {
     super(channel, encodingKey);
@@ -46,9 +47,9 @@ public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
   }
 
   @Override
-  protected final RC4Engine getStreamCipher() {
+  protected final StreamCipherCompat getStreamCipher() {
     if(_engine == null) {
-      _engine = new RC4Engine();
+      _engine = StreamCipherFactory.newRC4Engine();
     }
     return _engine;
   }

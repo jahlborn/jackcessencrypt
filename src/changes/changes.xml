@@ -4,6 +4,13 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="2.1.0" date="2015-05-12">
+      <action dev="jahlborn" type="fix" system="SourceForge2Features"
+              issue="2">
+        Update Bouncy Castle dependency to 1.52, but maintain compatibility
+        with 1.50 and earlier releases using new StreamCipherFactory.
+      </action>
+    </release>
     <release version="2.1.0" date="2015-05-12" 
              description="Relicense to Apache License">
       <action dev="jahlborn" type="add">

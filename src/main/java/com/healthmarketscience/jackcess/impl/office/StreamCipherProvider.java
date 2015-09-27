@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 import com.healthmarketscience.jackcess.impl.OfficeCryptCodecHandler;
 import com.healthmarketscience.jackcess.impl.PageChannel;
-import org.bouncycastle.crypto.StreamCipher;
+import com.healthmarketscience.jackcess.util.StreamCipherCompat;
 
 /**
  *
@@ -28,7 +28,7 @@ import org.bouncycastle.crypto.StreamCipher;
  */
 public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
 {
-  private StreamCipher _cipher;
+  private StreamCipherCompat _cipher;
 
   protected StreamCipherProvider(PageChannel channel, byte[] encodingKey) 
   {
@@ -41,14 +41,14 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
   }
 
   @Override
-  protected StreamCipher getStreamCipher() {
+  protected StreamCipherCompat getStreamCipher() {
     if(_cipher == null) {
       _cipher = initCipher();
     }
     return _cipher;
   }
 
-  protected StreamCipher initCipher() {
+  protected StreamCipherCompat initCipher() {
     throw new UnsupportedOperationException();
   }
 
