@@ -21,6 +21,16 @@
           <li>The encryption support requires an additional library (<a href="http://www.bouncycastle.org/java.html">Bouncy Castle</a>).
               Making this support separate from the main Jackcess library
               allows users to avoid including unnecessary libraries.</li>
+              <ul>
+                <li>Bouncy Castle Compatability - the Bouncy Castle library
+                    made a binary incompatible change in version 1.51.
+                    Versions of Jackcess Encrypt 2.1.0 and earlier are only
+                    compatible with Bouncy Castle 1.50 and earlier.  Jackcess
+                    Encrypt 2.1.1 updated to Bouncy Castle 1.52, but added a
+                    shim layer which maintains compability with earlier
+                    versions of Bouncy Castle as well (see <a href="https://sourceforge.net/p/jackcessencrypt/feature-requests/2/">Feature
+                    Request 2</a> for more details).</li>
+              </ul>
           <li>Sourceforge has <a href="https://sourceforge.net/apps/trac/sourceforge/wiki/Project%20control#ExportControl">restrictions</a>
               on the distribution of software which use encryption.  Keeping
               this support in a separate project allows the main Jackcess
