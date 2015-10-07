@@ -4,7 +4,7 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="2.1.0" date="2015-05-12">
+    <release version="2.1.1" date="2015-10-06">
       <action dev="jahlborn" type="fix" system="SourceForge2Features"
               issue="2">
         Update Bouncy Castle dependency to 1.52, but maintain compatibility
