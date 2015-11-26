@@ -17,10 +17,10 @@ limitations under the License.
 package com.healthmarketscience.jackcess.util;
 
 /**
- * Factory for instantiating {@link StreamCipher} instances.  Bouncy Castle
- * 1.51 made a binary incompatible change to the StreamCipher API.  This
- * factory enables jackcess-encrypt to function with both the pre 1.51 API as
- * well as the 1.51+ API.
+ * Factory for instantiating {@link StreamCipherCompat} instances.  Bouncy
+ * Castle 1.51 made a binary incompatible change to the StreamCipher API.
+ * This factory enables jackcess-encrypt to function with both the pre 1.51
+ * API as well as the 1.51+ API.
  *
  * @author James Ahlborn
  */
