@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.healthmarketscience.jackcess.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.cryptmodel.CTEncryption;
 import com.healthmarketscience.jackcess.cryptmodel.CTKeyData;
@@ -61,7 +62,7 @@ public class AgileEncryptionProvider extends BlockCipherProvider
     // OC: 2.3.4.10
     int reservedVal = encProvBuf.getInt();
     if(reservedVal != RESERVED_VAL) {
-      throw new IllegalStateException("Unexpected reserved value " + reservedVal);
+      throw new InvalidCryptoConfigurationException("Unexpected reserved value " + reservedVal);
     }
 
     byte[] xmlBytes = new byte[encProvBuf.remaining()];
@@ -81,7 +82,7 @@ public class AgileEncryptionProvider extends BlockCipherProvider
     }
 
     if(pwdKeyEnc == null) {
-      throw new IllegalStateException("Missing or unexpected key encryptor");
+      throw new InvalidCryptoConfigurationException("Missing or unexpected key encryptor");
     }
     _pwdKeyEnc = pwdKeyEnc;
 

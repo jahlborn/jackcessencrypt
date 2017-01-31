@@ -21,6 +21,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import com.healthmarketscience.jackcess.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.CustomToStringStyle;
 import com.healthmarketscience.jackcess.impl.UnsupportedCodecException;
@@ -176,35 +177,42 @@ public class EncryptionHeader
     int headerLen = encProvBuf.getInt();
 
     // read header (temporarily narrowing buf to header)
-    int curLimit = encProvBuf.limit();
-    int curPos = encProvBuf.position();
-    encProvBuf.limit(curPos + headerLen);
-    EncryptionHeader header = new EncryptionHeader(encProvBuf);
+    int origLimit = encProvBuf.limit();
+    int startPos = encProvBuf.position();
+    encProvBuf.limit(startPos + headerLen);
 
-    // verify parameters
-    if(!validCryptoAlgos.contains(header.getCryptoAlgorithm())) {
-      throw new IllegalStateException(
-          header + " crypto algorithm must be one of " + validCryptoAlgos);
-    }
+    EncryptionHeader header = null;
+    try {
+      header = new EncryptionHeader(encProvBuf);
+
+      // verify parameters
+      if(!validCryptoAlgos.contains(header.getCryptoAlgorithm())) {
+        throw new InvalidCryptoConfigurationException(
+            header + " crypto algorithm must be one of " + validCryptoAlgos);
+      }
     
-    if(!validHashAlgos.contains(header.getHashAlgorithm())) {
-      throw new IllegalStateException(
-          header + " hash algorithm must be one of " + validHashAlgos);
-    }
+      if(!validHashAlgos.contains(header.getHashAlgorithm())) {
+        throw new InvalidCryptoConfigurationException(
+            header + " hash algorithm must be one of " + validHashAlgos);
+      }
     
-    int keySize = header.getKeySize();
-    if(!header.getCryptoAlgorithm().isValidKeySize(keySize)) {
-      throw new IllegalStateException(
-          header + " key size is outside allowable range");
-    }
-    if((keySize % 8) != 0) {
-      throw new IllegalStateException(
-          header + " key size must be multiple of 8");      
-    }
-    
+      int keySize = header.getKeySize();
+      if(!header.getCryptoAlgorithm().isValidKeySize(keySize)) {
+        throw new InvalidCryptoConfigurationException(
+            header + " key size is outside allowable range");
+      }
+      if((keySize % 8) != 0) {
+        throw new InvalidCryptoConfigurationException(
+            header + " key size must be multiple of 8");      
+      }
+
+    } finally {
+      // restore original limit
+      encProvBuf.limit(origLimit);
+    }    
+
     // move to after header
-    encProvBuf.limit(curLimit);
-    encProvBuf.position(curPos + headerLen);
+    encProvBuf.position(startPos + headerLen);
 
     return header;
   }

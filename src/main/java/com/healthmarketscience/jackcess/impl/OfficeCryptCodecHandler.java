@@ -20,10 +20,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.healthmarketscience.jackcess.InvalidCredentialsException;
+import com.healthmarketscience.jackcess.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.PasswordCallback;
 import com.healthmarketscience.jackcess.impl.office.AgileEncryptionProvider;
 import com.healthmarketscience.jackcess.impl.office.ECMAStandardEncryptionProvider;
 import com.healthmarketscience.jackcess.impl.office.EncryptionHeader;
+import com.healthmarketscience.jackcess.impl.office.NonStandardEncryptionProvider;
 import com.healthmarketscience.jackcess.impl.office.OfficeBinaryDocRC4Provider;
 import com.healthmarketscience.jackcess.impl.office.RC4CryptoAPIProvider;
 import org.bouncycastle.crypto.Digest;
@@ -114,9 +117,27 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
           handler = new ECMAStandardEncryptionProvider(channel, encodingKey,
                                                        encProvBuf, pwdBytes);
         } else {
-          // OC: 2.3.5.1 - RC4 CryptoAPI Encryption: (2,3,4),2
-          handler = new RC4CryptoAPIProvider(channel, encodingKey, encProvBuf,
-                                             pwdBytes);
+
+          int initPos = encProvBuf.position();
+          try {
+
+            // OC: 2.3.5.1 - RC4 CryptoAPI Encryption: (2,3,4),2
+            handler = new RC4CryptoAPIProvider(channel, encodingKey, encProvBuf,
+                                               pwdBytes);
+
+          } catch(InvalidCryptoConfigurationException icce) {
+
+            // is this the "non-standard" encryption provider?
+            try {
+              // reset encryption info buf before attempting to re-process
+              encProvBuf.position(initPos);
+              handler = new NonStandardEncryptionProvider(channel, encodingKey, 
+                                                          encProvBuf, pwdBytes);
+            } catch(Exception ignored) {
+              // ignore nested exception, continue with original
+              throw icce;
+            } 
+          }
         }
       }
     }
@@ -128,7 +149,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     }
     
     if(!handler.verifyPassword(pwdBytes)) {
-      throw new IllegalStateException("Incorrect password provided");
+      throw new InvalidCredentialsException("Incorrect password provided");
     }
 
     handler.reset();
@@ -203,6 +224,11 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
   }
 
   protected byte[] iterateHash(byte[] baseHash, int iterations) {
+
+    if(iterations == 0) {
+      return baseHash;
+    }
+
     Digest digest = getDigest();
     byte[] iterHash = baseHash;
     for(int i = 0; i < iterations; ++i) {

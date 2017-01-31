@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import com.healthmarketscience.jackcess.InvalidCredentialsException;
 import com.healthmarketscience.jackcess.PasswordCallback;
 import org.bouncycastle.crypto.Digest;
 import com.healthmarketscience.jackcess.util.StreamCipherCompat;
@@ -116,7 +117,7 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
     byte[] decrypted4BytesCheck = decryptBytes(engine, encrypted4BytesCheck);
 
     if (!Arrays.equals(decrypted4BytesCheck, testBytes)) {
-      throw new IllegalStateException("Incorrect password provided");
+      throw new InvalidCredentialsException("Incorrect password provided");
     }
   }
 

@@ -21,6 +21,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import com.healthmarketscience.jackcess.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.cryptmodel.CTEncryption;
 import com.healthmarketscience.jackcess.cryptmodel.password.CTPasswordKeyEncryptor;
 import org.bouncycastle.crypto.BlockCipher;
@@ -162,7 +163,7 @@ public class XmlEncryptionDescriptor
       return (CTEncryption)unwrap(Encrypt.CONTEXT.createUnmarshaller().unmarshal(
                                       new ByteArrayInputStream(xmlBytes)));
     } catch(JAXBException e) {
-      throw new IllegalStateException("Failed parsing encryption descriptor", e);
+      throw new InvalidCryptoConfigurationException("Failed parsing encryption descriptor", e);
     }
   }
 
@@ -173,7 +174,7 @@ public class XmlEncryptionDescriptor
           PasswordEncryptor.CONTEXT.createUnmarshaller().unmarshal(
               (Node)keyDescriptor));
     } catch(JAXBException e) {
-      throw new IllegalStateException(
+      throw new InvalidCryptoConfigurationException(
           "Failed parsing password key encryptor", e);
     }
   }  
@@ -211,7 +212,7 @@ public class XmlEncryptionDescriptor
     try {
       return Enum.valueOf(enumClazz, str);
     } catch(IllegalArgumentException e) {
-      throw new IllegalStateException(
+      throw new InvalidCryptoConfigurationException(
           "Unsupported encryption parameter: " + origStr);
     }
   }
@@ -227,7 +228,7 @@ public class XmlEncryptionDescriptor
     try {
       return clazz.newInstance();
     } catch(Exception e) {
-      throw new IllegalStateException(
+      throw new InvalidCryptoConfigurationException(
           "Failed initializing encryption algorithm: " + clazz.getSimpleName(), e);
     }
   }

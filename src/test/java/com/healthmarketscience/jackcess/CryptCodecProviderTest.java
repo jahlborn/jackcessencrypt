@@ -183,14 +183,14 @@ public class CryptCodecProviderTest
       doCheckOfficeDb(db, 0);
 
       db.close();
-
-      db = open("src/test/data/db2013-enc.accdb", true, "1234");
-
-      db.getSystemTable("MSysQueries");
-      doCheckOffice2013Db(db, 0);
-
-      db.close();
     }
+
+    Database db = open("src/test/data/db2013-enc.accdb", true, "1234");
+
+    db.getSystemTable("MSysQueries");
+    doCheckOffice2013Db(db, 0);
+
+    db.close();
   }
 
   @Test
@@ -251,6 +251,44 @@ public class CryptCodecProviderTest
     assertNotNull(t);
 
     assertEquals(1, _count.get());
+  }
+
+  @Test
+  public void testNonStandardProvider() throws Exception
+  {
+    final String fname = "src/test/data/db-nonstandard.accdb";
+    try {
+      new DatabaseBuilder(new File(fname)).setReadOnly(true).open();
+      fail("UnsupportedOperationException should have been thrown");
+    } catch(UnsupportedOperationException e) {
+      // success
+    }
+
+    try {
+      open(fname, true, null);
+      fail("InvalidCredentialsException should have been thrown");
+    } catch(InvalidCredentialsException e) {
+      // success
+      assertEquals("Incorrect password provided", e.getMessage());
+    }
+
+    try {
+      open(fname, true, "WrongPassword");
+      fail("InvalidCredentialsException should have been thrown");
+    } catch(InvalidCredentialsException e) {
+      // success
+      assertEquals("Incorrect password provided", e.getMessage());
+    }
+
+    Database db = open(fname, true, "password");
+
+    db.getSystemTable("MSysQueries");
+
+    Table t = db.getTable("Table_One");
+
+    assertNotNull(t.getColumn("ID"));
+
+    db.close();
   }
   
   private static void doCheckJetDb(Database db, int addedRows) throws Exception

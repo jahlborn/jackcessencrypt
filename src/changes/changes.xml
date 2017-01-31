@@ -11,7 +11,9 @@
       <action dev="jahlborn" type="fix">
         Fix bug in computing hash for ECMA encryption provider.
       </action>
-              
+      <action dev="jahlborn" type="fix" system="SourceForge2" issue="6">
+        Add support for non-standard encryption provider (non-compatible AES).
+      </action>
     </release>
     <release version="2.1.1" date="2015-10-06">
       <action dev="jahlborn" type="fix" system="SourceForge2Features"
