@@ -45,16 +45,27 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     EnumSet.of(EncryptionHeader.HashAlgorithm.SHA1);
   private static final int HASH_ITERATIONS = 50000;
   
+  private final int _hashIterations;
   private final EncryptionHeader _header;
   private final EncryptionVerifier _verifier;
   private final byte[] _baseHash;
   private final int _encKeyByteSize;
-  
+
   public ECMAStandardEncryptionProvider(PageChannel channel, byte[] encodingKey,
                                         ByteBuffer encProvBuf, byte[] pwdBytes) 
     throws IOException
   {
+    this(channel, encodingKey, encProvBuf, pwdBytes, HASH_ITERATIONS);
+  }
+  
+  protected ECMAStandardEncryptionProvider(PageChannel channel, byte[] encodingKey,
+                                           ByteBuffer encProvBuf, byte[] pwdBytes,
+                                           int hashIterations) 
+    throws IOException
+  {
     super(channel, encodingKey);
+
+    _hashIterations = hashIterations;
 
     // OC: 2.3.4.6
     _header = EncryptionHeader.read(encProvBuf, VALID_CRYPTO_ALGOS,
@@ -102,18 +113,16 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
   }
 
   private KeyParameter computeEncryptionKey(byte[] blockBytes) {
-    byte[] encKey = cryptDeriveKey(_baseHash, blockBytes, HASH_ITERATIONS,
-                                   _encKeyByteSize);
+    byte[] encKey = cryptDeriveKey(_baseHash, blockBytes, _encKeyByteSize);
     return new KeyParameter(encKey);
   }
   
-  private byte[] cryptDeriveKey(byte[] baseHash, byte[] blockBytes, int iterations,
-                                int keyByteLen)
+  private byte[] cryptDeriveKey(byte[] baseHash, byte[] blockBytes, int keyByteLen)
   {
     Digest digest = getDigest();
 
     // OC: 2.3.4.7 (after part 1)
-    byte[] iterHash = iterateHash(baseHash, iterations);
+    byte[] iterHash = iterateHash(baseHash, _hashIterations);
 
     byte[] finalHash = hash(digest, iterHash, blockBytes);
 
@@ -127,7 +136,7 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     byte[] x = fill(new byte[64], code);
 
     for(int i = 0; i < finalHash.length; ++i) {
-      x[0] ^= finalHash[i];
+      x[i] ^= finalHash[i];
     }
 
     return x;

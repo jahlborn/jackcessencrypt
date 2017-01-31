@@ -1,4 +1,4 @@
-<document>
+ <document>
   <properties>
     <title>Release notes</title>
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
@@ -8,6 +8,10 @@
       <action dev="jahlborn" type="update">
         New site style!
       </action>
+      <action dev="jahlborn" type="fix">
+        Fix bug in computing hash for ECMA encryption provider.
+      </action>
+              
     </release>
     <release version="2.1.1" date="2015-10-06">
       <action dev="jahlborn" type="fix" system="SourceForge2Features"
