@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.healthmarketscience</groupId>
     <artifactId>openhms-parent</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.7</version>
   </parent>
   <groupId>com.healthmarketscience.jackcess</groupId>
   <artifactId>jackcess-encrypt</artifactId>
@@ -223,9 +223,9 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.0</version>
+      <version>4.11</version>
       <scope>test</scope>
-    </dependency>    
+    </dependency>
   </dependencies>
   <reporting>
     <plugins>
@@ -248,13 +248,6 @@
             <SourceForge2Features>http://sourceforge.net/p/jackcessencrypt/feature-requests/%ISSUE%</SourceForge2Features>
           </issueLinkTemplatePerSystem>
         </configuration>        
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>changes-report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
