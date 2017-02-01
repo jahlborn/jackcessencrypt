@@ -248,6 +248,7 @@
           </links>
           <source>1.5</source>
           <show>public</show>
+          <stylesheetfile>${basedir}/src/site/javadoc/stylesheet.css</stylesheetfile>
           <quiet>true</quiet>
         </configuration>
       </plugin>
