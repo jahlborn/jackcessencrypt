@@ -94,6 +94,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Export-Package>com.healthmarketscience.jackcess</Export-Package>
+            <Fragment-Host>com.healthmarketscience.jackcess</Fragment-Host>
           </instructions>
         </configuration>
         <executions>

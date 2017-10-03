@@ -233,7 +233,7 @@ public class CryptCodecProviderTest
 
     Database db = new DatabaseBuilder(new File("src/test/data/db-enc.mdb"))
       .setReadOnly(true)
-      .setCodecProvider(new CryptCodecProvider().setPasswordCallback(pc))
+      .setCodecProvider(new CryptCodecProvider(pc))
       .open();
 
     Table t = db.getTable("Table1");
@@ -494,9 +494,8 @@ public class CryptCodecProviderTest
   static Database open(String fileName, boolean readOnly, String pwd)
     throws Exception
   {
-    return new DatabaseBuilder(new File(fileName))
-      .setReadOnly(readOnly)
-      .setCodecProvider(new CryptCodecProvider(pwd))
+    return CryptCodecUtil.setProvider(
+        new DatabaseBuilder(new File(fileName)).setReadOnly(readOnly), pwd)
       .open();
   }
 

@@ -4,6 +4,14 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="2.1.4" date="TBD">
+      <action dev="jahlborn" type="fix" system="SourceForge2" issue="8">
+        Tweak the manifest to make the jackcess-encrypt jar an OSGi "fragment"
+        of the primary jackcess module.  Add CryptCodecUtil with no public
+        dependencies on internal jackcess classes for use in OSGi
+        environments.
+      </action>
+    </release>
     <release version="2.1.3" date="2017-08-11">
       <action dev="jahlborn" type="fix" system="SourceForge2" issue="7">
         Fix previous bad release with accidental cobertura dependency.
