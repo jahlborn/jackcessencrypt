@@ -4,7 +4,7 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="2.1.4" date="TBD">
+    <release version="2.1.4" date="2017-10-09">
       <action dev="jahlborn" type="fix" system="SourceForge2" issue="8">
         Tweak the manifest to make the jackcess-encrypt jar an OSGi "fragment"
         of the primary jackcess module.  Add CryptCodecUtil with no public
