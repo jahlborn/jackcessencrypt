@@ -9,7 +9,7 @@
     
     <section name="Jackcess Encrypt">
       <p>
-        Jackcess Encrypt is an extension library for the <a href="http://jackcess.sourceforge.net/">Jackcess</a> project
+        Jackcess Encrypt is an extension library for the <a href="https://jackcess.sourceforge.io/">Jackcess</a> project
         which implements support for some forms of Microsoft Access and
         Microsoft Money encryption.  Jackcess Encrypt is licensed under the
         <a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License</a> (as of version 2.1.0).
@@ -40,7 +40,7 @@
 
       <subsection name="Brand New License!">
         <p>
-          In order to match the License changes made in <a href="http://jackcess.sourceforge.net/changes-report.html#a2.1.0">Jackcess 2.1.0</a>, the
+          In order to match the License changes made in <a href="https://jackcess.sourceforge.io/changes-report.html#a2.1.0">Jackcess 2.1.0</a>, the
           Jackcess Encrypt project has been relicensed under the <b>Apache
           License, Version 2.0</b> (Jackcess Encrypt versions 2.1.0 and
           higher).
@@ -49,7 +49,7 @@
 
       <subsection name="Jackcess Encrypt 2.0">
         <p>
-          In order to match the API changes made in <a href="http://jackcess.sourceforge.net/jackcess-2.html">Jackess 2.0</a>, the Jackcess
+          In order to match the API changes made in <a href="https://jackcess.sourceforge.io/jackcess-2.html">Jackess 2.0</a>, the Jackcess
           Encrypt project has made a similar version change.  Read the
           <a href="jackcess-2.html">Upgrade Guide</a> for full details.
         </p>

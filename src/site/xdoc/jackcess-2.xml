@@ -12,7 +12,7 @@
         <p>
           The Jackcess project has changed its public API to version 2.x as part
           of a long-overdue overhaul.  These changes are superficial, but are not
-          backwards compatible with Jackcess 1.x (<a href="http://jackcess.sourceforge.net/jackcess-2.html">full details
+          backwards compatible with Jackcess 1.x (<a href="https://jackcess.sourceforge.io/jackcess-2.html">full details
           here</a>).  Jackcess Encrypt has similarly changed its version number in
           order to make it easy to match compatible versions:
         </p>

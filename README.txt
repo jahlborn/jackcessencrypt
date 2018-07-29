@@ -9,6 +9,6 @@ version 2.1.0).
 Please note that the GitHub repository is a mirror of the main project
 repository which is hosted on SourceForge:
 
-Homepage: http://jackcessencrypt.sourceforge.net/
+Homepage: https://jackcessencrypt.sourceforge.io/
 
 Project: https://sourceforge.net/projects/jackcessencrypt/

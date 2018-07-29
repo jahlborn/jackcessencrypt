@@ -60,7 +60,7 @@
         This release is a major version number release in order to match the
         changes made in the Jackcess project.  This release is not backwards
         compatible with Jackcess 1.x.  See the Migration Guide at
-        http://jackcessencrypt.sourceforge.net/jackcess-2.html for more
+        https://jackcessencrypt.sourceforge.io/jackcess-2.html for more
         details.
       </action>
       <action dev="jahlborn" type="update">
