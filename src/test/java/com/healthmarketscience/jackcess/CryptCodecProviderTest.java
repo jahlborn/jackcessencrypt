@@ -36,7 +36,7 @@ import org.junit.Test;
  *
  * @author James Ahlborn
  */
-public class CryptCodecProviderTest 
+public class CryptCodecProviderTest
 {
 
   @Test
@@ -94,7 +94,7 @@ public class CryptCodecProviderTest
 
     doCheckMSISAM2008Db(db);
 
-    db.close();    
+    db.close();
   }
 
   @Test
@@ -132,7 +132,7 @@ public class CryptCodecProviderTest
     Database db = openCopy("src/test/data/db-enc.mdb", null);
 
     Table t = db.getTable("Table1");
-    
+
     ((DatabaseImpl)db).getPageChannel().startWrite();
     try {
       for(int i = 0; i < 1000; ++i) {
@@ -148,7 +148,7 @@ public class CryptCodecProviderTest
 
     db.close();
   }
-  
+
   @Test
   public void testReadOfficeEnc() throws Exception
   {
@@ -202,7 +202,7 @@ public class CryptCodecProviderTest
       Database db = openCopy(fname, "Test123");
 
       Table t = db.getTable("Table1");
-    
+
       ((DatabaseImpl)db).getPageChannel().startWrite();
       try {
         for(int i = 0; i < 1000; ++i) {
@@ -214,10 +214,10 @@ public class CryptCodecProviderTest
 
       db.flush();
 
-      doCheckOfficeDb(db, 1000);      
-      
+      doCheckOfficeDb(db, 1000);
+
       db.close();
-    } 
+    }
   }
 
   @Test
@@ -246,7 +246,7 @@ public class CryptCodecProviderTest
       .setReadOnly(true)
       .setCodecProvider(new CryptCodecProvider().setPasswordCallback(pc))
       .open();
-    
+
     t = db.getTable("Table1");
     assertNotNull(t);
 
@@ -290,18 +290,18 @@ public class CryptCodecProviderTest
 
     db.close();
   }
-  
+
   private static void doCheckJetDb(Database db, int addedRows) throws Exception
   {
     Table t = db.getTable("Table1");
 
-    List<Row> expectedRows = 
-      DatabaseTest.createExpectedTable(
-          DatabaseTest.createExpectedRow(
+    List<Row> expectedRows =
+      TestUtil.createExpectedTable(
+          TestUtil.createExpectedRow(
               "ID", 1,
               "col1", "hello",
               "col2", 0),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 2,
               "col1", "world",
               "col2", 42));
@@ -310,23 +310,23 @@ public class CryptCodecProviderTest
       expectedRows = new ArrayList<Row>(expectedRows);
       int nextId = 3;
       for(int i = 0; i < addedRows; ++i) {
-        expectedRows.add(DatabaseTest.createExpectedRow(
+        expectedRows.add(TestUtil.createExpectedRow(
                              "ID", nextId++,
                              "col1", "this is the value of col1 " + i,
                              "col2", i));
       }
     }
-    
-    DatabaseTest.assertTable(expectedRows, t);
+
+    TestUtil.assertTable(expectedRows, t);
   }
 
   private static void doCheckOfficeDb(Database db, int addedRows) throws Exception
   {
     Table t = db.getTable("Table1");
 
-    List<Row> expectedRows = 
-      DatabaseTest.createExpectedTable(
-          DatabaseTest.createExpectedRow(
+    List<Row> expectedRows =
+      TestUtil.createExpectedTable(
+          TestUtil.createExpectedRow(
               "ID", 1,
               "Field1", "foo"));
 
@@ -334,40 +334,40 @@ public class CryptCodecProviderTest
       expectedRows = new ArrayList<Row>(expectedRows);
       int nextId = 2;
       for(int i = 0; i < addedRows; ++i) {
-        expectedRows.add(DatabaseTest.createExpectedRow(
+        expectedRows.add(TestUtil.createExpectedRow(
                              "ID", nextId++,
                              "Field1", "this is the value of col1 " + i));
       }
     }
-    
-    DatabaseTest.assertTable(expectedRows, t);
+
+    TestUtil.assertTable(expectedRows, t);
   }
 
   private static void doCheckOffice2013Db(Database db, int addedRows) throws Exception
   {
     Table t = db.getTable("Customers");
 
-    List<Row> expectedRows = 
-      DatabaseTest.createExpectedTable(
-          DatabaseTest.createExpectedRow(
+    List<Row> expectedRows =
+      TestUtil.createExpectedTable(
+          TestUtil.createExpectedRow(
               "ID", 1,
               "Field1", "Test"),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 2,
               "Field1", "Test2"),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 3,
               "Field1", "a"),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 4,
               "Field1", null),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 5,
               "Field1", "c"),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 6,
               "Field1", "d"),
-          DatabaseTest.createExpectedRow(
+          TestUtil.createExpectedRow(
               "ID", 7,
               "Field1", "f"));
 
@@ -375,20 +375,20 @@ public class CryptCodecProviderTest
       expectedRows = new ArrayList<Row>(expectedRows);
       int nextId = 2;
       for(int i = 0; i < addedRows; ++i) {
-        expectedRows.add(DatabaseTest.createExpectedRow(
+        expectedRows.add(TestUtil.createExpectedRow(
                              "ID", nextId++,
                              "Field1", "this is the value of col1 " + i));
       }
     }
-    
-    DatabaseTest.assertTable(expectedRows, t);
+
+    TestUtil.assertTable(expectedRows, t);
   }
 
   private static void doCheckMSISAM2001Db(Database db) throws Exception
   {
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 
-    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "FI", "Goal Custom Pool", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "VIEW", "Worksheet Custom Pool", "XACCT", "XMAPACCT", "XMAPSAT", "XPAY"), 
+    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "FI", "Goal Custom Pool", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "VIEW", "Worksheet Custom Pool", "XACCT", "XMAPACCT", "XMAPSAT", "XPAY"),
                  new ArrayList<String>(db.getTableNames()));
 
     Table t = db.getTable("CRNC");
@@ -396,22 +396,22 @@ public class CryptCodecProviderTest
     Set<String> cols = new HashSet<String>(
         Arrays.asList("hcrnc", "szName", "lcid", "szIsoCode", "szSymbol"));
 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 1, "szName", "Argentinean peso", 
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 1, "szName", "Argentinean peso",
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
                  t.getDefaultCursor().getNextRow(cols));
-                 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 2, "szName", "Australian dollar", 
+
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 2, "szName", "Australian dollar",
                      "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
                  t.getDefaultCursor().getNextRow(cols));
 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 3, "szName", "Austrian schilling", 
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 3, "szName", "Austrian schilling",
                      "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
                  t.getDefaultCursor().getNextRow(cols));
 
-    assertEquals(DatabaseTest.createExpectedRow(
+    assertEquals(TestUtil.createExpectedRow(
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BECUS"),
                  t.getDefaultCursor().getNextRow(cols));
@@ -421,7 +421,7 @@ public class CryptCodecProviderTest
   {
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 
-    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "BILL", "BILL_FLD", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "FI", "Goal Custom Pool", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "UIE", "UKSavings", "UKWiz", "UKWizAddress", "UKWizCompanyCar", "UKWizLoan", "UKWizMortgage", "UKWizPenScheme", "UKWizPension", "UKWizWillExecutor", "UKWizWillGift", "UKWizWillGuardian", "UKWizWillLovedOne", "UKWizWillMaker", "UKWizWillPerson", "UKWizWillResidue", "UNOTE", "VIEW", "Worksheet Custom Pool", "XACCT", "XBAG", "XMAPACCT", "XMAPSAT", "XPAY"), 
+    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "BILL", "BILL_FLD", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "FI", "Goal Custom Pool", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "UIE", "UKSavings", "UKWiz", "UKWizAddress", "UKWizCompanyCar", "UKWizLoan", "UKWizMortgage", "UKWizPenScheme", "UKWizPension", "UKWizWillExecutor", "UKWizWillGift", "UKWizWillGuardian", "UKWizWillLovedOne", "UKWizWillMaker", "UKWizWillPerson", "UKWizWillResidue", "UNOTE", "VIEW", "Worksheet Custom Pool", "XACCT", "XBAG", "XMAPACCT", "XMAPSAT", "XPAY"),
                  new ArrayList<String>(db.getTableNames()));
 
     Table t = db.getTable("CRNC");
@@ -429,22 +429,22 @@ public class CryptCodecProviderTest
     Set<String> cols = new HashSet<String>(
         Arrays.asList("hcrnc", "szName", "lcid", "szIsoCode", "szSymbol"));
 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 1, "szName", "Argentinian peso", 
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 1, "szName", "Argentinian peso",
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
                  t.getDefaultCursor().getNextRow(cols));
-                 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 2, "szName", "Australian dollar", 
+
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 2, "szName", "Australian dollar",
                      "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
                  t.getDefaultCursor().getNextRow(cols));
 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 3, "szName", "Austrian schilling", 
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 3, "szName", "Austrian schilling",
                      "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
                  t.getDefaultCursor().getNextRow(cols));
 
-    assertEquals(DatabaseTest.createExpectedRow(
+    assertEquals(TestUtil.createExpectedRow(
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BECUS"),
                  t.getDefaultCursor().getNextRow(cols));
@@ -454,7 +454,7 @@ public class CryptCodecProviderTest
   {
     assertEquals(Database.FileFormat.MSISAM, db.getFileFormat());
 
-    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "BILL", "BILL_FLD", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "Feature Expiration Custom Pool", "FI", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PM_RPT", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PREF", "PREF_LIST", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SCHE_TASK", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "Tax Scenario Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "UI_VIEW", "UIE", "UNOTE", "VIEW", "Worksheet Custom Pool", "X_FMLA", "X_ITM", "X_META_REF", "X_PARM", "XACCT", "XBAG", "XMAPACCT", "XMAPSAT", "XMAPSEC", "XPAY", "XSYNCCHUNK"), 
+    assertEquals(Arrays.asList("ACCT", "ADDR", "ADV", "ADV_SUM", "Advisor Important Dates Custom Pool", "Asset Allocation Custom Pool", "AUTO", "AWD", "BGT", "BGT_BKT", "BGT_ITM", "BILL", "BILL_FLD", "CAT", "CESRC", "CLI", "CLI_DAT", "CNTRY", "CRIT", "CRNC", "CRNC_EXCHG", "CT", "DHD", "Feature Expiration Custom Pool", "FI", "Inventory Custom Pool", "ITM", "IVTY", "LOT", "LSTEP", "MAIL", "MCSRC", "PAY", "PGM", "PM_RPT", "PMT", "PORT_REC", "Portfolio View Custom Pool", "POS_STMT", "PREF", "PREF_LIST", "PRODUCT", "PROJ", "PROV_FI", "PROV_FI_PAY", "Report Custom Pool", "SAV_GOAL", "SCHE_TASK", "SEC", "SEC_SPLIT", "SIC", "SOQ", "SP", "STMT", "SVC", "Tax Rate Custom Pool", "Tax Scenario Custom Pool", "TAXLINE", "TMI", "TRIP", "TRN", "TRN_INV", "TRN_INVOICE", "TRN_OL", "TRN_SPLIT", "TRN_XFER", "TXSRC", "UI_VIEW", "UIE", "UNOTE", "VIEW", "Worksheet Custom Pool", "X_FMLA", "X_ITM", "X_META_REF", "X_PARM", "XACCT", "XBAG", "XMAPACCT", "XMAPSAT", "XMAPSEC", "XPAY", "XSYNCCHUNK"),
                  new ArrayList<String>(db.getTableNames()));
 
     Table t = db.getTable("CRNC");
@@ -462,22 +462,22 @@ public class CryptCodecProviderTest
     Set<String> cols = new HashSet<String>(
         Arrays.asList("hcrnc", "szName", "lcid", "szIsoCode", "szSymbol"));
 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 1, "szName", "Argentine peso", 
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 1, "szName", "Argentine peso",
                      "lcid", 11274, "szIsoCode", "ARS", "szSymbol", "/ARSUS"),
                  t.getDefaultCursor().getNextRow(cols));
-                 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 2, "szName", "Australian dollar", 
+
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 2, "szName", "Australian dollar",
                      "lcid", 3081, "szIsoCode", "AUD", "szSymbol", "/AUDUS"),
                  t.getDefaultCursor().getNextRow(cols));
 
-    assertEquals(DatabaseTest.createExpectedRow(
-                     "hcrnc", 3, "szName", "Austrian schilling", 
+    assertEquals(TestUtil.createExpectedRow(
+                     "hcrnc", 3, "szName", "Austrian schilling",
                      "lcid", 3079, "szIsoCode", "ATS", "szSymbol", "/ATSUS"),
                  t.getDefaultCursor().getNextRow(cols));
 
-    assertEquals(DatabaseTest.createExpectedRow(
+    assertEquals(TestUtil.createExpectedRow(
                      "hcrnc", 4, "szName", "Belgian franc", "lcid", 2060,
                      "szIsoCode", "BEF", "szSymbol", "/BEFUS"),
                  t.getDefaultCursor().getNextRow(cols));
@@ -486,8 +486,8 @@ public class CryptCodecProviderTest
   static Database openCopy(String fileName, String pwd)
     throws Exception
   {
-    File copy = DatabaseTest.createTempFile(false);
-    DatabaseTest.copyFile(new File(fileName), copy);
+    File copy = TestUtil.createTempFile(false);
+    TestUtil.copyFile(new File(fileName), copy);
     return open(copy.getPath(), false, pwd);
   }
 
@@ -504,7 +504,7 @@ public class CryptCodecProviderTest
     boolean unlimitedCrypto = false;
     try {
       unlimitedCrypto = (javax.crypto.Cipher.getMaxAllowedKeyLength("AES") > 256);
-    } catch(Exception e) {}    
-    System.out.println("Unlimited strength cryptography: " + unlimitedCrypto);    
+    } catch(Exception e) {}
+    System.out.println("Unlimited strength cryptography: " + unlimitedCrypto);
   }
 }
