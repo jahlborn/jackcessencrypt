@@ -237,6 +237,8 @@
         <configuration>
           <minmemory>128m</minmemory>
           <maxmemory>512</maxmemory>
+          <!-- generated javadocs fail "syntax,html" checks -->
+          <doclint>all,-accessibility,-missing,-syntax,-html</doclint>
           <links>
             <list>https://docs.oracle.com/javase/8/docs/api</list>
             <list>http://download.oracle.com/javaee/5/api</list>
