@@ -65,10 +65,6 @@
             <forkMode>once</forkMode>
             <systemProperties>
               <property>
-                <name>log4j.configuration</name>
-                <value>log4j_test.properties</value>
-              </property>
-              <property>
                 <name>com.healthmarketscience.jackcess.testFormats</name>
                 <value>${jackcess.testFormats}</value>
               </property>

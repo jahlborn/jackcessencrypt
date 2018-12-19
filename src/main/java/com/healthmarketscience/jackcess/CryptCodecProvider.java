@@ -31,7 +31,7 @@ import com.healthmarketscience.jackcess.impl.OfficeCryptCodecHandler;
 /**
  * Implementation of CodecProvider with support for some forms of Microsoft
  * Access and Microsoft Money file encryption.
- * <p/>
+ * <p>
  * Note, not all "encrypted" access databases actually require passwords in
  * order to be opened.  Many older forms of access "encryption" ("obfuscation"
  * would be a better term) include the keys within the access file itself.  If
