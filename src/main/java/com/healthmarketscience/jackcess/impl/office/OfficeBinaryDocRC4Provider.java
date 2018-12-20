@@ -58,6 +58,7 @@ public class OfficeBinaryDocRC4Provider extends StreamCipherProvider
     _baseHash = hash(getDigest(), intBuf, 5);
   }
 
+  @Override
   public boolean canEncodePartialPage() {
     // RC4 ciphers are not influenced by the page contents, so we can easily
     // encode part of the buffer.

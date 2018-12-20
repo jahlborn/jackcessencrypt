@@ -45,12 +45,14 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
     return _cipher;
   }
 
+  @Override
   public final boolean canEncodePartialPage() {
     // for a variety of reasons, it's difficult (or impossible if chaining
     // modes are in use) for block ciphers to encode partial pages.
     return false;
   }
 
+  @Override
   public final boolean canDecodeInline() {
     // block ciphers cannot decode on top of the input buffer
     return false;

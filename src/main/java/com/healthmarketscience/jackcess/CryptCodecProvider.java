@@ -71,6 +71,7 @@ public class CryptCodecProvider implements CodecProvider, PasswordCallback
     _callback = callback;
   }
 
+  @Override
   public String getPassword() {
     return _password;
   }
@@ -89,6 +90,7 @@ public class CryptCodecProvider implements CodecProvider, PasswordCallback
     return this;
   }
 
+  @Override
   public CodecHandler createHandler(PageChannel channel, Charset charset)
     throws IOException
   {

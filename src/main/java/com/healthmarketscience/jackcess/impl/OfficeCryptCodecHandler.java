@@ -200,6 +200,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     _digest = null;
   }
 
+  @Override
   public void decodePage(ByteBuffer inPage, ByteBuffer outPage, int pageNumber) 
     throws IOException
   {
@@ -211,6 +212,7 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     decodePageImpl(inPage, outPage, pageNumber);
   }
 
+  @Override
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
                                int pageOffset) 
     throws IOException

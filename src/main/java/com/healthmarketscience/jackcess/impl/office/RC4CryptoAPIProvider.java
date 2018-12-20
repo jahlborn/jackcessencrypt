@@ -59,6 +59,7 @@ public class RC4CryptoAPIProvider extends StreamCipherProvider
     _encKeyByteSize =  bits2bytes(_header.getKeySize());
   }
 
+  @Override
   public boolean canEncodePartialPage() {
     // RC4 ciphers are not influenced by the page contents, so we can easily
     // encode part of the buffer.
