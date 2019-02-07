@@ -38,7 +38,15 @@
         </ul>
       </p>
 
-      <subsection name="Brand New License!">
+      <subsection name="Java 8+ Support (TBD)">
+        <p>
+          Jackcess Encrypt now requires Java 8+ as of the 3.0.0 release.  All
+          third party dependencies have been updated to the latest versions.
+          These changes correspond with the changes in Jackess 3.0.0.
+        </p>
+      </subsection>
+
+      <subsection name="Brand New License! (2015-04-16)">
         <p>
           In order to match the License changes made in <a href="https://jackcess.sourceforge.io/changes-report.html#a2.1.0">Jackcess 2.1.0</a>, the
           Jackcess Encrypt project has been relicensed under the <b>Apache
@@ -47,7 +55,7 @@
         </p>
       </subsection>
 
-      <subsection name="Jackcess Encrypt 2.0">
+      <subsection name="Jackcess Encrypt 2.0 (2013-08-26)">
         <p>
           In order to match the API changes made in <a href="https://jackcess.sourceforge.io/jackcess-2.html">Jackess 2.0</a>, the Jackcess
           Encrypt project has made a similar version change.  Read the
