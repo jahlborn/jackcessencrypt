@@ -31,7 +31,7 @@ import com.healthmarketscience.jackcess.impl.OfficeCryptCodecHandler;
 /**
  * Implementation of CodecProvider with support for some forms of Microsoft
  * Access and Microsoft Money file encryption.
- * <p/>
+ * <p>
  * Note, not all "encrypted" access databases actually require passwords in
  * order to be opened.  Many older forms of access "encryption" ("obfuscation"
  * would be a better term) include the keys within the access file itself.  If
@@ -71,6 +71,7 @@ public class CryptCodecProvider implements CodecProvider, PasswordCallback
     _callback = callback;
   }
 
+  @Override
   public String getPassword() {
     return _password;
   }
@@ -89,6 +90,7 @@ public class CryptCodecProvider implements CodecProvider, PasswordCallback
     return this;
   }
 
+  @Override
   public CodecHandler createHandler(PageChannel channel, Charset charset)
     throws IOException
   {

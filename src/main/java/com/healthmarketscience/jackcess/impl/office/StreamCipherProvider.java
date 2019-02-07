@@ -35,6 +35,7 @@ public abstract class StreamCipherProvider extends OfficeCryptCodecHandler
     super(channel, encodingKey);
   }
 
+  @Override
   public boolean canDecodeInline() {
     // stream ciphers can decode on top of the input buffer
     return true;

@@ -35,12 +35,14 @@ public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
     super(channel, encodingKey);
   }
 
+  @Override
   public boolean canEncodePartialPage() {
     // RC4 ciphers are not influenced by the page contents, so we can easily
     // encode part of the buffer.
     return true;
   }
 
+  @Override
   public boolean canDecodeInline() {
     // RC4 ciphers can decode on top of the input buffer
     return true;
@@ -54,6 +56,7 @@ public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
     return _engine;
   }
 
+  @Override
   public void decodePage(ByteBuffer inPage, ByteBuffer outPage, int pageNumber) {
     if(!isEncryptedPage(pageNumber)) {
       // not encoded
@@ -63,6 +66,7 @@ public abstract class BaseJetCryptCodecHandler extends BaseCryptCodecHandler
     streamDecrypt(inPage, pageNumber);
   }
 
+  @Override
   public ByteBuffer encodePage(ByteBuffer buffer, int pageNumber, 
                                int pageOffset) {
     if(!isEncryptedPage(pageNumber)) {

@@ -249,22 +249,27 @@ public class XmlEncryptionDescriptor
       _cipher = cipher;
     }
 
+    @Override
     public String getAlgorithmName() {
       return _cipher.getAlgorithmName();
     }
 
+    @Override
     public int getBlockSize() {
       return _cipher.getUnderlyingCipher().getBlockSize();
     }
 
+    @Override
     public void init(boolean forEncryption, CipherParameters params) {
       _cipher.init(forEncryption, params);
     }
 
+    @Override
     public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
       return _cipher.processBytes(in, inOff, getBlockSize(), out, outOff);
     }
     
+    @Override
     public void reset() {
       _cipher.reset();
     }
@@ -278,14 +283,17 @@ public class XmlEncryptionDescriptor
       _cipher = cipher;
     }
 
+    @Override
     public String getAlgorithmName() {
       return _cipher.getAlgorithmName();
     }
 
+    @Override
     public int getBlockSize() {
       return _cipher.getBlockSize();
     }
 
+    @Override
     public void init(boolean forEncryption, CipherParameters params) {
       if(params instanceof ParametersWithIV) {
         _cipher.init(forEncryption, ((ParametersWithIV)params).getParameters());
@@ -296,10 +304,12 @@ public class XmlEncryptionDescriptor
       }
     }
 
+    @Override
     public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
       return _cipher.processBlock(in, inOff, out, outOff);
     }
     
+    @Override
     public void reset() {
       _cipher.reset();
     }
@@ -313,14 +323,17 @@ public class XmlEncryptionDescriptor
       _cipher = cipher;
     }
 
+    @Override
     public String getAlgorithmName() {
       return _cipher.getAlgorithmName();
     }
 
+    @Override
     public int getBlockSize() {
       return STREAM_CIPHER_BLOCK_SIZE;
     }
 
+    @Override
     public void init(boolean forEncryption, CipherParameters params) {
       if(params instanceof ParametersWithIV) {
         _cipher.init(forEncryption, ((ParametersWithIV)params).getParameters());
@@ -332,11 +345,13 @@ public class XmlEncryptionDescriptor
       }
     }
 
+    @Override
     public int processBlock(byte[] in, int inOff, byte[] out, int outOff) {
       _cipher.processStreamBytes(in, inOff, STREAM_CIPHER_BLOCK_SIZE, out, outOff);
       return STREAM_CIPHER_BLOCK_SIZE;
     }
     
+    @Override
     public void reset() {
       _cipher.reset();
     }

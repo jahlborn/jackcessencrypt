@@ -53,6 +53,7 @@ public class RC4EngineCompat extends RC4Engine implements StreamCipherCompat
   /**
    * @see RC4Engine#processBytes
    */
+  @Override
   public int processStreamBytes(byte[] in, int inOff,
                                 int len, byte[] out, int outOff) {
     return processBytes(in, inOff, len, out, outOff);

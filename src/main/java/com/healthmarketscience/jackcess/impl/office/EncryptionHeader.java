@@ -25,13 +25,13 @@ import com.healthmarketscience.jackcess.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.CustomToStringStyle;
 import com.healthmarketscience.jackcess.impl.UnsupportedCodecException;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
  * @author James Ahlborn
  */
-public class EncryptionHeader 
+public class EncryptionHeader
 {
   public static final Charset UNICODE_CHARSET = Charset.forName("UTF-16LE");
 
@@ -58,9 +58,9 @@ public class EncryptionHeader
     // the CryptoAPI gives a valid range of 40-128 bits.  the CNG spec
     // (http://msdn.microsoft.com/en-us/library/windows/desktop/bb931354%28v=vs.85%29.aspx)
     // gives a range from 8-512 bits.  bouncycastle supports 40-2048 bits.
-    RC4(ALGID_RC4, 20, 0x28, 0x200), 
-    AES_128(ALGID_AES_128, 32, 0x80, 0x80), 
-    AES_192(ALGID_AES_192, 32, 0xC0, 0xC0), 
+    RC4(ALGID_RC4, 20, 0x28, 0x200),
+    AES_128(ALGID_AES_128, 32, 0x80, 0x80),
+    AES_192(ALGID_AES_192, 32, 0xC0, 0xC0),
     AES_256(ALGID_AES_256, 32, 0x100, 0x100);
 
     private final int _algId;
@@ -90,7 +90,7 @@ public class EncryptionHeader
 
     public boolean isValidKeySize(int keySize) {
       return ((_keySizeMin <= keySize) && (keySize <= _keySizeMax));
-    } 
+    }
   }
 
   public enum HashAlgorithm {
@@ -116,7 +116,7 @@ public class EncryptionHeader
   private final int _providerType;
   private final String _cspName;
 
-  public EncryptionHeader(ByteBuffer buffer) 
+  public EncryptionHeader(ByteBuffer buffer)
   {
     // OC: 2.3.2 EncryptionHeader Structure
     _flags = buffer.getInt();
@@ -131,7 +131,7 @@ public class EncryptionHeader
 
     // determine hash algorithm
     _hashAlg = parseHashAlgorithm(algIdHash, _flags);
-    
+
     // reserved
     buffer.getInt();
     buffer.getInt();
@@ -190,12 +190,12 @@ public class EncryptionHeader
         throw new InvalidCryptoConfigurationException(
             header + " crypto algorithm must be one of " + validCryptoAlgos);
       }
-    
+
       if(!validHashAlgos.contains(header.getHashAlgorithm())) {
         throw new InvalidCryptoConfigurationException(
             header + " hash algorithm must be one of " + validHashAlgos);
       }
-    
+
       int keySize = header.getKeySize();
       if(!header.getCryptoAlgorithm().isValidKeySize(keySize)) {
         throw new InvalidCryptoConfigurationException(
@@ -203,30 +203,30 @@ public class EncryptionHeader
       }
       if((keySize % 8) != 0) {
         throw new InvalidCryptoConfigurationException(
-            header + " key size must be multiple of 8");      
+            header + " key size must be multiple of 8");
       }
 
     } finally {
       // restore original limit
       encProvBuf.limit(origLimit);
-    }    
+    }
 
     // move to after header
     encProvBuf.position(startPos + headerLen);
 
     return header;
   }
-  
+
   private static CryptoAlgorithm parseCryptoAlgorithm(
-      int algId, int flags) 
+      int algId, int flags)
   {
     switch(algId) {
     case ALGID_FLAGS:
       if(isFlagSet(flags, FEXTERNAL_FLAG)) {
         return CryptoAlgorithm.EXTERNAL;
-      } 
-      if(isFlagSet(flags, FCRYPTO_API_FLAG)) {        
-        return (isFlagSet(flags, FAES_FLAG) ? 
+      }
+      if(isFlagSet(flags, FCRYPTO_API_FLAG)) {
+        return (isFlagSet(flags, FAES_FLAG) ?
                 CryptoAlgorithm.AES_128 :
                 CryptoAlgorithm.RC4);
       }
@@ -242,7 +242,7 @@ public class EncryptionHeader
     }
 
     throw new UnsupportedCodecException(
-        "Unsupported encryption algorithm " + algId + " (flags " + 
+        "Unsupported encryption algorithm " + algId + " (flags " +
         flags +")");
   }
 
@@ -259,7 +259,7 @@ public class EncryptionHeader
     }
 
     throw new UnsupportedCodecException(
-        "Unsupported hash algorithm " + algIdHash + " (flags " + 
+        "Unsupported hash algorithm " + algIdHash + " (flags " +
         flags +")");
   }
 
@@ -272,7 +272,7 @@ public class EncryptionHeader
 
     // if keySize is 0, then use algorithm/provider default
     if(cryptoAlg == CryptoAlgorithm.RC4) {
-      
+
       // the default key size depends on the crypto service provider.  if the
       // provider name was not given, or contains the string " base " use the
       // Base provider default.  otherwise, use the Strong provider default.
@@ -309,7 +309,7 @@ public class EncryptionHeader
 
     return cspName;
   }
-  
+
   public static boolean isFlagSet(int flagsVal, int flagMask)
   {
     return ((flagsVal & flagMask) != 0);
