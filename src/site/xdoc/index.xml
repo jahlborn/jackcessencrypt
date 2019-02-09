@@ -38,7 +38,7 @@
         </ul>
       </p>
 
-      <subsection name="Java 8+ Support (TBD)">
+      <subsection name="Java 8+ Support (2019-02-09)">
         <p>
           Jackcess Encrypt now requires Java 8+ as of the 3.0.0 release.  All
           third party dependencies have been updated to the latest versions.
