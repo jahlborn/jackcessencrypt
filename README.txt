@@ -12,4 +12,3 @@ repository which is hosted on SourceForge:
 Homepage: https://jackcessencrypt.sourceforge.io/
 
 Project: https://sourceforge.net/projects/jackcessencrypt/
-
