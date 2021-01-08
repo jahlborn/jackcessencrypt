@@ -90,7 +90,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>com.healthmarketscience.jackcess</Export-Package>
+            <Automatic-Module-Name>com.healthmarketscience.jackcess.crypt</Automatic-Module-Name>
+            <Export-Package>com.healthmarketscience.jackcess.crypt</Export-Package>
             <Fragment-Host>com.healthmarketscience.jackcess</Fragment-Host>
           </instructions>
         </configuration>
@@ -134,9 +135,9 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <generatePackage>com.healthmarketscience.jackcess.cryptmodel</generatePackage>
+              <generatePackage>com.healthmarketscience.jackcess.crypt.model</generatePackage>
               <includeSchemas>
-                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/encryptionInfo.xsd</includeSchema>
+                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/encryptionInfo.xsd</includeSchema>
               </includeSchemas>
             </configuration>
           </execution>
@@ -146,10 +147,10 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <generatePackage>com.healthmarketscience.jackcess.cryptmodel.password</generatePackage>
+              <generatePackage>com.healthmarketscience.jackcess.crypt.model.password</generatePackage>
               <includeSchemas>
-                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/encryptionInfo.xsd</includeSchema>
-                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/passwordEncryptor.xsd</includeSchema>
+                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/encryptionInfo.xsd</includeSchema>
+                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/passwordEncryptor.xsd</includeSchema>
               </includeSchemas>
             </configuration>
           </execution>
@@ -159,9 +160,9 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <generatePackage>com.healthmarketscience.jackcess.cryptmodel.cert</generatePackage>
+              <generatePackage>com.healthmarketscience.jackcess.crypt.model.cert</generatePackage>
               <includeSchemas>
-                <includeSchema>**/com/healthmarketscience/jackcess/cryptmodel/certificateEncryptor.xsd</includeSchema>
+                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/certificateEncryptor.xsd</includeSchema>
               </includeSchemas>
             </configuration>
           </execution>
@@ -208,7 +209,7 @@
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>3.0.0</version>
+      <version>3.5.2.mods-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -218,7 +219,7 @@
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>3.0.0</version>
+      <version>3.5.2.mods-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -282,7 +283,7 @@
         <artifactId>jacoco-maven-plugin</artifactId>
         <configuration>
           <excludes>
-            <exclude>com/healthmarketscience/jackcess/cryptmodel/**/*.class</exclude>
+            <exclude>com/healthmarketscience/jackcess/crypt/model/**/*.class</exclude>
           </excludes>
         </configuration>
       </plugin>
