@@ -91,7 +91,7 @@
         <configuration>
           <instructions>
             <Automatic-Module-Name>com.healthmarketscience.jackcess.crypt</Automatic-Module-Name>
-            <Export-Package>com.healthmarketscience.jackcess.crypt</Export-Package>
+            <Export-Package>com.healthmarketscience.jackcess,com.healthmarketscience.jackcess.crypt</Export-Package>
             <Fragment-Host>com.healthmarketscience.jackcess</Fragment-Host>
           </instructions>
         </configuration>

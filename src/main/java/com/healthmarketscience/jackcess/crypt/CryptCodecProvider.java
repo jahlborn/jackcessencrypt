@@ -72,7 +72,7 @@ public class CryptCodecProvider implements CodecProvider, PasswordCallback
     this(null, callback);
   }
 
-  private CryptCodecProvider(String password, Supplier<String> callback) {
+  protected CryptCodecProvider(String password, Supplier<String> callback) {
     _password = password;
     _callback = callback;
   }
