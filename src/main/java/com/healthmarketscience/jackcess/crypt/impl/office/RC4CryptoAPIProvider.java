@@ -21,11 +21,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
+import com.healthmarketscience.jackcess.crypt.util.StreamCipherFactory;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.Digest;
-import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
-import com.healthmarketscience.jackcess.crypt.util.StreamCipherFactory;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.params.KeyParameter;
 

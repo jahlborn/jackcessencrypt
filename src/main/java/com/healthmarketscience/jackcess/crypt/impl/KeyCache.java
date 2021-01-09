@@ -16,20 +16,20 @@ limitations under the License.
 
 package com.healthmarketscience.jackcess.crypt.impl;
 
-import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  *
  * @author James Ahlborn
  */
-public abstract class KeyCache<K> 
+public abstract class KeyCache<K>
 {
   private static final int MAX_KEY_CACHE_SIZE = 5;
 
   private final KeyMap<K> _map = new KeyMap<K>();
 
-  protected KeyCache() 
+  protected KeyCache()
   {
   }
 

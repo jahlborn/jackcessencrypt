@@ -19,8 +19,8 @@ package com.healthmarketscience.jackcess.crypt.impl.office;
 import java.nio.ByteBuffer;
 
 import com.healthmarketscience.jackcess.crypt.impl.OfficeCryptCodecHandler;
-import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
+import com.healthmarketscience.jackcess.impl.PageChannel;
 
 /**
  *

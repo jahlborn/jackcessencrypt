@@ -16,6 +16,10 @@ limitations under the License.
 
 package com.healthmarketscience.jackcess.crypt;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.function.Supplier;
+
 import com.healthmarketscience.jackcess.crypt.impl.JetCryptCodecHandler;
 import com.healthmarketscience.jackcess.crypt.impl.MSISAMCryptCodecHandler;
 import com.healthmarketscience.jackcess.crypt.impl.OfficeCryptCodecHandler;
@@ -24,9 +28,6 @@ import com.healthmarketscience.jackcess.impl.CodecProvider;
 import com.healthmarketscience.jackcess.impl.DefaultCodecProvider;
 import com.healthmarketscience.jackcess.impl.JetFormat;
 import com.healthmarketscience.jackcess.impl.PageChannel;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.function.Supplier;
 
 
 /**
@@ -38,11 +39,11 @@ import java.util.function.Supplier;
  * would be a better term) include the keys within the access file itself.  If
  * required, a password can be provided in one of two ways:
  * <ul>
- * <li>If a {@link PasswordCallback} has been provided (via the constructor or
- *     {@link #setPasswordCallback}), then {@link
- *     PasswordCallback#getPassword} will be invoked to retrieve the necessary
- *     password</li>
- * <li>If no PasswordCallback has been configured, then {@link #getPassword}
+ * <li>If a {@link PasswordCallback} or {@link Supplier} has been provided
+ *     (via the constructor or {@link #setPasswordCallback}), then
+ *     {@link PasswordCallback#getPassword} will be invoked to retrieve the
+ *     necessary password</li>
+ * <li>If no password callback has been configured, then {@link #getPassword}
  *     will be invoked directly on the CryptCodecProvider (which will return
  *     the password configured via the constructor or {@link
  *     #setPassword})</li>

@@ -16,6 +16,11 @@ limitations under the License.
 
 package com.healthmarketscience.jackcess.crypt.impl;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.function.Supplier;
+
 import com.healthmarketscience.jackcess.crypt.InvalidCredentialsException;
 import com.healthmarketscience.jackcess.crypt.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.crypt.impl.office.AgileEncryptionProvider;
@@ -30,10 +35,6 @@ import com.healthmarketscience.jackcess.impl.DefaultCodecProvider;
 import com.healthmarketscience.jackcess.impl.JetFormat;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.impl.UnsupportedCodecException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.function.Supplier;
 import org.bouncycastle.crypto.Digest;
 
 /**

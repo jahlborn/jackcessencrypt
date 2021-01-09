@@ -19,11 +19,11 @@ package com.healthmarketscience.jackcess.crypt.impl.office;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
+import com.healthmarketscience.jackcess.crypt.util.StreamCipherFactory;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.Digest;
-import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
-import com.healthmarketscience.jackcess.crypt.util.StreamCipherFactory;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.params.KeyParameter;
 

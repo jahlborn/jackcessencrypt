@@ -16,13 +16,14 @@ limitations under the License.
 
 package com.healthmarketscience.jackcess.crypt.impl;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.CodecHandler;
 import com.healthmarketscience.jackcess.impl.DefaultCodecProvider;
-import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.impl.JetFormat;
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**

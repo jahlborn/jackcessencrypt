@@ -24,6 +24,10 @@ import java.util.function.Supplier;
  * it is determined that a file <i>actually</i> requires a password to be
  * opened.  This could be used to implement a password user prompt utility.
  *
+ * Note, CryptCodecProvider now accepts a {@link Supplier} as the password
+ * callback, so this interface is no longer necessary (kept for historical
+ * compatibility).
+ *
  * @author James Ahlborn
  */
 @FunctionalInterface

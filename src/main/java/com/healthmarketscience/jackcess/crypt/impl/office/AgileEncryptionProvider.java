@@ -21,12 +21,12 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import com.healthmarketscience.jackcess.crypt.InvalidCryptoConfigurationException;
-import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.crypt.model.CTEncryption;
 import com.healthmarketscience.jackcess.crypt.model.CTKeyData;
 import com.healthmarketscience.jackcess.crypt.model.CTKeyEncryptor;
 import com.healthmarketscience.jackcess.crypt.model.password.CTPasswordKeyEncryptor;
 import com.healthmarketscience.jackcess.crypt.model.password.STPasswordKeyEncryptorUri;
+import com.healthmarketscience.jackcess.impl.PageChannel;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.params.KeyParameter;
