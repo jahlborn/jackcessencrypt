@@ -125,62 +125,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>com.sun.tools.xjc.maven2</groupId>
-        <artifactId>maven-jaxb-plugin</artifactId>
-        <version>1.0</version>
-        <executions>
-          <execution>
-            <id>jaxb1</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <generatePackage>com.healthmarketscience.jackcess.crypt.model</generatePackage>
-              <includeSchemas>
-                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/encryptionInfo.xsd</includeSchema>
-              </includeSchemas>
-            </configuration>
-          </execution>
-          <execution>
-            <id>jaxb2</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <generatePackage>com.healthmarketscience.jackcess.crypt.model.password</generatePackage>
-              <includeSchemas>
-                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/encryptionInfo.xsd</includeSchema>
-                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/passwordEncryptor.xsd</includeSchema>
-              </includeSchemas>
-            </configuration>
-          </execution>
-          <execution>
-            <id>jaxb3</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <generatePackage>com.healthmarketscience.jackcess.crypt.model.cert</generatePackage>
-              <includeSchemas>
-                <includeSchema>**/com/healthmarketscience/jackcess/crypt/model/certificateEncryptor.xsd</includeSchema>
-              </includeSchemas>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-            <version>2.1.9</version>
-          </dependency>
-          <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.1.9</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
@@ -240,7 +184,7 @@
             <ruleset>${basedir}/src/site/pmd/custom-ruleset.xml</ruleset>
           </rulesets>
           <excludeRoots>
-            <excludeRoot>target/generated-sources/xjc</excludeRoot>
+            <excludeRoot>src/main/java/com/healthmarketscience/jackcess/crypt/model</excludeRoot>
           </excludeRoots>
         </configuration>
       </plugin>

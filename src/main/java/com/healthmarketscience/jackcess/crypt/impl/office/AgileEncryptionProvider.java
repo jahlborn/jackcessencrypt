@@ -76,8 +76,7 @@ public class AgileEncryptionProvider extends BlockCipherProvider
       CTKeyEncryptor keyEnc = _encryptDesc.getKeyEncryptors()
         .getKeyEncryptor().get(0);
       if(STPasswordKeyEncryptorUri.HTTP_SCHEMAS_MICROSOFT_COM_OFFICE_2006_KEY_ENCRYPTOR_PASSWORD.value().equals(keyEnc.getUri())) {
-        pwdKeyEnc = XmlEncryptionDescriptor.parsePasswordKeyEncryptor(
-            keyEnc.getAny());
+        pwdKeyEnc = (CTPasswordKeyEncryptor)keyEnc.getAny();
       }
     }
 

@@ -16,14 +16,8 @@ limitations under the License.
 
 package com.healthmarketscience.jackcess.crypt.impl.office;
 
-import java.io.ByteArrayInputStream;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-
 import com.healthmarketscience.jackcess.crypt.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.crypt.model.CTEncryption;
-import com.healthmarketscience.jackcess.crypt.model.password.CTPasswordKeyEncryptor;
 import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
 import com.healthmarketscience.jackcess.crypt.util.StreamCipherFactory;
 import org.bouncycastle.crypto.BlockCipher;
@@ -50,7 +44,6 @@ import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.w3c.dom.Node;
 
 /**
  *
@@ -58,25 +51,6 @@ import org.w3c.dom.Node;
  */
 public class XmlEncryptionDescriptor
 {
-  private static final String ENCRYPT_CONTEXT_NAME =
-    "com.healthmarketscience.jackcess.crypt.model";
-  private static final String PASSWORD_ENCRYPTOR_CONTEXT_NAME =
-    "com.healthmarketscience.jackcess.crypt.model.password";
-  // private static final String CERT_ENCRYPTOR_CONTEXT_NAME =
-  //   "com.healthmarketscience.jackcess.crypt.model.cert";
-
-  private static final class Encrypt {
-    private static final JAXBContext CONTEXT = loadContext(ENCRYPT_CONTEXT_NAME);
-  }
-  private static final class PasswordEncryptor {
-    private static final JAXBContext CONTEXT =
-      loadContext(PASSWORD_ENCRYPTOR_CONTEXT_NAME);
-  }
-  // private static final class CertEncryptor {
-  //   private static final JAXBContext CONTEXT =
-  //     loadContext(CERT_ENCRYPTOR_CONTEXT_NAME);
-  // }
-
   // this value doesn't matter, just multiple of 2
   private static final int STREAM_CIPHER_BLOCK_SIZE = 16;
 
@@ -154,40 +128,21 @@ public class XmlEncryptionDescriptor
     }
   }
 
-  private XmlEncryptionDescriptor()
-  {
-  }
+  private XmlEncryptionDescriptor() {}
 
   public static final CTEncryption parseEncryptionDescriptor(byte[] xmlBytes) {
-    try {
-      return (CTEncryption)unwrap(Encrypt.CONTEXT.createUnmarshaller().unmarshal(
-                                      new ByteArrayInputStream(xmlBytes)));
-    } catch(JAXBException e) {
-      throw new InvalidCryptoConfigurationException("Failed parsing encryption descriptor", e);
-    }
+    return XmlEncryptionParser.parseEncryptionDescriptor(xmlBytes);
   }
 
-  public static final CTPasswordKeyEncryptor parsePasswordKeyEncryptor(
-      Object keyDescriptor) {
-    try {
-      return (CTPasswordKeyEncryptor)unwrap(
-          PasswordEncryptor.CONTEXT.createUnmarshaller().unmarshal(
-              (Node)keyDescriptor));
-    } catch(JAXBException e) {
-      throw new InvalidCryptoConfigurationException(
-          "Failed parsing password key encryptor", e);
-    }
-  }
-
-  public static final CipherAlgorithm getAlgorithm(String str) {
+  private static final CipherAlgorithm getAlgorithm(String str) {
     return parseEnum(str, CipherAlgorithm.class);
   }
 
-  public static final CipherChaining getChaining(String str) {
+  private static final CipherChaining getChaining(String str) {
     return parseEnum(str, CipherChaining.class);
   }
 
-  public static final HashAlgorithm getHash(String str) {
+  private static final HashAlgorithm getHash(String str) {
     return parseEnum(str, HashAlgorithm.class);
   }
 
@@ -201,8 +156,7 @@ public class XmlEncryptionDescriptor
         getAlgorithm(cipherStr).initBlockCipher());
   }
 
-  private static <E extends Enum<E>> E parseEnum(String str, Class<E> enumClazz)
-  {
+  private static <E extends Enum<E>> E parseEnum(String str, Class<E> enumClazz) {
     String origStr = str;
     // massage the enum str a bit to be a valid enum
     str = str.trim().toUpperCase().replaceAll("[-_]", "");
@@ -217,27 +171,12 @@ public class XmlEncryptionDescriptor
     }
   }
 
-  private static Object unwrap(Object obj) {
-    if(obj instanceof JAXBElement) {
-      obj = ((JAXBElement<?>)obj).getValue();
-    }
-    return obj;
-  }
-
   private static <T> T newInstance(Class<? extends T> clazz) {
     try {
       return clazz.newInstance();
     } catch(Exception e) {
       throw new InvalidCryptoConfigurationException(
           "Failed initializing encryption algorithm: " + clazz.getSimpleName(), e);
-    }
-  }
-
-  private static final JAXBContext loadContext(String name) {
-    try {
-      return JAXBContext.newInstance(name, XmlEncryptionDescriptor.class.getClassLoader());
-    } catch(JAXBException e) {
-      throw new RuntimeException(e);
     }
   }
 
