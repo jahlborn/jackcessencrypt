@@ -183,9 +183,9 @@
           <rulesets>
             <ruleset>${basedir}/src/site/pmd/custom-ruleset.xml</ruleset>
           </rulesets>
-          <excludeRoots>
-            <excludeRoot>src/main/java/com/healthmarketscience/jackcess/crypt/model</excludeRoot>
-          </excludeRoots>
+          <excludes>
+            <exclude>**/com/healthmarketscience/jackcess/crypt/model/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
