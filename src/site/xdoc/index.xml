@@ -42,21 +42,15 @@
         <p>
           While Jackcess Encrypt still only requires Java 8+, as of the 4.0.0
           release it now includes an Automatic-Module-Name in its manifest.
-          That allows it to be used in the module path for Java 9+ projects
-          (note, however, that the JAXB module must be available for opening
-          files using modern Accesss DB encryption).  These changes correspond
-          with the changes in Jackess 4.0.0.
+          That allows it to be used in the module path for Java 9+ projects.
+          These changes correspond with the changes in Jackess 4.0.0.
         </p>
         <p>
           As a consequence of supporting Java 9+ modules, the classes in this
           project needed to be moved to a new package in order to avoid the
           "split module" problem.  The primary classes in this project are now
           in the <code>com.healthmarketscience.jackcess.crypt</code> package.
-          There are a few deprecated classes left in the
-          <code>com.healthmarketscience.jackcess</code> package for Java 8+
-          projects wishing for a binary compatible upgrade path.  However,
-          those projects should move to the non-deprecated classes as soon as
-          it is feasible.
+          This is a breaking change with respect to previous releases.
         </p>
       </subsection>
 
