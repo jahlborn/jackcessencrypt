@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<document>
+  <properties>
+    <author email="jahlborn@users.sf.net">James Ahlborn</author>
+    <title>Upgrading from Jackcess Encrypt 2.x to 3.x</title>
+  </properties>
+  <body>
+
+    <section name="Jackcess Encrypt 3.0">
+      <subsection name="What's new?">
+        <p>
+          Jackcess Encrypt now requires Java 8+ as of the 3.0.0 release.  All
+          third party dependencies have been updated to the latest versions.
+          These changes correspond with the changes in Jackess 3.0.0.
+        </p>
+
+        <h4>Jackcess Compatibility</h4>
+        <ul>
+          <li>Jackcess 3.x -&gt; Jackcess Encrypt 3.y</li>
+          <li>Jackcess 2.x -&gt; Jackcess Encrypt 2.y</li>
+          <li>Jackcess 1.x -&gt; Jackcess Encrypt 1.y</li>
+        </ul>
+      </subsection>
+    </section>
+    
+  </body>
+</document>

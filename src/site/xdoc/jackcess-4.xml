@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<document>
+  <properties>
+    <author email="jahlborn@users.sf.net">James Ahlborn</author>
+    <title>Upgrading from Jackcess Encrypt 3.x to 4.x</title>
+  </properties>
+  <body>
+
+    <section name="Jackcess Encrypt 4.0">
+      <subsection name="What now?">
+        <p>
+          While Jackcess Encrypt <i>still only requires Java 8+</i>, as of the
+          4.0.0 release it now includes an Automatic-Module-Name of
+          <code>com.healthmarketscience.jackcess.crypt</code> in its manifest.
+          This allows it to safely be used in the module path for Java 9+
+          projects.  These changes correspond with the changes in Jackess 4.x.
+        </p>
+        <p>
+          As a consequence of supporting Java 9+ modules, the classes in this
+          project needed to be moved to a new package in order to avoid the
+          "split module" problem.  The primary classes in this project are now
+          in the <code>com.healthmarketscience.jackcess.crypt</code> package.
+          This is a breaking change with respect to the 3.x release series.
+        </p>
+        <p>
+          Internally, Jackcess Encrypt historically used JAXB for some xml
+          parsing.  Since JAXB is no longer included with the Java runtime in
+          later releases, this code was rewritten to only utilize core Java
+          XML parsing libraries.  Consequently, JAXB is no longer used by
+          Jackcess Encrypt.
+        </p>
+        
+        <h4>Jackcess Compatibility</h4>
+        <ul>
+          <li>Jackcess 4.x -&gt; Jackcess Encrypt 4.y</li>
+          <li>Jackcess 3.x -&gt; Jackcess Encrypt 3.y</li>
+          <li>Jackcess 2.x -&gt; Jackcess Encrypt 2.y</li>
+          <li>Jackcess 1.x -&gt; Jackcess Encrypt 1.y</li>
+        </ul>
+      </subsection>
+    </section>
+    
+  </body>
+</document>

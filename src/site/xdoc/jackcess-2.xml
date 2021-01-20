@@ -14,8 +14,10 @@
           of a long-overdue overhaul.  These changes are superficial, but are not
           backwards compatible with Jackcess 1.x (<a href="https://jackcess.sourceforge.io/jackcess-2.html">full details
           here</a>).  Jackcess Encrypt has similarly changed its version number in
-          order to make it easy to match compatible versions:
+          order to make it easy to match compatible versions.
         </p>
+
+        <h4>Jackcess Compatibility</h4>
         <ul>
           <li>Jackcess 2.x -&gt; Jackcess Encrypt 2.y</li>
           <li>Jackcess 1.x -&gt; Jackcess Encrypt 1.y</li>

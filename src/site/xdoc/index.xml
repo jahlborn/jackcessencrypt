@@ -40,11 +40,11 @@
 
       <subsection name="Java 9+ Compatibility (2021-TBD)">
         <p>
-          While Jackcess Encrypt still only requires Java 8+, as of the 4.0.0
-          release it now includes an Automatic-Module-Name of
+          While Jackcess Encrypt <i>still only requires Java 8+</i>, as of the
+          4.0.0 release it now includes an Automatic-Module-Name of
           <code>com.healthmarketscience.jackcess.crypt</code> in its manifest.
-          That allows it to be used in the module path for Java 9+ projects.
-          These changes correspond with the changes in Jackess 4.x.
+          This allows it to safely be used in the module path for Java 9+
+          projects.  These changes correspond with the changes in Jackess 4.x.
         </p>
         <p>
           As a consequence of supporting Java 9+ modules, the classes in this
