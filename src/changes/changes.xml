@@ -4,6 +4,23 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="4.0.0" date="TBD">
+      <action dev="jahlborn" type="update">
+        Add Automatic-Module-Name in order to make Jackcess Encrypt safe to use in the
+        module path in Java 9+ environments.  In order to make this work, the
+        classes in this project were moved to the
+        com.healthmarketscience.jackcess.crypt package.
+      </action>
+      <action dev="jahlborn" type="update">
+        Removed usage of JAXB as the need was minimal and JAXB is not
+        distributed as part of newer Java releases.  XML parsing now uses only
+        core Java classes.
+      </action>
+      <action dev="jahlborn" type="update">
+        The password callback can now be a Supplier&lt;String&gt; (the
+        PasswordCallback interface has been kept for backwards compatibility).
+      </action>
+    </release>
     <release version="3.0.0" date="2019-02-09" description="Update to Java 8">
       <action dev="jahlborn" type="update">
         Jackcess Encrypt now requires a Java 8+ runtime.  As part of this
@@ -41,7 +58,7 @@
         with 1.50 and earlier releases using new StreamCipherFactory.
       </action>
     </release>
-    <release version="2.1.0" date="2015-05-12" 
+    <release version="2.1.0" date="2015-05-12"
              description="Relicense to Apache License">
       <action dev="jahlborn" type="add">
         Jackcess Encrypt relicenses to Apache License, 2.0!
