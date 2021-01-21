@@ -6,7 +6,7 @@
     <title>Java Library for MS Access Encryption (Jackcess extension)</title>
   </properties>
   <body>
-    
+
     <section name="Jackcess Encrypt">
       <p>
         Jackcess Encrypt is an extension library for the <a href="https://jackcess.sourceforge.io/">Jackcess</a> project
@@ -31,12 +31,29 @@
                     versions of Bouncy Castle as well (see <a href="https://sourceforge.net/p/jackcessencrypt/feature-requests/2/">Feature
                     Request 2</a> for more details).</li>
               </ul>
-          <li>Sourceforge has <a href="https://sourceforge.net/apps/trac/sourceforge/wiki/Project%20control#ExportControl">restrictions</a>
-              on the distribution of software which use encryption.  Keeping
-              this support in a separate project allows the main Jackcess
-              library to be distributed more freely.</li>
+          <li>Sourceforge previously had restrictions on the distribution of
+              software which used encryption.  Keeping this support in a
+              separate project allowed the main Jackcess library to be
+              distributed more freely.</li>
         </ul>
       </p>
+
+      <subsection name="Java 9+ Compatibility (2021-TBD)">
+        <p>
+          While Jackcess Encrypt <i>still only requires Java 8+</i>, as of the
+          4.0.0 release it now includes an Automatic-Module-Name of
+          <code>com.healthmarketscience.jackcess.crypt</code> in its manifest.
+          This allows it to safely be used in the module path for Java 9+
+          projects.  These changes correspond with the changes in Jackess 4.x.
+        </p>
+        <p>
+          As a consequence of supporting Java 9+ modules, the classes in this
+          project needed to be moved to a new package in order to avoid the
+          "split module" problem.  The primary classes in this project are now
+          in the <code>com.healthmarketscience.jackcess.crypt</code> package.
+          This is a breaking change with respect to the 3.x release series.
+        </p>
+      </subsection>
 
       <subsection name="Java 8+ Support (2019-02-09)">
         <p>
