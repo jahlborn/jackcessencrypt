@@ -17,6 +17,8 @@ limitations under the License.
 package com.healthmarketscience.jackcess.crypt.impl.office;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -42,6 +44,9 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -56,6 +61,13 @@ public class XmlEncryptionParser
   private static final String CERT_NS = "http://schemas.microsoft.com/office/2006/keyEncryptor/certificate";
 
   private static final Base64.Decoder B64_DEC = Base64.getDecoder();
+
+  private static final EntityResolver IGNORING_ENTITY_RESOLVER = new EntityResolver() {
+    @Override public InputSource resolveEntity(String publicId, String systemId)
+      throws SAXException, IOException {
+      return new InputSource(new StringReader(""));
+    }
+  };
 
   private XmlEncryptionParser() {}
 
@@ -240,7 +252,9 @@ public class XmlEncryptionParser
     factory.setIgnoringComments(true);
     factory.setCoalescing(true);
     factory.setNamespaceAware(true);
-    return factory.newDocumentBuilder();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    builder.setEntityResolver(IGNORING_ENTITY_RESOLVER);
+    return builder;
   }
 
   private static void maybeSetAttribute(
