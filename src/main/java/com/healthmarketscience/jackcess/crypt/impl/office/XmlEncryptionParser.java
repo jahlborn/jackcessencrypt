@@ -37,6 +37,8 @@ import com.healthmarketscience.jackcess.crypt.model.cert.STCertificateKeyEncrypt
 import com.healthmarketscience.jackcess.crypt.model.password.CTPasswordKeyEncryptor;
 import com.healthmarketscience.jackcess.crypt.model.password.STPasswordKeyEncryptorUri;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -47,6 +49,8 @@ import org.w3c.dom.NodeList;
  */
 public class XmlEncryptionParser
 {
+  private static final Log LOG = LogFactory.getLog(XmlEncryptionParser.class);
+
   private static final String ENC_NS = "http://schemas.microsoft.com/office/2006/encryption";
   private static final String PWD_NS = "http://schemas.microsoft.com/office/2006/keyEncryptor/password";
   private static final String CERT_NS = "http://schemas.microsoft.com/office/2006/keyEncryptor/certificate";
@@ -229,14 +233,23 @@ public class XmlEncryptionParser
   private static DocumentBuilder newBuilder() throws ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    maybeSetAttribute(factory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    maybeSetAttribute(factory, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
     factory.setXIncludeAware(false);
     factory.setExpandEntityReferences(false);
     factory.setIgnoringComments(true);
     factory.setCoalescing(true);
     factory.setNamespaceAware(true);
     return factory.newDocumentBuilder();
+  }
+
+  private static void maybeSetAttribute(
+      DocumentBuilderFactory factory, String propName, String propValue) {
+    try {
+      factory.setAttribute(propName, propValue);
+    } catch(IllegalArgumentException ie) {
+      LOG.warn("Xml parser does not support property " + propName);
+    }
   }
 
   private static InvalidCryptoConfigurationException createException(
