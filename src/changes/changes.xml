@@ -6,6 +6,11 @@
   <body>
     <release version="4.0.1" date="2021-03-04">
       <action dev="jahlborn" type="update">
+        Bump bouncycastle dependency version.
+      </action>      
+    </release>
+    <release version="4.0.1" date="2021-03-04">
+      <action dev="jahlborn" type="update">
         Ignore errors for unsupported properties for uncompliant xml parsers.  Use xml entity
         resolver which ignores external entities for extra layer of paranoia.
       </action>
