@@ -5,7 +5,8 @@
   </properties>
   <body>
     <release version="4.0.2" date="TBD">
-      <action dev="jahlborn" type="update">
+      <action dev="jahlborn" type="update" system="SourceForge2Features"
+              issue="3">
         Bump bouncycastle dependency version.
       </action>      
     </release>
