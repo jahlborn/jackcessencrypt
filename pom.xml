@@ -136,9 +136,9 @@
           <doclint>all,-accessibility,-missing,-syntax,-html</doclint>
           <links>
             <list>https://docs.oracle.com/javase/8/docs/api</list>
-            <list>http://download.oracle.com/javaee/5/api</list>
+            <list>https://download.oracle.com/javaee/5/api</list>
             <list>https://jackcess.sourceforge.io/apidocs/</list>
-            <list>http://www.bouncycastle.org/docs/docs1.5on/</list>
+            <list>https://www.bouncycastle.org/docs/docs1.8on/</list>
           </links>
           <source>1.8</source>
           <show>public</show>
@@ -157,7 +157,7 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.72</version>
+      <version>1.74</version>
     </dependency>
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
@@ -204,9 +204,9 @@
           <doclint>all,-accessibility,-missing,-syntax,-html</doclint>
           <links>
             <list>https://docs.oracle.com/javase/8/docs/api</list>
-            <list>http://download.oracle.com/javaee/5/api</list>
+            <list>https://download.oracle.com/javaee/5/api</list>
             <list>https://jackcess.sourceforge.io/apidocs/</list>
-            <list>http://www.bouncycastle.org/docs/docs1.5on/</list>
+            <list>https://www.bouncycastle.org/docs/docs1.8on/</list>
           </links>
           <source>1.8</source>
           <show>public</show>
