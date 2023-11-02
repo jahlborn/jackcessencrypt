@@ -10,6 +10,15 @@
   <name>Jackcess Encrypt</name>
   <description>An add-on to the Jackcess library for handling encryption in MS Access files.</description>
   <version>4.0.3-SNAPSHOT</version>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <junit.version>5.10.0</junit.version>
+    <jackcess.bigIndex>true</jackcess.bigIndex>
+    <jackcess.testFormats>V1997,V2000,V2003,V2007</jackcess.testFormats>
+  </properties>
+
   <url>http://jackcessencrypt.sf.net</url>
   <inceptionYear>2010</inceptionYear>
   <developers>
@@ -60,6 +69,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.1.2</version>
           <configuration>
             <forkMode>once</forkMode>
             <systemProperties>
@@ -148,31 +158,45 @@
       </plugin>
     </plugins>
   </build>
+
   <dependencies>
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>4.0.0</version>
+      <version>4.0.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.72</version>
+      <version>1.76</version>
     </dependency>
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>4.0.0</version>
+      <version>4.0.6-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <reporting>
     <plugins>
       <plugin>
@@ -238,8 +262,4 @@
       <url>scp://shell.sourceforge.net/home/project-web/jackcessencrypt/htdocs</url>
     </site>
   </distributionManagement>
-  <properties>
-    <jackcess.bigIndex>true</jackcess.bigIndex>
-    <jackcess.testFormats>V1997,V2000,V2003,V2007</jackcess.testFormats>
-  </properties>
 </project>

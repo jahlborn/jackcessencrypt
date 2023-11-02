@@ -31,8 +31,8 @@ import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TestUtil;
 import com.healthmarketscience.jackcess.impl.DatabaseImpl;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -41,17 +41,12 @@ import org.junit.Test;
  */
 public class CryptCodecProviderTest
 {
-
   @Test
   public void testMSISAM() throws Exception
   {
-    try {
-      new DatabaseBuilder(new File("src/test/data/money2001.mny"))
-        .setReadOnly(true).open();
-      fail("UnsupportedOperationException should have been thrown");
-    } catch(UnsupportedOperationException e) {
-      // success
-    }
+    assertThrows(UnsupportedOperationException.class,
+                 () -> new DatabaseBuilder(new File("src/test/data/money2001.mny"))
+                         .setReadOnly(true).open());
 
     Database db = open("src/test/data/money2001.mny", true, null);
 
@@ -77,21 +72,13 @@ public class CryptCodecProviderTest
 
     db.close();
 
-    try {
-      open("src/test/data/money2008-pwd.mny", true, null);
-      fail("IllegalStateException should have been thrown");
-    } catch(IllegalStateException e) {
-      // success
-      assertEquals("Incorrect password provided", e.getMessage());
-    }
+    IllegalStateException e = assertThrows(IllegalStateException.class,
+                                        () -> open("src/test/data/money2008-pwd.mny", true, null));
+    assertEquals("Incorrect password provided", e.getMessage());
 
-    try {
-      open("src/test/data/money2008-pwd.mny", true, "WrongPassword");
-      fail("IllegalStateException should have been thrown");
-    } catch(IllegalStateException e) {
-      // success
-      assertEquals("Incorrect password provided", e.getMessage());
-    }
+    e = assertThrows(IllegalStateException.class,
+                     () -> open("src/test/data/money2008-pwd.mny", true, "WrongPassword"));
+    assertEquals("Incorrect password provided", e.getMessage());
 
     db = open("src/test/data/money2008-pwd.mny", true, "Test12345");
 
@@ -103,14 +90,9 @@ public class CryptCodecProviderTest
   @Test
   public void testReadJet() throws Exception
   {
-    try {
-      new DatabaseBuilder(new File("src/test/data/db-enc.mdb")).setReadOnly(true)
-        .open();
-      fail("UnsupportedOperationException should have been thrown");
-    } catch(UnsupportedOperationException e) {
-      // success
-    }
-
+    assertThrows(UnsupportedOperationException.class,
+                 () -> new DatabaseBuilder(new File("src/test/data/db-enc.mdb")).setReadOnly(true)
+        .open());
 
     Database db = open("src/test/data/db-enc.mdb", true, null);
 
@@ -155,30 +137,18 @@ public class CryptCodecProviderTest
   @Test
   public void testReadOfficeEnc() throws Exception
   {
-    for(String fname : Arrays.asList("src/test/data/db2007-oldenc.accdb",
-                                     "src/test/data/db2007-enc.accdb")) {
-      try {
-        new DatabaseBuilder(new File(fname)).setReadOnly(true).open();
-        fail("UnsupportedOperationException should have been thrown");
-      } catch(UnsupportedOperationException e) {
-        // success
-      }
+    for (final String fname : Arrays.asList("src/test/data/db2007-oldenc.accdb",
+                                            "src/test/data/db2007-enc.accdb"))
+    {
+      assertThrows(UnsupportedOperationException.class,
+                   () -> new DatabaseBuilder(new File(fname)).setReadOnly(true).open());
 
-      try {
-        open(fname, true, null);
-        fail("IllegalStateException should have been thrown");
-      } catch(IllegalStateException e) {
-        // success
-        assertEquals("Incorrect password provided", e.getMessage());
-      }
+      IllegalStateException e = assertThrows(IllegalStateException.class,
+                                             () -> open(fname, true, null));
+      assertEquals("Incorrect password provided", e.getMessage());
 
-      try {
-        open(fname, true, "WrongPassword");
-        fail("IllegalStateException should have been thrown");
-      } catch(IllegalStateException e) {
-        // success
-        assertEquals("Incorrect password provided", e.getMessage());
-      }
+      e = assertThrows(IllegalStateException.class, () -> open(fname, true, "WrongPassword"));
+      assertEquals("Incorrect password provided", e.getMessage());
 
       Database db = open(fname, true, "Test123");
 
@@ -260,28 +230,17 @@ public class CryptCodecProviderTest
   public void testNonStandardProvider() throws Exception
   {
     final String fname = "src/test/data/db-nonstandard.accdb";
-    try {
-      new DatabaseBuilder(new File(fname)).setReadOnly(true).open();
-      fail("UnsupportedOperationException should have been thrown");
-    } catch(UnsupportedOperationException e) {
-      // success
-    }
 
-    try {
-      open(fname, true, null);
-      fail("InvalidCredentialsException should have been thrown");
-    } catch(InvalidCredentialsException e) {
-      // success
-      assertEquals("Incorrect password provided", e.getMessage());
-    }
+    assertThrows(UnsupportedOperationException.class,
+                 () -> new DatabaseBuilder(new File(fname)).setReadOnly(true).open());
 
-    try {
-      open(fname, true, "WrongPassword");
-      fail("InvalidCredentialsException should have been thrown");
-    } catch(InvalidCredentialsException e) {
-      // success
-      assertEquals("Incorrect password provided", e.getMessage());
-    }
+    InvalidCredentialsException e = assertThrows(InvalidCredentialsException.class,
+                                                 () -> open(fname, true, null));
+    assertEquals("Incorrect password provided", e.getMessage());
+
+    e = assertThrows(InvalidCredentialsException.class,
+                                                 () -> open(fname, true, "WrongPassword"));
+    assertEquals("Incorrect password provided", e.getMessage());
 
     Database db = open(fname, true, "password");
 
