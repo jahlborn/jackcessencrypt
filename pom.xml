@@ -169,7 +169,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -239,6 +239,8 @@
     </site>
   </distributionManagement>
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <jackcess.bigIndex>true</jackcess.bigIndex>
     <jackcess.testFormats>V1997,V2000,V2003,V2007</jackcess.testFormats>
   </properties>
