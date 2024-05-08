@@ -49,6 +49,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
  *
  * @author James Ahlborn
  */
+@SuppressWarnings("deprecation")
 public class XmlEncryptionDescriptor
 {
   // this value doesn't matter, just multiple of 2

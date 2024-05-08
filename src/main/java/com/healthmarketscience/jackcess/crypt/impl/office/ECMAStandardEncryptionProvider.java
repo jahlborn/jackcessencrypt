@@ -35,7 +35,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
  *
  * @author James Ahlborn
  */
-public class ECMAStandardEncryptionProvider extends BlockCipherProvider 
+public class ECMAStandardEncryptionProvider extends BlockCipherProvider
 {
   private static final Set<EncryptionHeader.CryptoAlgorithm> VALID_CRYPTO_ALGOS =
     EnumSet.of(EncryptionHeader.CryptoAlgorithm.AES_128,
@@ -44,7 +44,7 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
   private static final Set<EncryptionHeader.HashAlgorithm> VALID_HASH_ALGOS =
     EnumSet.of(EncryptionHeader.HashAlgorithm.SHA1);
   private static final int HASH_ITERATIONS = 50000;
-  
+
   private final int _hashIterations;
   private final EncryptionHeader _header;
   private final EncryptionVerifier _verifier;
@@ -52,15 +52,15 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
   private final int _encKeyByteSize;
 
   public ECMAStandardEncryptionProvider(PageChannel channel, byte[] encodingKey,
-                                        ByteBuffer encProvBuf, byte[] pwdBytes) 
+                                        ByteBuffer encProvBuf, byte[] pwdBytes)
     throws IOException
   {
     this(channel, encodingKey, encProvBuf, pwdBytes, HASH_ITERATIONS);
   }
-  
+
   protected ECMAStandardEncryptionProvider(PageChannel channel, byte[] encodingKey,
                                            ByteBuffer encProvBuf, byte[] pwdBytes,
-                                           int hashIterations) 
+                                           int hashIterations)
     throws IOException
   {
     super(channel, encodingKey);
@@ -76,14 +76,15 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     // OC: 2.3.4.7 (part 1)
     _baseHash = hash(getDigest(), _verifier.getSalt(), pwdBytes);
     _encKeyByteSize =  bits2bytes(_header.getKeySize());
-  }  
-  
+  }
+
   @Override
   protected Digest initDigest() {
     return new SHA1Digest();
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   protected BlockCipher initCipher() {
     return new AESEngine();
   }
@@ -93,16 +94,16 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     // when actually decrypting pages, we incorporate the "encoding key"
     return computeEncryptionKey(getEncodingKey(pageNumber));
   }
-  
+
   @Override
   protected boolean verifyPassword(byte[] pwdBytes) {
 
     // OC: 2.3.4.9
-    BufferedBlockCipher cipher = decryptInit(getBlockCipher(), 
+    BufferedBlockCipher cipher = decryptInit(getBlockCipher(),
                                              computeEncryptionKey(int2bytes(0)));
-    
+
     byte[] verifier = decryptBytes(cipher, _verifier.getEncryptedVerifier());
-    byte[] verifierHash = 
+    byte[] verifierHash =
       fixToLength(decryptBytes(cipher, _verifier.getEncryptedVerifierHash()),
                   _verifier.getVerifierHashSize());
 
@@ -116,7 +117,7 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     byte[] encKey = cryptDeriveKey(_baseHash, blockBytes, _encKeyByteSize);
     return new KeyParameter(encKey);
   }
-  
+
   private byte[] cryptDeriveKey(byte[] baseHash, byte[] blockBytes, int keyByteLen)
   {
     Digest digest = getDigest();
@@ -128,7 +129,7 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
 
     byte[] x1 = hash(digest, genXBytes(finalHash, 0x36));
     byte[] x2 = hash(digest, genXBytes(finalHash, 0x5C));
-    
+
     return fixToLength(ByteUtil.concat(x1, x2), keyByteLen);
   }
 
@@ -142,4 +143,3 @@ public class ECMAStandardEncryptionProvider extends BlockCipherProvider
     return x;
   }
 }
-

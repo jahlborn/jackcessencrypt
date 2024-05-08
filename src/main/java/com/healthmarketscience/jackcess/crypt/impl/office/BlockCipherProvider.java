@@ -38,6 +38,7 @@ public abstract class BlockCipherProvider extends OfficeCryptCodecHandler
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   protected BufferedBlockCipher getBlockCipher() {
     if(_cipher == null) {
       _cipher = new BufferedBlockCipher(initCipher());
