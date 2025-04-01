@@ -4,7 +4,7 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
-    <release version="4.0.3" date="TBD">
+    <release version="4.0.3" date="2025-04-01">
       <action dev="jahlborn" type="update">
         Bump bouncycastle dependency version.
       </action>      
