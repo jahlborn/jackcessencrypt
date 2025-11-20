@@ -132,7 +132,9 @@ public class AgileEncryptionProvider extends BlockCipherProvider
 
   @Override
   protected ParametersWithIV computeCipherParams(int pageNumber) {
-    // when actually decrypting pages, we incorporate the "encoding key"
+    // OC: 2.3.4.15 says to use the zero-based segment number alone as block
+    // key, but this is incorrect for MS Access - when actually decrypting
+    // pages, we also incorporate the "encoding key"
     byte[] blockBytes = getEncodingKey(pageNumber);
 
     CTKeyData keyData = _encryptDesc.getKeyData();

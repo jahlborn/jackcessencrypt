@@ -65,8 +65,8 @@ public abstract class OfficeCryptCodecHandler extends BaseCryptCodecHandler
     ByteBuffer buffer = readHeaderPage(channel);
     JetFormat format = channel.getFormat();
 
-    // the encoding key indicates whether or not the db is encoded (but is
-    // otherwise meaningless?)
+    // a non-zero encoding key indicates the db is encoded - will be passed to
+    // BaseCryptCodecHandler constructor for use in encryption
     byte[] encodingKey = ByteUtil.getBytes(
         buffer, format.OFFSET_ENCODING_KEY,
         JetCryptCodecHandler.ENCODING_KEY_LENGTH);
