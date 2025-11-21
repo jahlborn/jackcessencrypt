@@ -60,7 +60,8 @@ public abstract class StreamCipherFactory
     throws Exception
   {
     Class<?> factoryClass = Class.forName(className);
-    StreamCipherFactory factory = (StreamCipherFactory)factoryClass.newInstance();
+    StreamCipherFactory factory =
+      (StreamCipherFactory)factoryClass.getDeclaredConstructor().newInstance();
     // verify that the engine is functional
     if(factory.newInstance() == null) {
       throw new IllegalStateException("EngineFactory " + className +
