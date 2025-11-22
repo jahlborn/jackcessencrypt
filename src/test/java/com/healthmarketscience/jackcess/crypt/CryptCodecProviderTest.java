@@ -53,29 +53,21 @@ public class CryptCodecProviderTest
       // success
     }
 
-    Database db = open("src/test/data/money2001.mny", true, null);
+    try(Database db = open("src/test/data/money2001.mny", true, null)) {
+      doCheckMSISAM2001Db(db);
+    }
 
-    doCheckMSISAM2001Db(db);
+    try(Database db = open("src/test/data/money2001-pwd.mny", true, null)) {
+      doCheckMSISAM2001Db(db);
+    }
 
-    db.close();
+    try(Database db = open("src/test/data/money2002.mny", true, null)) {
+      doCheckMSISAM2002Db(db);
+    }
 
-    db = open("src/test/data/money2001-pwd.mny", true, null);
-
-    doCheckMSISAM2001Db(db);
-
-    db.close();
-
-    db = open("src/test/data/money2002.mny", true, null);
-
-    doCheckMSISAM2002Db(db);
-
-    db.close();
-
-    db = open("src/test/data/money2008.mny", true, null);
-
-    doCheckMSISAM2008Db(db);
-
-    db.close();
+    try(Database db = open("src/test/data/money2008.mny", true, null)) {
+      doCheckMSISAM2008Db(db);
+    }
 
     try {
       open("src/test/data/money2008-pwd.mny", true, null);
@@ -93,11 +85,9 @@ public class CryptCodecProviderTest
       assertEquals("Incorrect password provided", e.getMessage());
     }
 
-    db = open("src/test/data/money2008-pwd.mny", true, "Test12345");
-
-    doCheckMSISAM2008Db(db);
-
-    db.close();
+    try(Database db = open("src/test/data/money2008-pwd.mny", true, "Test12345")) {
+      doCheckMSISAM2008Db(db);
+    }
   }
 
   @Test
@@ -112,44 +102,38 @@ public class CryptCodecProviderTest
     }
 
 
-    Database db = open("src/test/data/db-enc.mdb", true, null);
+    try(Database db = open("src/test/data/db-enc.mdb", true, null)) {
+      assertEquals(Database.FileFormat.V2000, db.getFileFormat());
 
-    assertEquals(Database.FileFormat.V2000, db.getFileFormat());
+      doCheckJetDb(db, 0);
+    }
 
-    doCheckJetDb(db, 0);
+    try(Database db = open("src/test/data/db97-enc.mdb", true, null)) {
+      assertEquals(Database.FileFormat.V1997, db.getFileFormat());
 
-    db.close();
-
-    db = open("src/test/data/db97-enc.mdb", true, null);
-
-    assertEquals(Database.FileFormat.V1997, db.getFileFormat());
-
-    doCheckJetDb(db, 0);
-
-    db.close();
+      doCheckJetDb(db, 0);
+    }
   }
 
   @Test
   public void testWriteJet() throws Exception
   {
-    Database db = openCopy("src/test/data/db-enc.mdb", null);
+    try(Database db = openCopy("src/test/data/db-enc.mdb", null)) {
+      Table t = db.getTable("Table1");
 
-    Table t = db.getTable("Table1");
-
-    ((DatabaseImpl)db).getPageChannel().startWrite();
-    try {
-      for(int i = 0; i < 1000; ++i) {
-        t.addRow(null, "this is the value of col1 " + i, i);
+      ((DatabaseImpl)db).getPageChannel().startWrite();
+      try {
+        for(int i = 0; i < 1000; ++i) {
+          t.addRow(null, "this is the value of col1 " + i, i);
+        }
+      } finally {
+        ((DatabaseImpl)db).getPageChannel().finishWrite();
       }
-    } finally {
-      ((DatabaseImpl)db).getPageChannel().finishWrite();
+
+      db.flush();
+
+      doCheckJetDb(db, 1000);
     }
-
-    db.flush();
-
-    doCheckJetDb(db, 1000);
-
-    db.close();
   }
 
   @Test
@@ -180,20 +164,16 @@ public class CryptCodecProviderTest
         assertEquals("Incorrect password provided", e.getMessage());
       }
 
-      Database db = open(fname, true, "Test123");
-
-      db.getSystemTable("MSysQueries");
-      doCheckOfficeDb(db, 0);
-
-      db.close();
+      try(Database db = open(fname, true, "Test123")) {
+        db.getSystemTable("MSysQueries");
+        doCheckOfficeDb(db, 0);
+      }
     }
 
-    Database db = open("src/test/data/db2013-enc.accdb", true, "1234");
-
-    db.getSystemTable("MSysQueries");
-    doCheckOffice2013Db(db, 0);
-
-    db.close();
+    try(Database db = open("src/test/data/db2013-enc.accdb", true, "1234")) {
+      db.getSystemTable("MSysQueries");
+      doCheckOffice2013Db(db, 0);
+    }
   }
 
   @Test
@@ -202,24 +182,22 @@ public class CryptCodecProviderTest
 
     for(String fname : Arrays.asList("src/test/data/db2007-oldenc.accdb",
                                      "src/test/data/db2007-enc.accdb")) {
-      Database db = openCopy(fname, "Test123");
+      try(Database db = openCopy(fname, "Test123")) {
+        Table t = db.getTable("Table1");
 
-      Table t = db.getTable("Table1");
-
-      ((DatabaseImpl)db).getPageChannel().startWrite();
-      try {
-        for(int i = 0; i < 1000; ++i) {
-          t.addRow(null, "this is the value of col1 " + i);
+        ((DatabaseImpl)db).getPageChannel().startWrite();
+        try {
+          for(int i = 0; i < 1000; ++i) {
+            t.addRow(null, "this is the value of col1 " + i);
+          }
+        } finally {
+          ((DatabaseImpl)db).getPageChannel().finishWrite();
         }
-      } finally {
-        ((DatabaseImpl)db).getPageChannel().finishWrite();
+
+        db.flush();
+
+        doCheckOfficeDb(db, 1000);
       }
-
-      db.flush();
-
-      doCheckOfficeDb(db, 1000);
-
-      db.close();
     }
   }
 
@@ -234,26 +212,28 @@ public class CryptCodecProviderTest
       }
     };
 
-    Database db = new DatabaseBuilder(new File("src/test/data/db-enc.mdb"))
+    try(Database db = new DatabaseBuilder(new File("src/test/data/db-enc.mdb"))
       .setReadOnly(true)
       .setCodecProvider(new CryptCodecProvider(pc))
-      .open();
+      .open()) {
 
-    Table t = db.getTable("Table1");
-    assertNotNull(t);
+      Table t = db.getTable("Table1");
+      assertNotNull(t);
 
-    assertEquals(0, _count.get());
+      assertEquals(0, _count.get());
+    }
 
-    db = new DatabaseBuilder(
+    try(Database db = new DatabaseBuilder(
         new File("src/test/data/db2007-enc.accdb"))
       .setReadOnly(true)
       .setCodecProvider(new CryptCodecProvider().setPasswordCallback(pc))
-      .open();
+      .open()) {
 
-    t = db.getTable("Table1");
-    assertNotNull(t);
+      Table t = db.getTable("Table1");
+      assertNotNull(t);
 
-    assertEquals(1, _count.get());
+      assertEquals(1, _count.get());
+    }
   }
 
   @Test
@@ -283,15 +263,13 @@ public class CryptCodecProviderTest
       assertEquals("Incorrect password provided", e.getMessage());
     }
 
-    Database db = open(fname, true, "password");
+    try(Database db = open(fname, true, "password")) {
+      db.getSystemTable("MSysQueries");
 
-    db.getSystemTable("MSysQueries");
+      Table t = db.getTable("Table_One");
 
-    Table t = db.getTable("Table_One");
-
-    assertNotNull(t.getColumn("ID"));
-
-    db.close();
+      assertNotNull(t.getColumn("ID"));
+    }
   }
 
   private static void doCheckJetDb(Database db, int addedRows) throws Exception
