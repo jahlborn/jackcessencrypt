@@ -155,16 +155,12 @@ public class MSISAMCryptCodecHandler extends BaseJetCryptCodecHandler
 
     // Hash the salt. Step 1.
     {
-      final byte[] fullHashData = ByteUtil.getBytes(
-          buffer, format.OFFSET_PASSWORD, format.SIZE_PASSWORD*2);
+      final byte[] fullHashData = readPasswordRegion(buffer, format);
 
-      // apply additional mask to header data
+      // msisam also unmasks a trailing portion of the region, which the
+      // password field itself does not cover
       byte[] pwdMask = DatabaseImpl.getPasswordMask(buffer, format);
       if(pwdMask != null) {
-
-        for(int i = 0; i < format.SIZE_PASSWORD; ++i) {
-          fullHashData[i] ^= pwdMask[i % pwdMask.length];
-        }
         int trailingOffset = fullHashData.length - TRAILING_PWD_LEN;
         for(int i = 0; i < TRAILING_PWD_LEN; ++i) {
           fullHashData[trailingOffset + i] ^= pwdMask[i % pwdMask.length];
