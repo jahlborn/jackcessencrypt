@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.healthmarketscience</groupId>
     <artifactId>openhms-parent</artifactId>
-    <version>2.0.11-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
   <groupId>com.healthmarketscience.jackcess</groupId>
   <artifactId>jackcess-encrypt</artifactId>
@@ -12,6 +12,13 @@
   <version>5.0.0-SNAPSHOT</version>
   <url>http://jackcessencrypt.sf.net</url>
   <inceptionYear>2010</inceptionYear>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <developers>
     <developer>
       <name>James Ahlborn</name>
@@ -159,7 +166,7 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.78</version>
+      <version>1.86</version>
     </dependency>
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
@@ -243,7 +250,7 @@
   <distributionManagement>
     <site>
       <id>jackcessencrypt-build-site</id>
-      <url>scp://shell.sourceforge.net/home/project-web/jackcessencrypt/htdocs</url>
+      <url>sftp://web.sourceforge.net/home/project-web/jackcessencrypt/htdocs</url>
     </site>
   </distributionManagement>
   <properties>

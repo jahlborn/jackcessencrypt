@@ -24,6 +24,8 @@ import java.util.Arrays;
 import com.healthmarketscience.jackcess.crypt.util.StreamCipherCompat;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.CodecHandler;
+import com.healthmarketscience.jackcess.impl.DatabaseImpl;
+import com.healthmarketscience.jackcess.impl.JetFormat;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.impl.TempBufferHolder;
 import org.bouncycastle.crypto.BufferedBlockCipher;
@@ -249,6 +251,28 @@ public abstract class BaseCryptCodecHandler implements CodecHandler
     ByteBuffer buffer = pageChannel.createPageBuffer();
     pageChannel.readPage(buffer, 0);
     return buffer;
+  }
+
+  /**
+   * Reads and returns the password region of the given header page: the
+   * password field itself followed by the same number of bytes again.  The
+   * additional mask generated from the database creation date is removed from
+   * the password field (only the field, not the bytes which follow it).
+   */
+  protected static byte[] readPasswordRegion(ByteBuffer buffer,
+                                             JetFormat format)
+  {
+    byte[] region = ByteUtil.getBytes(buffer, format.OFFSET_PASSWORD,
+                                      (format.SIZE_PASSWORD * 2));
+
+    byte[] pwdMask = DatabaseImpl.getPasswordMask(buffer, format);
+    if(pwdMask != null) {
+      for(int i = 0; i < format.SIZE_PASSWORD; ++i) {
+        region[i] ^= pwdMask[i % pwdMask.length];
+      }
+    }
+
+    return region;
   }
 
   /**

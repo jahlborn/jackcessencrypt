@@ -4,6 +4,18 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="4.0.4" date="2026-09-12">
+      <action dev="jahlborn" type="add">
+        Add PasswordUtil, which adds, changes and removes the database
+        password on a jet 4 database (mdb).  Setting the password requires
+        re-masking every SID in the database as well as writing the page 0
+        password field, and doing only the latter yields a database ms access
+        refuses to open.  Other file formats are rejected.
+      </action>
+      <action dev="jahlborn" type="update">
+        Bump bouncycastle dependency version.
+      </action>
+    </release>
     <release version="4.0.3" date="2025-04-01">
       <action dev="jahlborn" type="update">
         Bump bouncycastle dependency version.
