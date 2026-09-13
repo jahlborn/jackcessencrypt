@@ -4,6 +4,12 @@
     <author email="jahlborn@users.sf.net">James Ahlborn</author>
   </properties>
   <body>
+    <release version="5.0.0" date="TBD">
+      <action dev="jahlborn" type="update">
+        Update minimum java requirement to java 11.  Some code base cleanup
+        and modernization.
+      </action>
+    </release>
     <release version="4.0.4" date="2026-09-12">
       <action dev="jahlborn" type="add">
         Add PasswordUtil, which adds, changes and removes the database

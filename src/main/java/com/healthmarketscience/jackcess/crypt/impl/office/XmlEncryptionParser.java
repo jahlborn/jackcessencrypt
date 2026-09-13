@@ -19,6 +19,7 @@ package com.healthmarketscience.jackcess.crypt.impl.office;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -38,9 +39,7 @@ import com.healthmarketscience.jackcess.crypt.model.cert.CTCertificateKeyEncrypt
 import com.healthmarketscience.jackcess.crypt.model.cert.STCertificateKeyEncryptorUri;
 import com.healthmarketscience.jackcess.crypt.model.password.CTPasswordKeyEncryptor;
 import com.healthmarketscience.jackcess.crypt.model.password.STPasswordKeyEncryptorUri;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.healthmarketscience.jackcess.impl.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -54,7 +53,7 @@ import org.xml.sax.SAXException;
  */
 public class XmlEncryptionParser
 {
-  private static final Log LOG = LogFactory.getLog(XmlEncryptionParser.class);
+  private static final Logger LOG = System.getLogger(XmlEncryptionParser.class.getName());
 
   private static final String ENC_NS = "http://schemas.microsoft.com/office/2006/encryption";
   private static final String PWD_NS = "http://schemas.microsoft.com/office/2006/keyEncryptor/password";
@@ -219,7 +218,7 @@ public class XmlEncryptionParser
   }
 
   private static long getLongAttribute(Element el, String localName) {
-    String attrValue = StringUtils.trimToNull(el.getAttribute(localName));
+    String attrValue = StringUtil.trimToNull(el.getAttribute(localName));
     if(attrValue == null) {
       throw createException(localName, el);
     }
@@ -227,7 +226,7 @@ public class XmlEncryptionParser
   }
 
   private static String getStringAttribute(Element el, String localName) {
-    String attrValue = StringUtils.trimToNull(el.getAttribute(localName));
+    String attrValue = StringUtil.trimToNull(el.getAttribute(localName));
     if(attrValue == null) {
       throw createException(localName, el);
     }
@@ -235,7 +234,7 @@ public class XmlEncryptionParser
   }
 
   private static byte[] getBase64Attribute(Element el, String localName) {
-    String attrValue = StringUtils.trimToNull(el.getAttribute(localName));
+    String attrValue = StringUtil.trimToNull(el.getAttribute(localName));
     if(attrValue == null) {
       throw createException(localName, el);
     }
@@ -262,7 +261,7 @@ public class XmlEncryptionParser
     try {
       factory.setAttribute(propName, propValue);
     } catch(IllegalArgumentException ie) {
-      LOG.warn("Xml parser does not support property " + propName);
+      LOG.log(Logger.Level.WARNING, "Xml parser does not support property " + propName);
     }
   }
 

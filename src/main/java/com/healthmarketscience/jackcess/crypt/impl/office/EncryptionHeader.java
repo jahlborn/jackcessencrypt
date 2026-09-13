@@ -23,9 +23,8 @@ import java.util.Set;
 
 import com.healthmarketscience.jackcess.crypt.InvalidCryptoConfigurationException;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
-import com.healthmarketscience.jackcess.impl.CustomToStringStyle;
 import com.healthmarketscience.jackcess.impl.UnsupportedCodecException;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import com.healthmarketscience.jackcess.impl.ToStringBuilder;
 
 /**
  *
@@ -318,6 +317,6 @@ public class EncryptionHeader
   @Override
   public String toString()
   {
-    return ToStringBuilder.reflectionToString(this, CustomToStringStyle.VALUE_INSTANCE);
+    return ToStringBuilder.valueBuilder(this).reflectionToString();
   }
 }
