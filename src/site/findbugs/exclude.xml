@@ -2,7 +2,7 @@
 
   <!-- General stuff we don't care about -->
   <Match>
-    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,ICAST_QUESTIONABLE_UNSIGNED_RIGHT_SHIFT"/>
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,ICAST_QUESTIONABLE_UNSIGNED_RIGHT_SHIFT,CT_CONSTRUCTOR_THROW"/>
   </Match>
 
 </FindBugsFilter>

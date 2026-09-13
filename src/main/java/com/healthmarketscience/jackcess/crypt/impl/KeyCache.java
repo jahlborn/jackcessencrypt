@@ -27,7 +27,7 @@ public abstract class KeyCache<K>
 {
   private static final int MAX_KEY_CACHE_SIZE = 5;
 
-  private final KeyMap<K> _map = new KeyMap<K>();
+  private final KeyMap<K> _map = new KeyMap<>();
 
   protected KeyCache()
   {

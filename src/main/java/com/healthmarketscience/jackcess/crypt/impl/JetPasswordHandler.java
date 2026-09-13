@@ -59,8 +59,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 public class JetPasswordHandler
 {
   /** the SID columns which have to be re-masked, table name to column name */
-  private static final Map<String,String> SID_COLUMNS =
-    new LinkedHashMap<String,String>();
+  private static final Map<String,String> SID_COLUMNS = new LinkedHashMap<>();
   static {
     SID_COLUMNS.put("MSysACEs", "SID");
     SID_COLUMNS.put("MSysObjects", "Owner");
@@ -237,7 +236,7 @@ public class JetPasswordHandler
       String colName = column.getName();
 
       // read the rows before modifying any of them
-      List<Row> rows = new ArrayList<Row>();
+      List<Row> rows = new ArrayList<>();
       for(Row row : table) {
         rows.add(row);
       }

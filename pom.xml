@@ -89,6 +89,25 @@
             <showWarnings>true</showWarnings>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <configuration>
+            <rulesets>
+              <ruleset>${basedir}/src/site/pmd/custom-ruleset.xml</ruleset>
+            </rulesets>
+            <excludes>
+              <exclude>**/com/healthmarketscience/jackcess/crypt/model/**</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <configuration>
+            <excludeFilterFile>${basedir}/src/site/findbugs/exclude.xml</excludeFilterFile>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -145,9 +164,8 @@
           <doclint>all,-accessibility,-missing,-syntax,-html</doclint>
           <links>
             <list>https://docs.oracle.com/javase/11/docs/api</list>
-            <list>https://download.oracle.com/javaee/5/api</list>
             <list>https://jackcess.sourceforge.io/apidocs/</list>
-            <list>https://www.bouncycastle.org/docs/docs1.8on/</list>
+            <list>https://downloads.bouncycastle.org/java/docs/bcprov-jdk18on-javadoc/</list>
           </links>
           <source>11</source>
           <show>public</show>
@@ -161,7 +179,7 @@
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>5.0.0-SNAPSHOT</version>
+      <version>5.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -171,7 +189,7 @@
     <dependency>
       <groupId>com.healthmarketscience.jackcess</groupId>
       <artifactId>jackcess</artifactId>
-      <version>5.0.0-SNAPSHOT</version>
+      <version>5.0.0</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -193,14 +211,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <configuration>
-          <rulesets>
-            <ruleset>${basedir}/src/site/pmd/custom-ruleset.xml</ruleset>
-          </rulesets>
-          <excludes>
-            <exclude>**/com/healthmarketscience/jackcess/crypt/model/**</exclude>
-          </excludes>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-changes-plugin</artifactId>
@@ -219,21 +229,13 @@
           <doclint>all,-accessibility,-missing,-syntax,-html</doclint>
           <links>
             <list>https://docs.oracle.com/javase/11/docs/api</list>
-            <list>https://download.oracle.com/javaee/5/api</list>
             <list>https://jackcess.sourceforge.io/apidocs/</list>
-            <list>https://www.bouncycastle.org/docs/docs1.8on/</list>
+            <list>https://downloads.bouncycastle.org/java/docs/bcprov-jdk18on-javadoc/</list>
           </links>
           <source>11</source>
           <show>public</show>
           <stylesheetfile>${basedir}/src/site/javadoc/stylesheet.css</stylesheetfile>
           <quiet>true</quiet>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <configuration>
-          <excludeFilterFile>${basedir}/src/site/findbugs/exclude.xml</excludeFilterFile>
         </configuration>
       </plugin>
       <plugin>
@@ -244,6 +246,10 @@
             <exclude>com/healthmarketscience/jackcess/crypt/model/**/*.class</exclude>
           </excludes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </reporting>
