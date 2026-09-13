@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<document>
+  <properties>
+    <author email="jahlborn@users.sf.net">James Ahlborn</author>
+    <title>Upgrading from Jackcess Encrypt 4.x to 5.x</title>
+  </properties>
+  <body>
+
+    <section name="Jackcess Encrypt 5.0">
+      <subsection name="What up now?">
+        <p>
+          Jackcess Encrypt 5.x is largely binary compatible with the previous
+          4.x versions except for the change in the minium Java version to 11.
+          In general, code compiled against the 4.x series should work fine
+          with the 5.x series.
+        </p>
+        
+        <h4>Jackcess Compatibility</h4>
+        <ul>
+          <li>Jackcess 5.x -&gt; Jackcess Encrypt 5.y</li>
+        </ul>
+      </subsection>
+    </section>
+    
+  </body>
+</document>
