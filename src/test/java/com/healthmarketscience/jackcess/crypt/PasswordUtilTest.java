@@ -99,8 +99,7 @@ public class PasswordUtilTest
     byte[] origPage0 = readPage0(dbFile);
     List<String> origSids = readSids(dbFile);
 
-    Database db = new DatabaseBuilder(dbFile).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).open()) {
       PasswordUtil.setDatabasePassword(db, PWD);
       assertEquals(PWD, db.getDatabasePassword());
       assertFalse(origSids.equals(readSids(db)));
@@ -108,8 +107,6 @@ public class PasswordUtilTest
       PasswordUtil.removeDatabasePassword(db);
       assertNull(db.getDatabasePassword());
       assertEquals(origSids, readSids(db));
-    } finally {
-      db.close();
     }
 
     assertArrayEquals(pwdField(origPage0), pwdField(readPage0(dbFile)));
@@ -125,12 +122,9 @@ public class PasswordUtilTest
     byte[] origPage0 = readPage0(dbFile);
     List<String> origSids = readSids(dbFile);
 
-    Database db = new DatabaseBuilder(dbFile).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).open()) {
       PasswordUtil.removeDatabasePassword(db);
       assertNull(db.getDatabasePassword());
-    } finally {
-      db.close();
     }
 
     assertArrayEquals(origPage0, readPage0(dbFile));
@@ -149,12 +143,9 @@ public class PasswordUtilTest
     dbFile.deleteOnExit();
     assertTrue(dbFile.delete());
 
-    Database db = new DatabaseBuilder(dbFile)
-      .setFileFormat(Database.FileFormat.V2010).create();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile)
+        .setFileFormat(Database.FileFormat.V2010).create()) {
       doTestUnsupportedFormat(db);
-    } finally {
-      db.close();
     }
   }
 
@@ -168,12 +159,9 @@ public class PasswordUtilTest
   {
     File dbFile = copyToTemp("money2001.mny", ".mny");
 
-    Database db = new DatabaseBuilder(dbFile)
-      .setCodecProvider(new CryptCodecProvider()).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile)
+        .setCodecProvider(new CryptCodecProvider()).open()) {
       doTestUnsupportedFormat(db);
-    } finally {
-      db.close();
     }
   }
 
@@ -181,14 +169,11 @@ public class PasswordUtilTest
   public void testReadOnly() throws Exception
   {
     File dbFile = copyToTemp("pwd-none.mdb");
-    Database db = new DatabaseBuilder(dbFile).setReadOnly(true).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).setReadOnly(true).open()) {
       PasswordUtil.setDatabasePassword(db, PWD);
       fail("IllegalStateException should have been thrown");
     } catch(IllegalStateException e) {
       // success
-    } finally {
-      db.close();
     }
 
     assertNull(readPassword(dbFile));
@@ -198,8 +183,7 @@ public class PasswordUtilTest
   public void testInvalidPassword() throws Exception
   {
     File dbFile = copyToTemp("pwd-none.mdb");
-    Database db = new DatabaseBuilder(dbFile).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).open()) {
 
       for(String pwd : Arrays.asList(null, "")) {
         try {
@@ -222,8 +206,6 @@ public class PasswordUtilTest
 
       assertEquals(createString(20), db.getDatabasePassword());
 
-    } finally {
-      db.close();
     }
   }
 
@@ -239,16 +221,13 @@ public class PasswordUtilTest
     File dbFile = copyToTemp(srcName);
     byte[] srcPage0 = readPage0(dbFile);
 
-    Database db = new DatabaseBuilder(dbFile).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).open()) {
       if(password != null) {
         PasswordUtil.setDatabasePassword(db, password);
       } else {
         PasswordUtil.removeDatabasePassword(db);
       }
       assertEquals(password, db.getDatabasePassword());
-    } finally {
-      db.close();
     }
 
     File expectedFile = new File(DIR + expectedName);
@@ -303,8 +282,7 @@ public class PasswordUtilTest
   private static byte[] readPage0(File dbFile) throws IOException
   {
     byte[] page0 = new byte[PAGE_SIZE];
-    InputStream istream = Files.newInputStream(dbFile.toPath());
-    try {
+    try(InputStream istream = Files.newInputStream(dbFile.toPath())) {
       int pos = 0;
       while(pos < page0.length) {
         int read = istream.read(page0, pos, (page0.length - pos));
@@ -313,8 +291,6 @@ public class PasswordUtilTest
         }
         pos += read;
       }
-    } finally {
-      istream.close();
     }
     return page0;
   }
@@ -337,21 +313,15 @@ public class PasswordUtilTest
 
   private static String readPassword(File dbFile) throws Exception
   {
-    Database db = new DatabaseBuilder(dbFile).setReadOnly(true).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).setReadOnly(true).open()) {
       return db.getDatabasePassword();
-    } finally {
-      db.close();
     }
   }
 
   private static List<String> readSids(File dbFile) throws Exception
   {
-    Database db = new DatabaseBuilder(dbFile).setReadOnly(true).open();
-    try {
+    try(Database db = new DatabaseBuilder(dbFile).setReadOnly(true).open()) {
       return readSids(db);
-    } finally {
-      db.close();
     }
   }
 
